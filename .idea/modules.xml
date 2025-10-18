@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/android.iml" filepath="$PROJECT_DIR$/.idea/modules/android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/packages/data/melos_data.iml" filepath="$PROJECT_DIR$/packages/data/melos_data.iml" />
+      <module fileurl="file://$PROJECT_DIR$/packages/domain/melos_domain.iml" filepath="$PROJECT_DIR$/packages/domain/melos_domain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/packages/initializer/melos_initializer.iml" filepath="$PROJECT_DIR$/packages/initializer/melos_initializer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/packages/natives/melos_natives.iml" filepath="$PROJECT_DIR$/packages/natives/melos_natives.iml" />
+      <module fileurl="file://$PROJECT_DIR$/packages/resources/melos_resources.iml" filepath="$PROJECT_DIR$/packages/resources/melos_resources.iml" />
+      <module fileurl="file://$PROJECT_DIR$/packages/shared/melos_shared.iml" filepath="$PROJECT_DIR$/packages/shared/melos_shared.iml" />
+      <module fileurl="file://$PROJECT_DIR$/melos_strawberry.iml" filepath="$PROJECT_DIR$/melos_strawberry.iml" />
+      <module fileurl="file://$PROJECT_DIR$/packages/widgets/melos_widgets.iml" filepath="$PROJECT_DIR$/packages/widgets/melos_widgets.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/strawberry.android.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/strawberry.android.app.iml" />
+    </modules>
+  </component>
+</project>

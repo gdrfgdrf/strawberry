@@ -1,0 +1,51 @@
+{
+  "@@locale": "en",
+  "retry": "Retry",
+  "username_here": "Username",
+  "email_here": "Email",
+  "cellphone_here": "Cellphone",
+  "password_here": "Password",
+  "argument_error": "Argument error",
+  "login_preparation_error": "An error occurred when preparing the parameters required for login",
+  "cellphone_login_not_available": "Cellphone login is not available on your platform",
+  "use_cloudmusic_app_to_scan": "Scanning with the CloudMusic App",
+  "qr_code_authorizing": "Authorizing",
+  "qr_code_error": "Login error, Please check the CloudMusic App: {message}",
+  "@qr_code_error": {
+    "description": "qr code login error",
+    "placeholders": {
+      "message": {
+        "type": "String",
+        "example": "Error Message"
+      }
+    }
+  },
+  "get_user_detail_failed": "Obtain user information failed",
+  "login_failed": "Login failed: {reason}",
+  "@login_failed": {
+    "description": "login failed reason",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "Password Error"
+      }
+    }
+  },
+  "username": "{username}",
+  "@username": {
+    "description": "Username",
+    "placeholders": {
+      "username": {
+        "type": "String",
+        "example": "Apple"
+      }
+    }
+  },
+  "goto_profile_page": "Profile Page",
+  "fan_count": "Fans",
+  "follow_count": "Follows",
+  "event_count": "Events",
+  "play_count": "Play",
+  "create_time": "Create Time",
+  "update_time": "Update Time"
+}

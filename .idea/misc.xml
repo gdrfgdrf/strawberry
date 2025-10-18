@@ -1,0 +1,18 @@
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.flutter-io.cn/dynamic_color-1.7.0/android" />
+    <file type="web" url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/audio_service-0.18.18/android" />
+    <file type="web" url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/audio_session-0.2.2/android" />
+    <file type="web" url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/dynamic_color-1.7.0/android" />
+    <file type="web" url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/just_audio-0.10.4/android" />
+    <file type="web" url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/path_provider_android-2.2.17/android" />
+    <file type="web" url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/simple_native_image_compress-3.0.2/android" />
+    <file type="web" url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/sqflite_android-2.4.1/android" />
+    <file type="web" url="file://$PROJECT_DIR$/../../FlutterSdk/packages/flutter_tools/gradle" />
+    <file type="web" url="file://$PROJECT_DIR$/../FlutterSdk/packages/flutter_tools/gradle" />
+    <file type="web" url="file://$PROJECT_DIR$/apps/strawberry/android" />
+    <type id="android" />
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_24" project-jdk-name="Android API 29 Platform" project-jdk-type="Android SDK" />
+</project>

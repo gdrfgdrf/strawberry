@@ -1,0 +1,5 @@
+arb-dir: ../resources/lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: localizer.dart
+output-class: Localizer
+output-dir: lib/l10n

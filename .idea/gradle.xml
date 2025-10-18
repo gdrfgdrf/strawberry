@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <compositeConfiguration>
+          <compositeBuild compositeDefinitionSource="SCRIPT">
+            <builds>
+              <build path="$PROJECT_DIR$/../../FlutterSdk/packages/flutter_tools/gradle" name="gradle">
+                <projects>
+                  <project path="$PROJECT_DIR$/../../FlutterSdk/packages/flutter_tools/gradle" />
+                </projects>
+              </build>
+            </builds>
+          </compositeBuild>
+        </compositeConfiguration>
+        <option name="distributionType" value="LOCAL" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/apps/strawberry/android" />
+        <option name="gradleHome" value="H:\gradle" />
+        <option name="gradleJvm" value="17" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/../../FlutterSdk/packages/flutter_tools/gradle" />
+            <option value="$PROJECT_DIR$/apps/strawberry/android" />
+            <option value="$PROJECT_DIR$/apps/strawberry/android/app" />
+            <option value="$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/audio_service-0.18.18/android" />
+            <option value="$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/audio_session-0.2.2/android" />
+            <option value="$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/dynamic_color-1.7.0/android" />
+            <option value="$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/just_audio-0.10.4/android" />
+            <option value="$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/path_provider_android-2.2.17/android" />
+            <option value="$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/simple_native_image_compress-3.0.2/android" />
+            <option value="$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/sqflite_android-2.4.1/android" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>

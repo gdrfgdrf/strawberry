@@ -1,0 +1,20 @@
+name: strawberry
+publish_to: none
+environment:
+  sdk: ^3.6.0
+workspace:
+  - packages/data
+  - packages/domain
+  - packages/initializer
+  - packages/resources
+  - packages/shared
+  - packages/widgets
+  - packages/natives
+dev_dependencies:
+  melos: ^6.3.2
+  build_runner: ^2.4.15
+
+dependencies:
+  ffi: ^2.0.0
+  freezed_annotation: ^3.0.0
+  get_it: ^8.0.3

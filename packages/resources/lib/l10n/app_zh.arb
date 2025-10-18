@@ -1,0 +1,51 @@
+{
+  "@@locale": "zh",
+  "retry": "重试",
+  "username_here": "用户名",
+  "email_here": "邮箱",
+  "cellphone_here": "手机号",
+  "password_here": "密码",
+  "argument_error": "参数错误",
+  "login_preparation_error": "准备登录所需参数时发生错误",
+  "cellphone_login_not_available": "您的平台无法使用手机号登录",
+  "use_cloudmusic_app_to_scan": "请使用网易云 App 扫码登录",
+  "qr_code_authorizing": "授权中",
+  "qr_code_error": "登录异常，请前往网易云 App 查看: {message}",
+  "@qr_code_error": {
+    "description": "二维码登录异常",
+    "placeholders": {
+      "message": {
+        "type": "String",
+        "example": "异常信息"
+      }
+    }
+  },
+  "get_user_detail_failed": "获取用户信息失败",
+  "login_failed": "登录失败: {reason}",
+  "@login_failed": {
+    "description": "登录失败原因",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "密码错误"
+      }
+    }
+  },
+  "username": "{username}",
+  "@username": {
+    "description": "用户名",
+    "placeholders": {
+      "username": {
+        "type": "String",
+        "example": "Apple"
+      }
+    }
+  },
+  "goto_profile_page": "个人页面",
+  "fan_count": "粉丝数",
+  "follow_count": "关注数",
+  "event_count": "动态数",
+  "play_count": "播放量",
+  "create_time": "创建时间",
+  "update_time": "更新时间"
+}
