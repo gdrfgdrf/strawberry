@@ -11,10 +11,12 @@ import 'package:data/http/repository/image_repository_impl.dart';
 import 'package:data/http/repository/playlist/playlist_repository_impl.dart';
 import 'package:data/http/repository/qr_code_repository_impl.dart';
 import 'package:data/http/repository/song_repository_impl.dart';
+import 'package:data/http/repository/user_habit_repository_impl.dart';
 import 'package:data/http/url/api_url_provider.dart';
 import 'package:data/http/url/api_url_provider_impl.dart';
 import 'package:data/isolatepool/isolate_pool_manager.dart';
 import 'package:domain/entity/login_result.dart';
+import 'package:domain/entity/user_habit_entity.dart';
 import 'package:domain/hives.dart';
 import 'package:domain/repository/album_repository.dart';
 import 'package:domain/repository/auth_repository.dart';
@@ -25,6 +27,7 @@ import 'package:domain/repository/qr_code_repository.dart';
 import 'package:domain/repository/song_repository.dart';
 import 'package:domain/repository/user/user_avatar_repository.dart';
 import 'package:domain/repository/user/user_detail_repository.dart';
+import 'package:domain/repository/user_habit_repository.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:natives/wrap/strawberry_logger_wrapper.dart';
@@ -80,6 +83,7 @@ class DataModule {
 
     await Hive.openBox<SongCombination>(HiveBoxes.songCombination, path: path);
     await Hive.openBox<LoginResult>(HiveBoxes.loginResult, path: path);
+    await Hive.openBox<UserHabit>(HiveBoxes.userHabit, path: path);
   }
 
   static _configureCache(GetIt getIt) async {
@@ -155,6 +159,11 @@ class DataModule {
     logger.trace("configuring album repository");
     getIt.registerLazySingleton<AbstractAlbumRepository>(
       () => AlbumRepositoryImpl(),
+    );
+
+    logger.trace("configuring user habit repository");
+    getIt.registerLazySingleton<AbstractUserHabitRepository>(
+      () => UserHabitRepositoryImpl(),
     );
   }
 }

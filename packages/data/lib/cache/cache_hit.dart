@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:data/cache/cache_system.dart';
@@ -18,26 +19,35 @@ class CacheHit {
 class CacheHitBehaviour {
   final CacheChannel channel;
   Box<CacheHit>? cacheHits;
+  Future<void>? initializationFuture;
 
   CacheHitBehaviour(this.channel) {
+    final completer = Completer();
+    initializationFuture = completer.future;
+
     getApplicationDocumentsDirectory().then((directory) {
       final path = "${directory.path}${Platform.pathSeparator}strawberry_data";
       Hive.openBox<CacheHit>("${channel.boxName}-cache-hit", path: path).then((box) {
+        completer.complete();
         cacheHits = box;
       });
     });
   }
 
-  void createHit(String tag, String sentence) {
+  void createHit(String tag, String sentence) async {
+    await initializationFuture!;
     final cacheHit = CacheHit(sentence, DateTime.now().millisecondsSinceEpoch);
     cacheHits!.put(tag, cacheHit);
   }
 
-  void update(String tag, String sentence) {
+  void update(String tag, String sentence) async {
+    await initializationFuture!;
     createHit(tag, sentence);
   }
 
-  bool shouldUpdate(String tag, String sentence) {
+  Future<bool> shouldUpdate(String tag, String sentence) async {
+    await initializationFuture!;
+
     final cacheHit = cacheHits!.get(tag);
     if (cacheHit == null) {
       return true;

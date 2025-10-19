@@ -78,7 +78,7 @@ class DefaultCacheChannelManager extends CacheChannelManager {
   }
 
   @override
-  bool shouldUpdate(String tag, String sentence) {
+  Future<bool> shouldUpdate(String tag, String sentence) {
     return cacheHitBehaviour!.shouldUpdate(tag, sentence);
   }
 

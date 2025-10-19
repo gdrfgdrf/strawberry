@@ -1,7 +1,7 @@
 import 'package:domain/result/result.dart';
 import 'package:domain/usecase/user_usecase.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:strawberry/bloc/user/get_user_avatar_event_state.dart';
+import 'package:strawberry/bloc/user/user_habit_event_state.dart';
 
 import '../strawberry_bloc.dart';
 import 'get_user_detail_event_state.dart';
@@ -72,6 +72,26 @@ class UserBloc extends StrawberryBloc<UserEvent, UserState> {
       result.fold(
         (failure) => emit(UserFailure(failure)),
         (bytes) => emit(GetUserAvatarBatchAllFutureCreatedEvent()),
+      );
+    });
+
+    on<AttemptGetUserHabitEvent>((event, emit) async {
+      emit(UserLoading());
+
+      final result = await userUseCase.habit(event.key);
+      result.fold(
+        (failure) => emit(UserFailure(failure)),
+        (value) => emit(GetUserHabitSuccess(event.key, value)),
+      );
+    });
+
+    on<AttemptStoreUserHabitEvent>((event, emit) async {
+      emit(UserLoading());
+
+      final result = await userUseCase.storeHabit(event.key, event.value);
+      result.fold(
+        (failure) => emit(UserFailure(failure)),
+        (_) => emit(StoreUserHabitSuccess(event.key, event.value)),
       );
     });
   }

@@ -15,8 +15,8 @@ import 'package:shared/l10n/localizer.dart';
 import 'package:shared/platform_extension.dart';
 import 'package:shared/themes.dart';
 import 'package:strawberry/app_config.dart';
-import 'package:strawberry/play/audio_controller.dart';
 import 'package:strawberry/play/platform_specific_controller.dart';
+import 'package:strawberry/play/playlist_manager.dart';
 import 'package:strawberry/ui/router/main_router.dart';
 import 'package:widgets/widgets/dispose_detector.dart';
 import 'package:window_manager/window_manager.dart';
@@ -112,16 +112,15 @@ Future<void> main() async {
   JustAudioMediaKit.title = "Strawberry";
   JustAudioMediaKit.ensureInitialized();
 
-  await AudioService.init(
-    builder: () => GetIt.instance.get<BaseAudioHandler>(),
-    config: AudioServiceConfig(
-      androidNotificationChannelId:
-          "io.github.gdrfgdrf.strawberry.channel.audio",
-      androidNotificationChannelName: "Audio playback",
-    ),
-  );
+  // await AudioService.init(
+  //   builder: () => GetIt.instance.get<BaseAudioHandler>(),
+  //   config: AudioServiceConfig(
+  //     androidNotificationChannelId:
+  //         "io.github.gdrfgdrf.strawberry.channel.audio",
+  //     androidNotificationChannelName: "Audio playback",
+  //   ),
+  // );
 
-  GetIt.instance.get<AudioController>();
   PlatformSpecificController.auto()?.prepare();
 
   runApp(Strawberry());

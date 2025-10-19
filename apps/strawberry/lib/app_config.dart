@@ -10,6 +10,7 @@ import 'package:domain/repository/qr_code_repository.dart';
 import 'package:domain/repository/song_repository.dart';
 import 'package:domain/repository/user/user_avatar_repository.dart';
 import 'package:domain/repository/user/user_detail_repository.dart';
+import 'package:domain/repository/user_habit_repository.dart';
 import 'package:domain/usecase/album_usecase.dart';
 import 'package:domain/usecase/auth_usecase.dart';
 import 'package:domain/usecase/playlist_usecase.dart';
@@ -19,6 +20,7 @@ import 'package:domain/usecase/song_usecase.dart';
 import 'package:domain/usecase/user_usecase.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:natives/wrap/strawberry_logger_wrapper.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared/api/device.dart';
@@ -31,8 +33,6 @@ import 'package:strawberry/bloc/playlist/playlist_bloc.dart';
 import 'package:strawberry/bloc/qrcode/qr_code_bloc.dart';
 import 'package:strawberry/bloc/song/song_bloc.dart';
 import 'package:strawberry/bloc/user/user_bloc.dart';
-import 'package:strawberry/play/audio_controller.dart';
-import 'package:strawberry/play/default_audio_handler.dart';
 import 'package:strawberry/play/playlist_manager.dart';
 import 'package:strawberry/ui/router/home_router.dart';
 import 'package:strawberry/ui/router/main_router.dart';
@@ -153,18 +153,20 @@ class AppConfig {
     final logger = GetIt.instance.get<DartStrawberryLogger>();
     logger.info("configuring play components");
 
-    logger.trace("configuring play controller singleton");
-    getIt.registerLazySingleton<AudioController>(
-      () => AudioControllerImpl()..init(),
-    );
+    final audioPlayer = AudioPlayer();
+    GetIt.instance.registerSingleton<AudioPlayer>(audioPlayer);
+
+    audioPlayer.errorStream.listen((error) {
+      logger.error(
+        "play error, index: ${error.index}: ${error.message}",
+      );
+      audioPlayer.seekToNext().catchError((e) {
+        logger.error("seek next error: $e");
+      });
+    });
 
     logger.trace("configuring playlist manager singleton");
     getIt.registerLazySingleton<PlaylistManager>(() => PlaylistManagerImpl());
-
-    logger.trace("configuring audio handler singleton");
-    getIt.registerLazySingleton<BaseAudioHandler>(
-      () => DefaultAudioHandlerImpl(getIt<PlaylistManager>().getAudioPlayer()),
-    );
   }
 
   static void _configureNavigationGetIt(GetIt getIt) {
@@ -215,6 +217,7 @@ class AppConfig {
       () => UserUseCaseImpl(
         getIt<AbstractUserDetailRepository>(),
         getIt<AbstractUserAvatarRepository>(),
+        getIt<AbstractUserHabitRepository>()
       ),
     );
 

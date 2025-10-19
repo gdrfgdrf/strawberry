@@ -25,7 +25,7 @@ class ImageRepositoryImpl extends AbstractImageRepository {
       path = "$path?param=${width}x$height";
     }
 
-    final shouldUpdate = cacheManager.shouldUpdate(cacheTag, path);
+    final shouldUpdate = await cacheManager.shouldUpdate(cacheTag, path);
     if (shouldUpdate) {
       fromNetwork(url, channel, cacheTag, receiver, width, height);
       return;

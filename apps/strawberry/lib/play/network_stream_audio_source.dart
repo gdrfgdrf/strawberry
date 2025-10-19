@@ -231,7 +231,13 @@ class _InternalRequestFollower {
     void Function(SongPrivilegeEntity?)? onSongPrivilege,
     void Function(SongFileEntity?)? onSongFile,
   }) {
-    final callbacks = _FollowerResponseCallbacks(id, onCover, onSong, onSongPrivilege, onSongFile);
+    final callbacks = _FollowerResponseCallbacks(
+      id,
+      onCover,
+      onSong,
+      onSongPrivilege,
+      onSongFile,
+    );
     this.callbacks?[id] = callbacks;
   }
 
@@ -305,8 +311,7 @@ class NetworkStreamAudioSource extends StreamAudioSource {
   final AlbumBloc albumBloc;
   final int songId;
 
-  _InternalQuerySongRequest? _querySongRequest =
-      _InternalQuerySongRequest();
+  _InternalQuerySongRequest? _querySongRequest = _InternalQuerySongRequest();
   _InternalDownloadSongFileRequest? _downloadSongFileRequest =
       _InternalDownloadSongFileRequest();
   _InternalRequestFollower? _requestFollower = _InternalRequestFollower();
@@ -410,7 +415,8 @@ class NetworkStreamAudioSource extends StreamAudioSource {
       );
     }
 
-    final shouldSongRequest = _downloadSongFileRequest?.shouldRequest() ?? false;
+    final shouldSongRequest =
+        _downloadSongFileRequest?.shouldRequest() ?? false;
     if (shouldSongRequest == true) {
       _downloadSongFileRequest!.onceSubscribe(onSongFileDownloaded);
       songBloc.add(
@@ -464,7 +470,7 @@ class NetworkStreamAudioSource extends StreamAudioSource {
       },
       onError: (e, s) {
         resetSongRequest();
-      }
+      },
     );
   }
 

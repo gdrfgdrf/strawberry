@@ -8,6 +8,8 @@ import 'package:widgets/animation/animation_bean.dart';
 import 'package:widgets/animation/animation_combine.dart';
 import 'package:widgets/animation/smooth_fade_animation.dart';
 
+import '../playlist_manager.dart';
+
 abstract class SongBarController {
   void show(BuildContext context, {double coefficient = 1});
 
@@ -33,6 +35,8 @@ abstract class _CommonSongBarController extends SongBarController {
 
   @override
   void show(BuildContext context, {double coefficient = 1}) {
+    GetIt.instance.get<PlaylistManager>();
+
     if (overlayEntry != null) {
       overlayEntry?.remove();
       overlayEntry = null;

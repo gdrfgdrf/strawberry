@@ -21,9 +21,11 @@ class HiveTypes {
   static const int provinceId = 18;
   static const int cityId = 19;
   static const int cacheInfoId = 20;
+  static const int userHabitId = 21;
 }
 
 class HiveBoxes {
   static const String songCombination = "song-combination";
   static const String loginResult = "login-result";
+  static const String userHabit = "user-habit";
 }

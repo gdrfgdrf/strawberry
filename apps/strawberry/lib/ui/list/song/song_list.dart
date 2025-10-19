@@ -10,6 +10,7 @@ import 'package:flutter_constraintlayout/flutter_constraintlayout.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:natives/ffi/atomic.dart';
+import 'package:shared/files.dart';
 import 'package:shared/string_extension.dart';
 import 'package:shared/themes.dart';
 import 'package:smooth_corner/smooth_corner.dart';
@@ -17,6 +18,8 @@ import 'package:strawberry/bloc/album/album_bloc.dart';
 import 'package:strawberry/bloc/album/get_album_cover_event_state.dart';
 import 'package:strawberry/bloc/song/query_song_event_state.dart';
 import 'package:strawberry/bloc/song/song_bloc.dart';
+import 'package:strawberry/bloc/user/user_bloc.dart';
+import 'package:strawberry/bloc/user/user_habit_event_state.dart';
 import 'package:strawberry/play/playlist_manager.dart';
 import 'package:strawberry/ui/abstract_page.dart';
 import 'package:strawberry/ui/list/cover_request.dart';
@@ -68,6 +71,7 @@ class _SongListState extends AbstractUiWidgetState<SongList, EmptyDelegate> {
 
   AlbumBloc? albumBloc = GetIt.instance.get();
   SongBloc? songBloc = GetIt.instance.get();
+  UserBloc? userBloc = GetIt.instance.get();
 
   AtomicBoolImpl? songQueryFinished = AtomicApi.createBool(initial: false);
   AtomicCounter? queriedSongCount = AtomicApi.createCounter(initial: 0);
@@ -75,8 +79,7 @@ class _SongListState extends AbstractUiWidgetState<SongList, EmptyDelegate> {
   List<_InternalSongWrapper>? songs = [];
   List<CoverRequest>? coverRequests = [];
   List<_InternalSongWrapper>? searches = [];
-
-  String? playlistUuid;
+  String? sha256;
 
   bool? firstScrollUpdate = false;
 
@@ -94,15 +97,49 @@ class _SongListState extends AbstractUiWidgetState<SongList, EmptyDelegate> {
     ];
   }
 
+  String? buildSongIds() {
+    final buffer = StringBuffer();
+    for (final songWrapper in songs!) {
+      final song = songWrapper.song;
+      final id = song.id;
+      buffer.write("$id,");
+    }
+    final result = buffer.toString();
+    final substring = result.substring(0, result.length - 1);
+    return substring;
+  }
+
+  Future<String?> calculateSha256() async {
+    if (sha256 != null) {
+      return sha256;
+    }
+    if (songs == null || songs?.isEmpty == true) {
+      return null;
+    }
+
+    final songIds = buildSongIds();
+    if (songIds == null) {
+      return null;
+    }
+
+    final calculated = await Files.sha256(songIds.codeUnits);
+    sha256 = calculated;
+    return calculated;
+  }
+
   void play(int index) async {
-    if (songs == null) {
+    if (songs == null || songs?.isEmpty == true) {
       return;
     }
 
     final playlistManager = GetIt.instance.get<PlaylistManager>();
-    final currentPlaylistUuid = playlistManager.getCurrentPlaylistUuid();
+    final currentId = playlistManager.getCurrentSha256();
+    final sha256 = await calculateSha256();
+    if (sha256 == null) {
+      return;
+    }
 
-    if (currentPlaylistUuid != null && currentPlaylistUuid == playlistUuid) {
+    if (currentId != null && currentId == sha256) {
       playlistManager.playAt(index);
       return;
     }
@@ -111,13 +148,17 @@ class _SongListState extends AbstractUiWidgetState<SongList, EmptyDelegate> {
         songs!.map((wrapper) {
           return PlaylistUnit(wrapper.song.id, null);
         }).toList();
-    playlistUuid = await playlistManager.replace(units);
-
+    await playlistManager.replace(sha256, units);
     await playlistManager.playAt(index);
+
+    userBloc?.add(AttemptStoreUserHabitEvent("song-list-sha256", sha256));
+    userBloc?.add(AttemptStoreUserHabitEvent("song-list-ids", buildSongIds()));
   }
 
   void checkQueriedSongCount() {
-    if (queriedSongCount == null || songQueryFinished == null || songQueryFinished?.get_() == true) {
+    if (queriedSongCount == null ||
+        songQueryFinished == null ||
+        songQueryFinished?.get_() == true) {
       return;
     }
 
@@ -254,7 +295,10 @@ class _SongListState extends AbstractUiWidgetState<SongList, EmptyDelegate> {
   }
 
   void request(int index) {
-    if (songs?.isEmpty == true || songs == null || searches == null || coverRequests == null) {
+    if (songs?.isEmpty == true ||
+        songs == null ||
+        searches == null ||
+        coverRequests == null) {
       return;
     }
 
@@ -270,7 +314,7 @@ class _SongListState extends AbstractUiWidgetState<SongList, EmptyDelegate> {
           coverRequest.url,
           coverRequest.coverReceiver,
           width: 128,
-          height: 128
+          height: 128,
         ),
       );
     }
@@ -343,9 +387,9 @@ class _SongListState extends AbstractUiWidgetState<SongList, EmptyDelegate> {
   Widget buildList() {
     return SliverList(
       delegate: SliverChildBuilderDelegate(childCount: searches?.length ?? 0, (
-          context,
-          index,
-          ) {
+        context,
+        index,
+      ) {
         return SliverMultiBoxScrollListenerDebounce(
           debounce: Duration(milliseconds: 500),
           onScrollEnd: (percent) {
@@ -413,6 +457,8 @@ class _SongListState extends AbstractUiWidgetState<SongList, EmptyDelegate> {
     albumBloc = null;
     songBloc?.close();
     songBloc = null;
+    userBloc?.close();
+    userBloc = null;
     songs?.clear();
     songs = null;
     for (final request in coverRequests ?? []) {
