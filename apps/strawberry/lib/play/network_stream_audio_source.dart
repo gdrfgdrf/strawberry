@@ -137,11 +137,11 @@ class _InternalQuerySongRequest extends _InternalRequest<SongQueryEntity> {
 }
 
 class _InternalDownloadSongFileRequest
-    extends _InternalRequest<Stream<TransferableTypedData>> {
+    extends _InternalRequest<Stream<List<int>>> {
   SongFileEntity? songFile;
 
   void downloadPlayerSongFileReceiver(
-    Either<Failure, Pair<SongFileEntity, Stream<TransferableTypedData>>> data,
+    Either<Failure, Pair<SongFileEntity, Stream<List<int>>>> data,
   ) {
     data.fold(
       (failure) {
@@ -444,7 +444,7 @@ class NetworkStreamAudioSource extends StreamAudioSource {
     coverRequest!.coverReceiver(data);
   }
 
-  void onSongFileDownloaded(Stream<TransferableTypedData>? stream) {
+  void onSongFileDownloaded(Stream<List<int>>? stream) {
     if (stream == null) {
       resetSongRequest();
       return;
@@ -459,9 +459,8 @@ class NetworkStreamAudioSource extends StreamAudioSource {
           resetSongRequest();
           return;
         }
-        final materialized = data.materialize().asUint8List();
-        tempBytes.addAll(materialized);
-        onceOutput?.add(materialized);
+        tempBytes.addAll(data);
+        onceOutput?.add(data);
       },
       onDone: () {
         bytes = tempBytes;

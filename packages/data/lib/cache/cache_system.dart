@@ -10,7 +10,7 @@ enum CacheChannel {
   avatars("avatars"),
   playlistCovers("playlist-covers"),
   albumCovers("album-covers"),
-  songs("songs")
+  songs("songs"),
 
   ;
 

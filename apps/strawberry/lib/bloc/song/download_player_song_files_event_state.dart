@@ -11,7 +11,7 @@ class AttemptDownloadPlayerSongFilesEvent extends SongEvent {
   final List<int> ids;
   final SongQualityLevel level;
   final void Function(
-    Either<Failure, Pair<SongFileEntity, Stream<TransferableTypedData>>>,
+    Either<Failure, Pair<SongFileEntity, Stream<List<int>>>>,
   )
   receiver;
   final List<String> effects;

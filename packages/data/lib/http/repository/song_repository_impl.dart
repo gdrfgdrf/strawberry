@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'dart:convert';
-import 'dart:isolate';
 
 import 'package:dartz/dartz.dart';
 import 'package:data/http/url/api_url_provider.dart';
@@ -16,6 +16,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:pair/pair.dart';
 
+import '../../cache/cache_system.dart';
 import '../../center/song_combination.dart';
 import 'exception/api_service_exception.dart';
 
@@ -108,14 +109,31 @@ class SongRepositoryImpl extends AbstractSongRepository {
     }
   }
 
-  void queryPlayerFilesFromNetwork(
+  void queryPlayerFiles(
     List<int> ids,
     SongQualityLevel level,
     void Function(Either<Failure, SongFileEntity>) receiver, {
     List<String> effects = const [],
     String? encodeType,
-        bool cache = true,
+    bool cache = true,
   }) {
+    final actualIds = <int>[];
+
+    if (cache) {
+      final box = Hive.box<SongFileEntity>(HiveBoxes.songFile);
+
+      for (final id in ids) {
+        final songFile = box.get(id);
+        if (songFile == null) {
+          actualIds.add(id);
+          continue;
+        }
+        receiver(Right(songFile));
+      }
+    } else {
+      actualIds.addAll(ids);
+    }
+
     final endpoint = GetIt.instance.get<UrlProvider>().songPlayerFiles(
       ids,
       level,
@@ -137,11 +155,13 @@ class SongRepositoryImpl extends AbstractSongRepository {
             return;
           }
 
+          final box = Hive.box<SongFileEntity>(HiveBoxes.songFile);
           final inner = parsedResponse["data"];
           for (final songFileJson in inner ?? []) {
             final songFile = SongFileEntity.parseJson(
               jsonEncode(songFileJson ?? {}),
             );
+            box.put(songFile.id, songFile);
             receiver(Right(songFile));
           }
         })
@@ -149,50 +169,6 @@ class SongRepositoryImpl extends AbstractSongRepository {
           receiver(Left(Failure(e, s)));
         })
         .run();
-  }
-
-  void downloadPlayerSongsFromNetwork(
-    List<int> ids,
-    SongQualityLevel level,
-    void Function(
-      Either<Failure, Pair<SongFileEntity, Stream<TransferableTypedData>>>,
-    )
-    receiver, {
-    List<String> effects = const [],
-    String? encodeType,
-        bool cache = true,
-  }) {
-    queryPlayerFilesFromNetwork(
-      ids,
-      level,
-      cache: cache,
-      (data) {
-        data.fold((failure) {
-          receiver(Left(failure));
-        }, (songFile) {
-          if (songFile.url == null) {
-            receiver(
-              Left(Failure(Exception("url is null"), StackTrace.current)),
-            );
-            return;
-          }
-
-          final parsedUrl = Uri.parse(songFile.url!);
-
-          final endpoint = Endpoint(
-            path: songFile.url!.substring(parsedUrl.origin.length),
-            method: HttpMethod.get,
-            baseUrl: parsedUrl.origin.replaceAll("http", "https"),
-          );
-
-          sendStreamNetwork(endpoint, (stream) {
-            receiver(Right(Pair(songFile, stream)));
-          });
-        });
-      },
-      effects: effects,
-      encodeType: encodeType,
-    );
   }
 
   @override
@@ -212,21 +188,89 @@ class SongRepositoryImpl extends AbstractSongRepository {
   void downloadPlayerFiles(
     List<int> ids,
     SongQualityLevel level,
-    void Function(
-      Either<Failure, Pair<SongFileEntity, Stream<TransferableTypedData>>>,
-    )
+    void Function(Either<Failure, Pair<SongFileEntity, Stream<List<int>>>>)
     receiver, {
     List<String> effects = const [],
     String? encodeType,
-        bool cache = true,
+    bool cache = true,
   }) {
-    downloadPlayerSongsFromNetwork(
+    queryPlayerFiles(
       ids,
       level,
-      receiver,
+      cache: cache,
+      (data) {
+        data.fold(
+          (failure) {
+            receiver(Left(failure));
+          },
+          (songFile) async {
+            final id = songFile.id.toString();
+
+            if (cache) {
+              final cacheSystem = await GetIt.instance.getAsync<CacheSystem>();
+              final cacheManager = cacheSystem.manager(CacheChannel.songs);
+
+              final shouldUpdate = await cacheManager.shouldUpdate(
+                id,
+                songFile.md5,
+              );
+              print("shouldUpdate: $shouldUpdate | ${songFile.md5}");
+              if (!shouldUpdate) {
+                final bytes = await cacheManager.fetch(id);
+                receiver(Right(Pair(songFile, Stream.value(bytes))));
+                return;
+              }
+            }
+
+            if (songFile.url == null) {
+              receiver(
+                Left(Failure(Exception("url is null"), StackTrace.current)),
+              );
+              return;
+            }
+
+            final parsedUrl = Uri.parse(songFile.url!);
+
+            final endpoint = Endpoint(
+              path: songFile.url!.substring(parsedUrl.origin.length),
+              method: HttpMethod.get,
+              baseUrl: parsedUrl.origin.replaceAll("http", "https"),
+            );
+
+            sendStreamNetwork(endpoint, (stream) {
+              final bytes = <int>[];
+
+              final streamController = StreamController<List<int>>();
+              StreamSubscription? subscription;
+              subscription = stream.listen(
+                (data) {
+                  final received = data.materialize().asUint8List();
+                  bytes.addAll(received);
+                  streamController.add(received);
+                },
+                onDone: () async {
+                  subscription?.cancel();
+                  streamController.close();
+                  if (bytes.isEmpty) {
+                    return;
+                  }
+                  final cacheSystem =
+                      await GetIt.instance.getAsync<CacheSystem>();
+                  final cacheManager = cacheSystem.manager(CacheChannel.songs);
+                  cacheManager.cache(id, songFile.md5, bytes);
+                },
+                onError: (e, s) {
+                  streamController.addError(e, s);
+                },
+              );
+
+              receiver(Right(Pair(songFile, streamController.stream)));
+            });
+          },
+        );
+      },
       effects: effects,
       encodeType: encodeType,
-      cache: cache
     );
   }
 }

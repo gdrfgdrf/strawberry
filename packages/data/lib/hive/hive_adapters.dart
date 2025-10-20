@@ -8,6 +8,7 @@ import 'package:domain/entity/login_result.dart';
 import 'package:domain/entity/mark_entity.dart';
 import 'package:domain/entity/region_parser.dart';
 import 'package:domain/entity/song_entity.dart';
+import 'package:domain/entity/song_file_entity.dart';
 import 'package:domain/entity/song_privilege_entity.dart';
 import 'package:domain/entity/song_quality_entity.dart';
 import 'package:domain/entity/user_habit_entity.dart';
@@ -39,7 +40,10 @@ part 'hive_adapters.g.dart';
   AdapterSpec<Province>(),
   AdapterSpec<City>(),
   AdapterSpec<CacheInfo>(),
-  AdapterSpec<UserHabit>()
+  AdapterSpec<UserHabit>(),
+  AdapterSpec<SongFileEntity>(),
+  AdapterSpec<SongFlag>(),
+  AdapterSpec<FreeTrialInfo>()
 ])
 class HiveAdapters {
   

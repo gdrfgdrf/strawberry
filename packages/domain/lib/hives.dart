@@ -22,10 +22,14 @@ class HiveTypes {
   static const int cityId = 19;
   static const int cacheInfoId = 20;
   static const int userHabitId = 21;
+  static const int songFileId = 22;
+  static const int freeTrialInfoId = 23;
+  static const int songFlagId = 24;
 }
 
 class HiveBoxes {
   static const String songCombination = "song-combination";
   static const String loginResult = "login-result";
   static const String userHabit = "user-habit";
+  static const String songFile = "song-file";
 }

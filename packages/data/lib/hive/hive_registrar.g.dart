@@ -17,6 +17,7 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(CacheInfoAdapter());
     registerAdapter(CityAdapter());
     registerAdapter(CloudMusicInfoAdapter());
+    registerAdapter(FreeTrialInfoAdapter());
     registerAdapter(GenderAdapter());
     registerAdapter(LoginResultAdapter());
     registerAdapter(MarkTypeAdapter());
@@ -24,6 +25,8 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(ProvinceAdapter());
     registerAdapter(SongCombinationAdapter());
     registerAdapter(SongEntityAdapter());
+    registerAdapter(SongFileEntityAdapter());
+    registerAdapter(SongFlagAdapter());
     registerAdapter(SongMatchTypeAdapter());
     registerAdapter(SongOriginBasicDataAdapter());
     registerAdapter(SongPrivilegeEntityAdapter());
@@ -44,6 +47,7 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(CacheInfoAdapter());
     registerAdapter(CityAdapter());
     registerAdapter(CloudMusicInfoAdapter());
+    registerAdapter(FreeTrialInfoAdapter());
     registerAdapter(GenderAdapter());
     registerAdapter(LoginResultAdapter());
     registerAdapter(MarkTypeAdapter());
@@ -51,6 +55,8 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(ProvinceAdapter());
     registerAdapter(SongCombinationAdapter());
     registerAdapter(SongEntityAdapter());
+    registerAdapter(SongFileEntityAdapter());
+    registerAdapter(SongFlagAdapter());
     registerAdapter(SongMatchTypeAdapter());
     registerAdapter(SongOriginBasicDataAdapter());
     registerAdapter(SongPrivilegeEntityAdapter());

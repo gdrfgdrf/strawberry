@@ -20,7 +20,7 @@ abstract class SongUseCase {
     List<int> ids,
     SongQualityLevel level,
     void Function(
-      Either<Failure, Pair<SongFileEntity, Stream<TransferableTypedData>>>,
+      Either<Failure, Pair<SongFileEntity, Stream<List<int>>>>,
     )
     receiver, {
     List<String> effects = const [],
@@ -55,9 +55,7 @@ class SongUseCaseImpl extends StrawberryUseCase implements SongUseCase {
   void downloadPlayerFiles(
     List<int> ids,
     SongQualityLevel level,
-    void Function(
-      Either<Failure, Pair<SongFileEntity, Stream<TransferableTypedData>>>,
-    )
+    void Function(Either<Failure, Pair<SongFileEntity, Stream<List<int>>>>)
     receiver, {
     List<String> effects = const [],
     String? encodeType,

@@ -19,7 +19,7 @@ abstract class AbstractSongRepository {
     List<int> ids,
     SongQualityLevel level,
     void Function(
-      Either<Failure, Pair<SongFileEntity, Stream<TransferableTypedData>>>,
+      Either<Failure, Pair<SongFileEntity, Stream<List<int>>>>,
     )
     receiver, {
     List<String> effects = const [],

@@ -1094,3 +1094,193 @@ class UserHabitAdapter extends TypeAdapter<UserHabit> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
+
+class SongFileEntityAdapter extends TypeAdapter<SongFileEntity> {
+  @override
+  final typeId = 22;
+
+  @override
+  SongFileEntity read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return SongFileEntity(
+      (fields[0] as num).toInt(),
+      fields[1] as String?,
+      fields[2] as String,
+      fields[3] as String,
+      (fields[4] as num).toInt(),
+      fields[5] as SongQualityLevel,
+      (fields[6] as List).cast<SongFlag>(),
+      (fields[7] as num).toInt(),
+      (fields[8] as num).toInt(),
+      (fields[9] as num).toDouble(),
+      (fields[10] as num).toDouble(),
+      (fields[11] as num).toDouble(),
+      (fields[12] as num).toDouble(),
+      fields[13] as String,
+      fields[14] as Duration,
+      fields[15] as FreeTrialInfo?,
+      fields[16] as SongPurchaseType,
+      (fields[17] as num).toInt(),
+      fields[18] as Duration,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, SongFileEntity obj) {
+    writer
+      ..writeByte(19)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.url)
+      ..writeByte(2)
+      ..write(obj.type)
+      ..writeByte(3)
+      ..write(obj.encodeType)
+      ..writeByte(4)
+      ..write(obj.size)
+      ..writeByte(5)
+      ..write(obj.level)
+      ..writeByte(6)
+      ..write(obj.flags)
+      ..writeByte(7)
+      ..write(obj.rawFlag)
+      ..writeByte(8)
+      ..write(obj.bitrate)
+      ..writeByte(9)
+      ..write(obj.volumeDelta)
+      ..writeByte(10)
+      ..write(obj.peak)
+      ..writeByte(11)
+      ..write(obj.closedVolumeDelta)
+      ..writeByte(12)
+      ..write(obj.closedPeak)
+      ..writeByte(13)
+      ..write(obj.md5)
+      ..writeByte(14)
+      ..write(obj.expireAfter)
+      ..writeByte(15)
+      ..write(obj.freeTrialInfo)
+      ..writeByte(16)
+      ..write(obj.purchase)
+      ..writeByte(17)
+      ..write(obj.purchased)
+      ..writeByte(18)
+      ..write(obj.duration);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SongFileEntityAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class SongFlagAdapter extends TypeAdapter<SongFlag> {
+  @override
+  final typeId = 23;
+
+  @override
+  SongFlag read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return SongFlag.noCopyright;
+      case 1:
+        return SongFlag.copyrighted;
+      case 2:
+        return SongFlag.freeTrial;
+      case 3:
+        return SongFlag.exclusive;
+      case 4:
+        return SongFlag.vipSong;
+      case 5:
+        return SongFlag.albumPurchase;
+      case 6:
+        return SongFlag.official;
+      case 7:
+        return SongFlag.nonOfficial;
+      case 8:
+        return SongFlag.highQuality;
+      default:
+        return SongFlag.noCopyright;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, SongFlag obj) {
+    switch (obj) {
+      case SongFlag.noCopyright:
+        writer.writeByte(0);
+      case SongFlag.copyrighted:
+        writer.writeByte(1);
+      case SongFlag.freeTrial:
+        writer.writeByte(2);
+      case SongFlag.exclusive:
+        writer.writeByte(3);
+      case SongFlag.vipSong:
+        writer.writeByte(4);
+      case SongFlag.albumPurchase:
+        writer.writeByte(5);
+      case SongFlag.official:
+        writer.writeByte(6);
+      case SongFlag.nonOfficial:
+        writer.writeByte(7);
+      case SongFlag.highQuality:
+        writer.writeByte(8);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SongFlagAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class FreeTrialInfoAdapter extends TypeAdapter<FreeTrialInfo> {
+  @override
+  final typeId = 24;
+
+  @override
+  FreeTrialInfo read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return FreeTrialInfo(
+      (fields[0] as num).toInt(),
+      (fields[1] as num).toInt(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, FreeTrialInfo obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.start)
+      ..writeByte(1)
+      ..write(obj.end);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FreeTrialInfoAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
