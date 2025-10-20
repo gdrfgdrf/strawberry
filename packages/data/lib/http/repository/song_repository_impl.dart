@@ -214,7 +214,6 @@ class SongRepositoryImpl extends AbstractSongRepository {
                 id,
                 songFile.md5,
               );
-              print("shouldUpdate: $shouldUpdate | ${songFile.md5}");
               if (!shouldUpdate) {
                 final bytes = await cacheManager.fetch(id);
                 receiver(Right(Pair(songFile, Stream.value(bytes))));

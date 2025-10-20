@@ -17,6 +17,7 @@ import 'package:strawberry/bloc/playlist/playlist_bloc.dart';
 import 'package:strawberry/bloc/playlist/query_playlist_event_state.dart';
 import 'package:strawberry/ui/abstract_page.dart';
 import 'package:strawberry/ui/list/song/song_list.dart';
+import 'package:strawberry/ui/slivertracker/scroll_view_listener.dart';
 import 'package:widgets/widgets/an_error_widget.dart';
 import 'package:widgets/widgets/copyable_text.dart';
 import 'package:widgets/widgets/loading_widget.dart';
@@ -221,45 +222,47 @@ class _PlaylistDesktopPageState
 
   @override
   Widget buildContent(BuildContext context) {
-    return CustomScrollView(
-      physics: BouncingScrollPhysics(),
-      slivers: [
-        buildTop(),
-        buildSearchBar(),
+    return ScrollViewListener(
+      child: CustomScrollView(
+        physics: BouncingScrollPhysics(),
+        slivers: [
+          buildTop(),
+          buildSearchBar(),
 
-        SliverPadding(
-          padding: EdgeInsets.only(top: 12, bottom: 64.w),
-          sliver: ValueListenableBuilder(
-            valueListenable: idsNotifier,
-            builder: (context, data, _) {
-              if (data == null) {
-                return SliverToBoxAdapter(child: LoadingWidget());
-              }
+          SliverPadding(
+            padding: EdgeInsets.only(top: 12, bottom: 64.w),
+            sliver: ValueListenableBuilder(
+              valueListenable: idsNotifier,
+              builder: (context, data, _) {
+                if (data == null) {
+                  return SliverToBoxAdapter(child: LoadingWidget());
+                }
 
-              return data.fold(
-                    (failure) {
-                  return SliverToBoxAdapter(child: AnErrorWidget());
-                },
-                    (songIds) {
-                  final ids = <int>[];
-                  final addTimes = <int, int>{};
+                return data.fold(
+                  (failure) {
+                    return SliverToBoxAdapter(child: AnErrorWidget());
+                  },
+                  (songIds) {
+                    final ids = <int>[];
+                    final addTimes = <int, int>{};
 
-                  for (final songId in songIds) {
-                    ids.add(songId.id);
-                    addTimes[songId.id] = songId.addTime;
-                  }
+                    for (final songId in songIds) {
+                      ids.add(songId.id);
+                      addTimes[songId.id] = songId.addTime;
+                    }
 
-                  return SongList(
-                    ids: ids,
-                    addTimes: addTimes,
-                    searchController: searchController,
-                  );
-                },
-              );
-            },
+                    return SongList(
+                      ids: ids,
+                      addTimes: addTimes,
+                      searchController: searchController,
+                    );
+                  },
+                );
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
