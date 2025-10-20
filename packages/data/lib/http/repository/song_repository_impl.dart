@@ -209,23 +209,6 @@ class SongRepositoryImpl extends AbstractSongRepository {
   }
 
   @override
-  void queryPlayerFiles(
-    List<int> ids,
-    SongQualityLevel level,
-    void Function(Either<Failure, SongFileEntity> p1) receiver, {
-    List<String> effects = const [],
-    String? encodeType,
-  }) {
-    queryPlayerFilesFromNetwork(
-      ids,
-      level,
-      receiver,
-      effects: effects,
-      encodeType: encodeType,
-    );
-  }
-
-  @override
   void downloadPlayerFiles(
     List<int> ids,
     SongQualityLevel level,

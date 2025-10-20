@@ -15,14 +15,6 @@ abstract class AbstractSongRepository {
     bool cache = true,
   });
 
-  void queryPlayerFiles(
-    List<int> ids,
-    SongQualityLevel level,
-    void Function(Either<Failure, SongFileEntity>) receiver, {
-    List<String> effects = const [],
-    String? encodeType,
-  });
-
   void downloadPlayerFiles(
     List<int> ids,
     SongQualityLevel level,
