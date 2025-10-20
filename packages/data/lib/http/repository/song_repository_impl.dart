@@ -114,6 +114,7 @@ class SongRepositoryImpl extends AbstractSongRepository {
     void Function(Either<Failure, SongFileEntity>) receiver, {
     List<String> effects = const [],
     String? encodeType,
+        bool cache = true,
   }) {
     final endpoint = GetIt.instance.get<UrlProvider>().songPlayerFiles(
       ids,
@@ -159,10 +160,12 @@ class SongRepositoryImpl extends AbstractSongRepository {
     receiver, {
     List<String> effects = const [],
     String? encodeType,
+        bool cache = true,
   }) {
     queryPlayerFilesFromNetwork(
       ids,
       level,
+      cache: cache,
       (data) {
         data.fold((failure) {
           receiver(Left(failure));
@@ -232,6 +235,7 @@ class SongRepositoryImpl extends AbstractSongRepository {
     receiver, {
     List<String> effects = const [],
     String? encodeType,
+        bool cache = true,
   }) {
     downloadPlayerSongsFromNetwork(
       ids,
@@ -239,6 +243,7 @@ class SongRepositoryImpl extends AbstractSongRepository {
       receiver,
       effects: effects,
       encodeType: encodeType,
+      cache: cache
     );
   }
 }

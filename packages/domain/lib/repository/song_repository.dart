@@ -26,8 +26,12 @@ abstract class AbstractSongRepository {
   void downloadPlayerFiles(
     List<int> ids,
     SongQualityLevel level,
-    void Function(Either<Failure, Pair<SongFileEntity, Stream<TransferableTypedData>>>) receiver, {
+    void Function(
+      Either<Failure, Pair<SongFileEntity, Stream<TransferableTypedData>>>,
+    )
+    receiver, {
     List<String> effects = const [],
     String? encodeType,
+    bool cache = true,
   });
 }
