@@ -189,7 +189,7 @@ class SmoothOverlayMenu {
     }
 
     return SmoothContainer(
-      width: 200,
+      width: 200.w,
       height: height,
       child: SmoothListView(
         duration: Duration(milliseconds: 500),
