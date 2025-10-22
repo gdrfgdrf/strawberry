@@ -9,6 +9,7 @@ import 'package:pair/pair.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared/themes.dart';
 import 'package:smooth_corner/smooth_corner.dart';
+import 'package:strawberry/play/operator/audio_operator.dart';
 import 'package:strawberry/play/song_chips.dart';
 import 'package:strawberry/ui/abstract_page.dart';
 import 'package:strawberry/ui/playing/playing_page_controller.dart';
@@ -36,9 +37,6 @@ class _NextSongBarDesktopState
   final ValueNotifier<Duration> positionNotifier = ValueNotifier(Duration.zero);
   AudioPlayerTranslator? audioPlayerTranslator;
 
-  AnimationController? playOperatorAnimationController;
-  Animation<double>? playOperatorAnimation;
-
   @override
   EmptyDelegate createDelegate() {
     return EmptyDelegate.instance;
@@ -48,16 +46,6 @@ class _NextSongBarDesktopState
   void initState() {
     super.initState();
     audioPlayerTranslator = AudioPlayerTranslator(widget.audioPlayer);
-    playOperatorAnimationController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 500),
-    );
-    playOperatorAnimation = Tween(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: playOperatorAnimationController!,
-        curve: Curves.linear,
-      ),
-    );
   }
 
   @override
@@ -82,103 +70,6 @@ class _NextSongBarDesktopState
     ];
   }
 
-  Widget buildOperators() {
-    return ConstraintLayout(
-      children: [
-        SmoothStreamBuilder(
-          stream: audioPlayerTranslator!.audioPlayer.playerStateStream,
-          builder: (context, _) {
-            void Function()? seekToPrevious = () {
-              audioPlayerTranslator!.audioPlayer.seekToPrevious();
-            };
-            if (!audioPlayerTranslator!.audioPlayer.hasPrevious) {
-              seekToPrevious = null;
-            }
-
-            return IconButton(
-              iconSize: 32,
-              onPressed: seekToPrevious,
-              icon: Icon(Icons.skip_previous_rounded),
-            );
-          },
-        ).applyConstraint(
-          top: parent.top,
-          bottom: parent.bottom,
-          left: parent.left,
-        ),
-
-        SmoothStreamBuilder(
-          stream: audioPlayerTranslator!.audioPlayer.playingStream,
-          builder: (context, playingData) {
-            final playing = playingData.data;
-            if (playingData.connectionState != ConnectionState.done) {
-              if (playing == true) {
-                playOperatorAnimationController!.forward();
-              } else {
-                playOperatorAnimationController!.reverse();
-              }
-            }
-
-            return SmoothStreamBuilder(
-              stream: audioPlayerTranslator!.audioPlayer.processingStateStream,
-              builder: (context, processingStateData) {
-                final state = processingStateData.data;
-
-                final isIdle = state == ProcessingState.idle;
-                void Function()? onPressed = () {
-                  if (playing == true) {
-                    audioPlayerTranslator!.audioPlayer.pause();
-                  } else {
-                    audioPlayerTranslator!.audioPlayer.play();
-                  }
-                };
-                if (isIdle) {
-                  onPressed = null;
-                }
-
-                return IconButton(
-                  iconSize: 32,
-                  onPressed: onPressed,
-                  icon: AnimatedIcon(
-                    icon: AnimatedIcons.play_pause,
-                    progress: playOperatorAnimation!,
-                  ),
-                );
-              },
-            );
-          },
-        ).applyConstraint(
-          top: parent.top,
-          bottom: parent.bottom,
-          left: parent.left,
-          right: parent.right,
-        ),
-
-        SmoothStreamBuilder(
-          stream: audioPlayerTranslator!.audioPlayer.playerStateStream,
-          builder: (context, _) {
-            void Function()? seekToNext = () {
-              audioPlayerTranslator!.audioPlayer.seekToNext();
-            };
-            if (!audioPlayerTranslator!.audioPlayer.hasNext) {
-              seekToNext = null;
-            }
-
-            return IconButton(
-              iconSize: 32,
-              onPressed: seekToNext,
-              icon: Icon(Icons.skip_next_rounded),
-            );
-          },
-        ).applyConstraint(
-          top: parent.top,
-          bottom: parent.bottom,
-          right: parent.right,
-        ),
-      ],
-    );
-  }
-
   @override
   void dispose() {
     for (final subscription in subscriptions) {
@@ -187,7 +78,6 @@ class _NextSongBarDesktopState
     coverNotifier.dispose();
     positionNotifier.dispose();
     audioPlayerTranslator?.dispose();
-    playOperatorAnimationController?.dispose();
     super.dispose();
   }
 
@@ -302,9 +192,12 @@ class _NextSongBarDesktopState
           ),
 
           SizedBox(
-            width: 160,
+            width: 160 + 32 + 32,
             height: 64.w + 56.h,
-            child: buildOperators(),
+            child: AudioOperator(
+              audioPlayer: widget.audioPlayer,
+              mode: AudioOperatorMode.desktop,
+            ),
           ).applyConstraint(
             top: parent.top,
             bottom: parent.bottom,
