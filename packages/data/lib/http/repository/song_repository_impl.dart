@@ -15,6 +15,7 @@ import 'package:domain/result/result.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:pair/pair.dart';
+import 'package:shared/lyric/lyric_parser.dart';
 
 import '../../cache/cache_system.dart';
 import '../../center/song_combination.dart';
@@ -271,5 +272,32 @@ class SongRepositoryImpl extends AbstractSongRepository {
       effects: effects,
       encodeType: encodeType,
     );
+  }
+
+  @override
+  Future<LyricsContainer> getLyrics(int id) {
+    final completer = Completer<LyricsContainer>();
+    final endpoint = GetIt.instance.get<UrlProvider>().songLyric(id);
+    final taskChain = TaskChain();
+
+    taskChain
+        .stringNetwork(() => endpoint)
+        .onComplete((response, _) {
+          final parsedResponse = jsonDecode(response);
+
+          if (parsedResponse["code"] != 200) {
+            final exception = ApiServiceException(
+              parsedResponse["message"] ?? parsedResponse.toString(),
+            );
+            completer.completeError(exception);
+            return;
+          }
+
+          completer.complete(LyricParser.parse(response));
+        })
+        .globalOnError((_, e, s) => completer.completeError(e, s))
+        .run();
+
+    return completer.future;
   }
 }

@@ -55,6 +55,8 @@ abstract class UrlProvider {
     List<String> effects = const [],
     String? encodeType,
   });
+
+  Endpoint songLyric(int id);
 }
 
 class UrlManager {

@@ -8,6 +8,7 @@ import 'package:domain/repository/song_repository.dart';
 import 'package:domain/result/result.dart';
 import 'package:domain/usecase/strawberry_usecase.dart';
 import 'package:pair/pair.dart';
+import 'package:shared/lyric/lyric_parser.dart';
 
 abstract class SongUseCase {
   void query(
@@ -27,6 +28,8 @@ abstract class SongUseCase {
     String? encodeType,
     bool cache = true,
   });
+
+  Future<Either<Failure, LyricsContainer>> getLyrics(int id);
 }
 
 class SongUseCaseImpl extends StrawberryUseCase implements SongUseCase {
@@ -77,6 +80,19 @@ class SongUseCaseImpl extends StrawberryUseCase implements SongUseCase {
       serviceLogger!.error(
         "downloading player song files error, ids: $ids, level: $level, effects: $effects, encode type: $encodeType: $e\n$s",
       );
+    }
+  }
+
+  @override
+  Future<Either<Failure, LyricsContainer>> getLyrics(int id) async {
+    serviceLogger!.trace("getting song lyrics, id: $id");
+
+    try {
+      final lyrics = await songRepository.getLyrics(id);
+      return Right(lyrics);
+    } catch (e, s) {
+      serviceLogger!.error("getting song lyrics error, id: $id: $e\n$s");
+      return Left(Failure(e, s));
     }
   }
 }

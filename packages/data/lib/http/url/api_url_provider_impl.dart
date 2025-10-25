@@ -313,4 +313,29 @@ class UrlProviderImpl extends UrlProvider {
       ),
     );
   }
+
+  @override
+  Endpoint songLyric(int id) {
+    return Endpoint.post(
+      path: "/eapi/song/lyric",
+      eapiPath: "/api/song/lyric",
+      baseUrl: "https://interface.music.163.com",
+      requiresEncryption: true,
+      requiresDecryption: true,
+      body: buildBody(
+        extra: {
+          "os": "pc",
+          "id": id.toString(),
+          "lv": "-1",
+          "kv": "-1",
+          "tv": "-1",
+          "rv": "-1",
+          "yv": "1",
+          "showRole": "true",
+          "cp": "true"
+        },
+        extraHeader: {"Nm-GCore-Status": "1"},
+      )
+    );
+  }
 }
