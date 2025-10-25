@@ -108,6 +108,7 @@
         "material_color_utilities",
         "natives",
         "pointycastle",
+        "rxdart",
         "uuid"
       ],
       "devDependencies": [
