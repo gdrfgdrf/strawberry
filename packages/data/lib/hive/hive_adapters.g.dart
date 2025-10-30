@@ -1284,3 +1284,314 @@ class FreeTrialInfoAdapter extends TypeAdapter<FreeTrialInfo> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
+
+class StoreLyricAdapter extends TypeAdapter<StoreLyric> {
+  @override
+  final typeId = 25;
+
+  @override
+  StoreLyric read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return StoreLyric(fields[0] as Duration, fields[1] as String?);
+  }
+
+  @override
+  void write(BinaryWriter writer, StoreLyric obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.position)
+      ..writeByte(1)
+      ..write(obj.text);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StoreLyricAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class StoreWordInfoAdapter extends TypeAdapter<StoreWordInfo> {
+  @override
+  final typeId = 26;
+
+  @override
+  StoreWordInfo read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return StoreWordInfo(
+      fields[0] as String,
+      fields[1] as Duration,
+      fields[2] as Duration,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, StoreWordInfo obj) {
+    writer
+      ..writeByte(3)
+      ..writeByte(0)
+      ..write(obj.word)
+      ..writeByte(1)
+      ..write(obj.position)
+      ..writeByte(2)
+      ..write(obj.duration);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StoreWordInfoAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class StoreWordBasedLyricAdapter extends TypeAdapter<StoreWordBasedLyric> {
+  @override
+  final typeId = 27;
+
+  @override
+  StoreWordBasedLyric read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return StoreWordBasedLyric(
+      fields[0] as Duration,
+      fields[1] as Duration,
+      fields[2] as String?,
+      (fields[3] as List?)?.cast<StoreWordInfo>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, StoreWordBasedLyric obj) {
+    writer
+      ..writeByte(4)
+      ..writeByte(0)
+      ..write(obj.position)
+      ..writeByte(1)
+      ..write(obj.duration)
+      ..writeByte(2)
+      ..write(obj.text)
+      ..writeByte(3)
+      ..write(obj.wordInfos);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StoreWordBasedLyricAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class StoreStandardLyricsAdapter extends TypeAdapter<StoreStandardLyrics> {
+  @override
+  final typeId = 28;
+
+  @override
+  StoreStandardLyrics read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return StoreStandardLyrics(
+      (fields[0] as List).cast<StoreLyric>(),
+      (fields[1] as List?)?.cast<int>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, StoreStandardLyrics obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.lyrics)
+      ..writeByte(1)
+      ..write(obj.ignoration);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StoreStandardLyricsAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class StoreTranslatedLyricsAdapter extends TypeAdapter<StoreTranslatedLyrics> {
+  @override
+  final typeId = 29;
+
+  @override
+  StoreTranslatedLyrics read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return StoreTranslatedLyrics(
+      (fields[0] as List?)?.cast<StoreLyric>(),
+      (fields[1] as List?)?.cast<int>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, StoreTranslatedLyrics obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.lyrics)
+      ..writeByte(1)
+      ..write(obj.ignoration);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StoreTranslatedLyricsAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class StoreRomanLyricsAdapter extends TypeAdapter<StoreRomanLyrics> {
+  @override
+  final typeId = 30;
+
+  @override
+  StoreRomanLyrics read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return StoreRomanLyrics(
+      (fields[0] as List?)?.cast<StoreLyric>(),
+      (fields[1] as List?)?.cast<int>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, StoreRomanLyrics obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.lyrics)
+      ..writeByte(1)
+      ..write(obj.ignoration);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StoreRomanLyricsAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class StoreWordBasedLyricsAdapter extends TypeAdapter<StoreWordBasedLyrics> {
+  @override
+  final typeId = 31;
+
+  @override
+  StoreWordBasedLyrics read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return StoreWordBasedLyrics(
+      (fields[0] as List?)?.cast<StoreWordBasedLyric>(),
+      (fields[1] as List?)?.cast<int>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, StoreWordBasedLyrics obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.lyrics)
+      ..writeByte(1)
+      ..write(obj.ignoration);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StoreWordBasedLyricsAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class StoreLyricsAdapter extends TypeAdapter<StoreLyrics> {
+  @override
+  final typeId = 32;
+
+  @override
+  StoreLyrics read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return StoreLyrics(
+      fields[0] as StoreStandardLyrics,
+      fields[1] as StoreTranslatedLyrics,
+      fields[2] as StoreRomanLyrics,
+      fields[3] as StoreWordBasedLyrics,
+      (fields[4] as num).toInt(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, StoreLyrics obj) {
+    writer
+      ..writeByte(5)
+      ..writeByte(0)
+      ..write(obj.standardLyrics)
+      ..writeByte(1)
+      ..write(obj.translatedLyrics)
+      ..writeByte(2)
+      ..write(obj.romanLyrics)
+      ..writeByte(3)
+      ..write(obj.wordBasedLyrics)
+      ..writeByte(4)
+      ..write(obj.roleCounts);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StoreLyricsAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}

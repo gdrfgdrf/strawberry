@@ -13,6 +13,8 @@ class AnimatedHoverWidget extends StatefulWidget {
   final List<Constrained>? children;
   final Duration duration;
 
+  final Color? hoverColor;
+
   const AnimatedHoverWidget({
     super.key,
     this.width,
@@ -23,6 +25,7 @@ class AnimatedHoverWidget extends StatefulWidget {
     required this.main,
     this.children,
     this.duration = const Duration(milliseconds: 350),
+    this.hoverColor,
   });
 
   @override
@@ -46,11 +49,15 @@ class _AnimatedHoverWidget extends State<AnimatedHoverWidget>
   void initAnimation() {
     controller = AnimationController(vsync: this, duration: widget.duration);
     animation = Tween(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(parent: controller!, curve: Curves.fastEaseInToSlowEaseOut),
+      CurvedAnimation(
+        parent: controller!,
+        curve: Curves.fastEaseInToSlowEaseOut,
+      ),
     );
-    childrenOpacityAnimation = Tween(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: controller!, curve: Curves.linear),
-    );
+    childrenOpacityAnimation = Tween(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: controller!, curve: Curves.linear));
   }
 
   void onHover() {
@@ -108,7 +115,8 @@ class _AnimatedHoverWidget extends State<AnimatedHoverWidget>
         decoration: BoxDecoration(
           color:
               isHovered
-                  ? themeData().colorScheme.surfaceContainerLow
+                  ? (widget.hoverColor ??
+                      themeData().colorScheme.surfaceContainerLow)
                   : Colors.transparent,
           borderRadius: widget.borderRadius,
         ),
@@ -121,8 +129,7 @@ class _AnimatedHoverWidget extends State<AnimatedHoverWidget>
               child: ConstraintLayout(
                 children: [
                   widget.main,
-                  if (widget.children != null)
-                    ...wrapChildren(),
+                  if (widget.children != null) ...wrapChildren(),
                 ],
               ),
             );

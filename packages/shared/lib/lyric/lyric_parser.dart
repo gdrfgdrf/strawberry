@@ -30,16 +30,10 @@ class StandardLyric extends LyricUnit {
 
 class WordBasedLyric extends LyricUnit {
   final String? text;
-  final List<WordInfo> wordInfos;
+  final List<WordInfo>? wordInfos;
   final Duration duration;
 
   WordBasedLyric(super.position, this.text, this.wordInfos, this.duration);
-}
-
-class LyricBreak extends LyricUnit {
-  final Duration duration;
-
-  LyricBreak(super.position, this.duration);
 }
 
 class CombinedLyric extends LyricUnit {
@@ -64,19 +58,58 @@ class LyricsContainer {
   final List<LyricUnit>? wordBasedLyrics;
   final int dataCount;
 
+  final List<int>? ignoreStandardLyrics;
+  final List<int>? ignoreTranslatedLyrics;
+  final List<int>? ignoreRomanLyrics;
+  final List<int>? ignoredWordBasedLyrics;
+
   LyricsContainer({
     required this.standardLyrics,
     required this.translatedLyrics,
     required this.romanLyrics,
     required this.wordBasedLyrics,
     required this.dataCount,
+    this.ignoreStandardLyrics,
+    this.ignoreTranslatedLyrics,
+    this.ignoreRomanLyrics,
+    this.ignoredWordBasedLyrics,
   });
 
   List<CombinedLyric>? combine() {
+    final excludedStandardLyrics = <LyricUnit>[...standardLyrics];
+    final excludedTranslatedLyrics = <LyricUnit>[...?translatedLyrics];
+    final excludedRomanLyrics = <LyricUnit>[...?romanLyrics];
+    final excludedWordBasedLyrics = <LyricUnit>[...?wordBasedLyrics];
+
+    for (final index in ignoreStandardLyrics ?? <int>[]) {
+      if (index + 1 >= excludedStandardLyrics.length) {
+        continue;
+      }
+      excludedStandardLyrics.removeAt(index);
+    }
+    for (final index in ignoreTranslatedLyrics ?? <int>[]) {
+      if (index + 1 >= excludedTranslatedLyrics.length) {
+        continue;
+      }
+      excludedTranslatedLyrics.removeAt(index);
+    }
+    for (final index in ignoreRomanLyrics ?? <int>[]) {
+      if (index + 1 >= excludedRomanLyrics.length) {
+        continue;
+      }
+      excludedRomanLyrics.removeAt(index);
+    }
+    for (final index in ignoredWordBasedLyrics ?? <int>[]) {
+      if (index + 1 >= excludedWordBasedLyrics.length) {
+        continue;
+      }
+      excludedWordBasedLyrics.removeAt(index);
+    }
+
     int actualCount = -dataCount;
 
-    for (int i = 0; i < standardLyrics.length; i++) {
-      final lyric = standardLyrics[i];
+    for (int i = 0; i < excludedStandardLyrics.length; i++) {
+      final lyric = excludedStandardLyrics[i];
       if (lyric is StandardLyric) {
         if (lyric.text == null) {
           continue;
@@ -91,12 +124,8 @@ class LyricsContainer {
 
     final cleanedTranslationLyricIndexes = <int>[];
     final cleanedTranslatedLyrics = <LyricUnit>[];
-    for (
-      int i = 0;
-      i < (translatedLyrics?.length ?? <LyricUnit>[].length);
-      i++
-    ) {
-      final lyric = translatedLyrics![i];
+    for (int i = 0; i < (excludedTranslatedLyrics.length); i++) {
+      final lyric = excludedTranslatedLyrics[i];
       if (lyric is StandardLyric) {
         if (lyric.text == null) {
           cleanedTranslationLyricIndexes.add(i);
@@ -108,8 +137,8 @@ class LyricsContainer {
 
     final cleanedRomanLyricIndexes = <int>[];
     final cleanRomanLyrics = <LyricUnit>[];
-    for (int i = 0; i < (romanLyrics?.length ?? <LyricUnit>[].length); i++) {
-      final lyric = romanLyrics![i];
+    for (int i = 0; i < (excludedRomanLyrics.length); i++) {
+      final lyric = excludedRomanLyrics[i];
       if (lyric is StandardLyric) {
         if (lyric.text == null) {
           cleanedRomanLyricIndexes.add(i);
@@ -121,12 +150,8 @@ class LyricsContainer {
 
     final cleanedWordBasedLyricIndexes = <int>[];
     final cleanedWordBasedLyrics = <LyricUnit>[];
-    for (
-      int i = 0;
-      i < (wordBasedLyrics?.length ?? <LyricUnit>[].length);
-      i++
-    ) {
-      final lyric = wordBasedLyrics![i];
+    for (int i = 0; i < (excludedWordBasedLyrics.length); i++) {
+      final lyric = excludedWordBasedLyrics[i];
       if (lyric is WordBasedLyric) {
         if (lyric.text == null) {
           cleanedWordBasedLyricIndexes.add(i);
@@ -143,8 +168,8 @@ class LyricsContainer {
     int wordBasedOffset = 0;
 
     final combined = <CombinedLyric>[];
-    for (int i = 0; i < standardLyrics.length; i++) {
-      final lyric = standardLyrics[i];
+    for (int i = 0; i < excludedStandardLyrics.length; i++) {
+      final lyric = excludedStandardLyrics[i];
       if (lyric is! StandardLyric) {
         offset++;
         continue;
@@ -206,12 +231,10 @@ class LyricsContainer {
       final position = lyric.position;
 
       LyricUnit? translatedLyric;
-      if (translatedLyrics != null) {
-        for (final lyric in translatedLyrics!) {
-          if (lyric.position == position) {
-            translatedLyric = lyric;
-            break;
-          }
+      for (final lyric in excludedTranslatedLyrics) {
+        if (lyric.position == position) {
+          translatedLyric = lyric;
+          break;
         }
       }
 
@@ -230,7 +253,9 @@ class LyricsContainer {
       if (!cleanedWordBasedLyricIndexes.contains(wordBasedIndex)) {
         if (wordBasedIndex >= 0 && cleanedWordBasedLyrics.isNotEmpty) {
           wordBasedLyric =
-              cleanedWordBasedLyrics[wordBasedIndex - wordBasedOffset - secondaryOffset];
+              cleanedWordBasedLyrics[wordBasedIndex -
+                  wordBasedOffset -
+                  secondaryOffset];
         }
       } else {
         wordBasedOffset++;
@@ -259,7 +284,7 @@ class LyricParser {
       translatedLyrics: _parseLyricContent(json["tlyric"]?["lyric"] ?? ''),
       romanLyrics: _parseLyricContent(json["romalrc"]?["lyric"] ?? ''),
       wordBasedLyrics: _parseYrcContent(json["yrc"]?["lyric"] ?? ''),
-      dataCount: json["roles"].length
+      dataCount: json["roles"].length,
     );
   }
 
@@ -312,7 +337,9 @@ class LyricParser {
         continue;
       }
 
-      if (line.startsWith('[ch:')) {
+      if (line.startsWith('[ch:') ||
+          line.startsWith("[ti:") ||
+          line.startsWith("[ar:")) {
         continue;
       }
 

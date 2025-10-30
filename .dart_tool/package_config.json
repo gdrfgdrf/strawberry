@@ -14,6 +14,12 @@
       "languageVersion": "3.7"
     },
     {
+      "name": "anchor_scroll_controller",
+      "rootUri": "file:///H:/flutter-pub-cache/hosted/pub.flutter-io.cn/anchor_scroll_controller-0.4.4",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "animated_digit",
       "rootUri": "file:///H:/flutter-pub-cache/hosted/pub.flutter-io.cn/animated_digit-3.2.3",
       "packageUri": "lib/",

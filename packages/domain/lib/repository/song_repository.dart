@@ -1,5 +1,3 @@
-import 'dart:isolate';
-
 import 'package:dartz/dartz.dart';
 import 'package:domain/entity/song_file_entity.dart';
 import 'package:domain/entity/song_quality_entity.dart';
@@ -19,14 +17,12 @@ abstract class AbstractSongRepository {
   void downloadPlayerFiles(
     List<int> ids,
     SongQualityLevel level,
-    void Function(
-      Either<Failure, Pair<SongFileEntity, Stream<List<int>>>>,
-    )
+    void Function(Either<Failure, Pair<SongFileEntity, Stream<List<int>>>>)
     receiver, {
     List<String> effects = const [],
     String? encodeType,
     bool cache = true,
   });
 
-  Future<LyricsContainer> getLyrics(int id);
+  Future<LyricsContainer> getLyrics(int id, {bool cache = true});
 }

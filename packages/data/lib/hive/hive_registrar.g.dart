@@ -34,6 +34,14 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(SongQualityEntityAdapter());
     registerAdapter(SongQualityLevelAdapter());
     registerAdapter(SongSingTypeAdapter());
+    registerAdapter(StoreLyricAdapter());
+    registerAdapter(StoreLyricsAdapter());
+    registerAdapter(StoreRomanLyricsAdapter());
+    registerAdapter(StoreStandardLyricsAdapter());
+    registerAdapter(StoreTranslatedLyricsAdapter());
+    registerAdapter(StoreWordBasedLyricAdapter());
+    registerAdapter(StoreWordBasedLyricsAdapter());
+    registerAdapter(StoreWordInfoAdapter());
     registerAdapter(UserHabitAdapter());
   }
 }
@@ -64,6 +72,14 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(SongQualityEntityAdapter());
     registerAdapter(SongQualityLevelAdapter());
     registerAdapter(SongSingTypeAdapter());
+    registerAdapter(StoreLyricAdapter());
+    registerAdapter(StoreLyricsAdapter());
+    registerAdapter(StoreRomanLyricsAdapter());
+    registerAdapter(StoreStandardLyricsAdapter());
+    registerAdapter(StoreTranslatedLyricsAdapter());
+    registerAdapter(StoreWordBasedLyricAdapter());
+    registerAdapter(StoreWordBasedLyricsAdapter());
+    registerAdapter(StoreWordInfoAdapter());
     registerAdapter(UserHabitAdapter());
   }
 }

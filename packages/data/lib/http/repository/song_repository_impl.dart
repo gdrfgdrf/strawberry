@@ -9,6 +9,7 @@ import 'package:domain/entity/song_entity.dart';
 import 'package:domain/entity/song_file_entity.dart';
 import 'package:domain/entity/song_quality_entity.dart';
 import 'package:domain/entity/song_query_entity.dart';
+import 'package:domain/entity/store_lyrics_entity.dart';
 import 'package:domain/hives.dart';
 import 'package:domain/repository/song_repository.dart';
 import 'package:domain/result/result.dart';
@@ -275,7 +276,15 @@ class SongRepositoryImpl extends AbstractSongRepository {
   }
 
   @override
-  Future<LyricsContainer> getLyrics(int id) {
+  Future<LyricsContainer> getLyrics(int id, {bool cache = true}) {
+    if (cache) {
+      final box = Hive.box<StoreLyrics>(HiveBoxes.lyrics);
+      final storeLyrics = box.get(id);
+      if (storeLyrics != null) {
+        return Future.value(storeLyrics.toContainer());
+      }
+    }
+
     final completer = Completer<LyricsContainer>();
     final endpoint = GetIt.instance.get<UrlProvider>().songLyric(id);
     final taskChain = TaskChain();
@@ -293,7 +302,12 @@ class SongRepositoryImpl extends AbstractSongRepository {
             return;
           }
 
-          completer.complete(LyricParser.parse(response));
+          final container = LyricParser.parse(response);
+
+          final box = Hive.box<StoreLyrics>(HiveBoxes.lyrics);
+          box.put(id, StoreLyrics.fromRuntime(container));
+
+          completer.complete(container);
         })
         .globalOnError((_, e, s) => completer.completeError(e, s))
         .run();

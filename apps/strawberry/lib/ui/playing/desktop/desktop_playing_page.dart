@@ -7,11 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_constraintlayout/flutter_constraintlayout.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:shared/lyric/lyric_scheduler.dart';
 import 'package:shared/themes.dart';
 import 'package:smooth_corner/smooth_corner.dart';
 import 'package:strawberry/play/audio_player_translator.dart';
 import 'package:strawberry/ui/abstract_page.dart';
 import 'package:widgets/widgets/next_smooth_image.dart';
+import 'package:widgets/widgets/smooth_lyrics.dart';
 import 'package:widgets/widgets/smooth_stream_builder.dart';
 
 class DesktopPlayingPage extends AbstractUiWidget {
@@ -30,6 +32,7 @@ class _PlayingPageState
 
   final List<StreamSubscription> subscriptions = [];
   AudioPlayerTranslator? audioPlayerTranslator;
+  LyricScheduler? lyricScheduler;
 
   @override
   EmptyDelegate createDelegate() {
@@ -81,10 +84,11 @@ class _PlayingPageState
       subscription.cancel();
     }
     audioPlayerTranslator?.dispose();
+    lyricScheduler?.dispose();
     super.dispose();
   }
 
-  Widget buildSongDisplay() {
+  Widget buildDisplay() {
     final screenSize = MediaQuery.of(context).size;
     final coverId = ConstraintId("cover");
     final nameId = ConstraintId("name");
@@ -157,6 +161,87 @@ class _PlayingPageState
           left: nameId.left,
           margin: EdgeInsets.only(top: 4, left: 4),
         ),
+
+        SmoothLyrics(
+          lyricWidth: screenSize.width - ((screenSize.height / 3) - 256.w / 2 + 256.w) - screenSize.width / 3,
+          lyricsStream: audioPlayerTranslator!.lyricsStream(),
+          positionStream: audioPlayerTranslator!.audioPlayer.positionStream,
+          onSeekPosition: (position) {
+            audioPlayerTranslator!.audioPlayer.seek(position);
+          },
+        ).applyConstraint(
+          top: parent.top,
+          bottom: parent.bottom,
+          left: coverId.right,
+          margin: EdgeInsets.only(left: screenSize.width / 3),
+        ),
+
+        // StreamBuilder(
+        //   stream: audioPlayerTranslator!.lyricsStream(),
+        //   builder: (context, lyricsData) {
+        //     if (!lyricsData.hasData) {
+        //       return SizedBox.shrink();
+        //     }
+        //     final lyrics = lyricsData.data!;
+        //     lyrics.wordBasedLyrics?.clear();
+        //     final combined = lyrics.combine();
+        //     if (combined == null) {
+        //       return SizedBox.shrink();
+        //     }
+        //
+        //     lyricScheduler?.dispose();
+        //     lyricScheduler = LyricScheduler(
+        //       combined,
+        //       audioPlayerTranslator!.audioPlayer.positionStream,
+        //     );
+        //     lyricScheduler?.start();
+        //
+        //     return StreamBuilder(
+        //       stream: lyricScheduler!.lyricStream,
+        //       builder: (context, lyricStreamData) {
+        //         if (!lyricStreamData.hasData) {
+        //           return SizedBox.shrink();
+        //         }
+        //         final lyricStream = lyricStreamData.data!;
+        //         final index = lyricStream.index;
+        //         final lyric = lyricStream.lyric;
+        //
+        //         if (lyric is CombinedLyric) {
+        //           StringBuffer text = StringBuffer();
+        //           text.writeln(lyric.text);
+        //
+        //           // if (lyric.wordBasedLyric != null) {
+        //           //   text.writeln(lyric.wordBasedLyric!.text);
+        //           // } else {
+        //           //   text.writeln(lyric.text);
+        //           // }
+        //
+        //           if (lyric.romanText != null) {
+        //             text.writeln(lyric.romanText!);
+        //           }
+        //           if (lyric.translatedText != null) {
+        //             text.writeln(lyric.translatedText!);
+        //           }
+        //
+        //           return Text(
+        //             text.toString(),
+        //             style: TextStyle(
+        //               fontSize: 24.sp,
+        //               shadows: [Shadow(blurRadius: 6)],
+        //             ),
+        //           );
+        //         }
+        //
+        //         return SizedBox.shrink();
+        //       },
+        //     );
+        //   },
+        // ).applyConstraint(
+        //   top: parent.top,
+        //   bottom: parent.bottom,
+        //   left: coverId.right,
+        //   margin: EdgeInsets.only(left: screenSize.width / 3),
+        // ),
       ],
     );
   }
@@ -170,7 +255,7 @@ class _PlayingPageState
         SliverToBoxAdapter(
           child: SmoothContainer(
             height: screenSize.height,
-            child: buildSongDisplay(),
+            child: buildDisplay(),
           ),
         ),
       ],

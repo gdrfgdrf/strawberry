@@ -6,6 +6,7 @@ import 'package:domain/entity/song_file_entity.dart';
 import 'package:domain/entity/song_privilege_entity.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared/lyric/lyric_parser.dart';
 import 'package:uuid/v4.dart';
 
 import 'network_stream_audio_source.dart';
@@ -26,6 +27,8 @@ class AudioPlayerTranslator {
   BehaviorSubject.seeded(null);
   final BehaviorSubject<SongFileEntity?> songFileController =
   BehaviorSubject.seeded(null);
+  final BehaviorSubject<LyricsContainer?> lyricsController = BehaviorSubject.seeded(null);
+
   final BehaviorSubject<Duration?> totalDurationController =
   BehaviorSubject.seeded(null);
 
@@ -49,6 +52,10 @@ class AudioPlayerTranslator {
 
   Stream<SongFileEntity?> songFileStream() {
     return songFileController.stream;
+  }
+
+  Stream<LyricsContainer?> lyricsStream() {
+    return lyricsController.stream;
   }
 
   Stream<Duration?> totalDurationStream() {
@@ -102,6 +109,11 @@ class AudioPlayerTranslator {
             songFileController.add(songFile);
           }
         },
+        onLyrics: (lyrics) {
+          if (latestIndex == index) {
+            lyricsController.add(lyrics);
+          }
+        }
       );
 
     });
@@ -111,6 +123,9 @@ class AudioPlayerTranslator {
     coverController.add(null);
     songController.add(null);
     privilegeController.add(null);
+    songFileController.add(null);
+    lyricsController.add(null);
+    totalDurationController.add(null);
   }
 
   void dispose() {
@@ -120,6 +135,7 @@ class AudioPlayerTranslator {
     songController.close();
     privilegeController.close();
     songFileController.close();
+    lyricsController.close();
     totalDurationController.close();
   }
 }

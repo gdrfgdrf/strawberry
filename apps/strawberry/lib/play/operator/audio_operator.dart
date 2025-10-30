@@ -44,6 +44,14 @@ class _AudioOperatorState extends State<AudioOperator>
     );
   }
 
+  @override
+  void dispose() {
+    audioPlayerTranslator?.dispose();
+    playOperatorAnimationController?.dispose();
+    playOperatorAnimation = null;
+    super.dispose();
+  }
+
   Widget buildFavorite() {
     return IconButton(
       iconSize: 24,

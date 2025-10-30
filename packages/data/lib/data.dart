@@ -17,6 +17,7 @@ import 'package:data/http/url/api_url_provider_impl.dart';
 import 'package:data/isolatepool/isolate_pool_manager.dart';
 import 'package:domain/entity/login_result.dart';
 import 'package:domain/entity/song_file_entity.dart';
+import 'package:domain/entity/store_lyrics_entity.dart';
 import 'package:domain/entity/user_habit_entity.dart';
 import 'package:domain/hives.dart';
 import 'package:domain/repository/album_repository.dart';
@@ -86,6 +87,7 @@ class DataModule {
     await Hive.openBox<LoginResult>(HiveBoxes.loginResult, path: path);
     await Hive.openBox<UserHabit>(HiveBoxes.userHabit, path: path);
     await Hive.openBox<SongFileEntity>(HiveBoxes.songFile, path: path);
+    await Hive.openBox<StoreLyrics>(HiveBoxes.lyrics, path: path);
   }
 
   static _configureCache(GetIt getIt) async {

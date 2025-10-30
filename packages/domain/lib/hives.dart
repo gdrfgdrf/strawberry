@@ -25,6 +25,14 @@ class HiveTypes {
   static const int songFileId = 22;
   static const int freeTrialInfoId = 23;
   static const int songFlagId = 24;
+  static const int storeLyricId = 25;
+  static const int storeWordInfoId = 26;
+  static const int storeWordBasedLyricId = 27;
+  static const int storeStandardLyricsId = 28;
+  static const int storeTranslatedLyricsId = 29;
+  static const int storeRomanLyricsId = 30;
+  static const int storeWordBasedLyricsId = 31;
+  static const int storeLyricsId = 32;
 }
 
 class HiveBoxes {
@@ -32,4 +40,5 @@ class HiveBoxes {
   static const String loginResult = "login-result";
   static const String userHabit = "user-habit";
   static const String songFile = "song-file";
+  static const String lyrics = "lyrics";
 }

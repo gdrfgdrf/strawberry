@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:isolate';
 
 import 'package:dartz/dartz.dart';
 import 'package:domain/entity/song_entity.dart';
@@ -10,8 +9,10 @@ import 'package:domain/result/result.dart';
 import 'package:domain/usecase/image_usecase.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:pair/pair.dart';
+import 'package:shared/lyric/lyric_parser.dart';
 import 'package:strawberry/bloc/album/album_bloc.dart';
 import 'package:strawberry/bloc/song/download_player_song_files_event_state.dart';
+import 'package:strawberry/bloc/song/get_song_lyrics_event_state.dart';
 import 'package:strawberry/bloc/song/query_song_event_state.dart';
 import 'package:strawberry/bloc/song/song_bloc.dart';
 import 'package:strawberry/ui/list/cover_request.dart';
@@ -167,12 +168,36 @@ class _InternalDownloadSongFileRequest
   }
 }
 
+class _InternalGetSongLyricsRequest extends _InternalRequest<LyricsContainer> {
+  LyricsContainer? lyricsContainer;
+  StreamSubscription? subscription;
+
+  @override
+  void success(LyricsContainer data) {
+    lyricsContainer = data;
+    super.success(data);
+  }
+
+  @override
+  void reset() {
+    lyricsContainer = null;
+    super.reset();
+  }
+
+  @override
+  void dispose() {
+    lyricsContainer = null;
+    super.dispose();
+  }
+}
+
 class _FollowerResponseCallbacks {
   String? id;
   void Function(List<int>?)? onCover;
   void Function(SongEntity?)? onSong;
   void Function(SongPrivilegeEntity?)? onSongPrivilege;
   void Function(SongFileEntity?)? onSongFile;
+  void Function(LyricsContainer?)? onLyrics;
 
   _FollowerResponseCallbacks(
     this.id,
@@ -180,6 +205,7 @@ class _FollowerResponseCallbacks {
     this.onSong,
     this.onSongPrivilege,
     this.onSongFile,
+    this.onLyrics,
   );
 
   void cover(List<int>? bytes) {
@@ -210,12 +236,20 @@ class _FollowerResponseCallbacks {
     onSongFile?.call(songFile);
   }
 
+  void lyrics(LyricsContainer? lyrics) {
+    if (onLyrics == null) {
+      return;
+    }
+    onLyrics?.call(lyrics);
+  }
+
   void dispose() {
     id = null;
     onCover = null;
     onSong = null;
     onSongPrivilege = null;
     onSongFile = null;
+    onLyrics = null;
   }
 }
 
@@ -230,6 +264,7 @@ class _InternalRequestFollower {
     void Function(SongEntity?)? onSong,
     void Function(SongPrivilegeEntity?)? onSongPrivilege,
     void Function(SongFileEntity?)? onSongFile,
+    void Function(LyricsContainer?)? onLyrics,
   }) {
     final callbacks = _FollowerResponseCallbacks(
       id,
@@ -237,6 +272,7 @@ class _InternalRequestFollower {
       onSong,
       onSongPrivilege,
       onSongFile,
+      onLyrics,
     );
     this.callbacks?[id] = callbacks;
   }
@@ -277,16 +313,27 @@ class _InternalRequestFollower {
     }
   }
 
+  void lyrics(LyricsContainer? lyrics) {
+    if (callbacks == null) {
+      return;
+    }
+    for (final callbacks in callbacks!.values) {
+      callbacks.lyrics(lyrics);
+    }
+  }
+
   void call(
     List<int>? cover,
     SongEntity? song,
     SongPrivilegeEntity? privilege,
     SongFileEntity? songFile,
+    LyricsContainer? lyrics,
   ) {
     this.cover(cover);
     this.song(song);
     this.privilege(privilege);
     this.songFile(songFile);
+    this.lyrics(lyrics);
   }
 
   void cancel(String id) {
@@ -314,6 +361,8 @@ class NetworkStreamAudioSource extends StreamAudioSource {
   _InternalQuerySongRequest? _querySongRequest = _InternalQuerySongRequest();
   _InternalDownloadSongFileRequest? _downloadSongFileRequest =
       _InternalDownloadSongFileRequest();
+  _InternalGetSongLyricsRequest? _getSongLyricsRequest =
+      _InternalGetSongLyricsRequest();
   _InternalRequestFollower? _requestFollower = _InternalRequestFollower();
   CoverRequest? coverRequest;
 
@@ -330,6 +379,12 @@ class NetworkStreamAudioSource extends StreamAudioSource {
       songBloc.add(
         AttemptQuerySongEvent([songId], _querySongRequest!.songQueryReceiver),
       );
+    }
+    final shouldLyricsRequest = _getSongLyricsRequest?.shouldRequest() ?? false;
+    if (shouldLyricsRequest == true) {
+      final subscription = songBloc.stream.listen(onLyricsGot);
+      _getSongLyricsRequest!.subscription = subscription;
+      songBloc.add(AttemptGetSongLyricsEvent(songId));
     }
 
     if (bytes != null) {
@@ -386,6 +441,22 @@ class NetworkStreamAudioSource extends StreamAudioSource {
     };
 
     return controller;
+  }
+
+  void onLyricsGot(SongState songState) {
+    if (songState is GetSongLyricsFailure) {
+      _getSongLyricsRequest?.subscription?.cancel();
+      _getSongLyricsRequest?.subscription = null;
+      _getSongLyricsRequest?.error();
+      return;
+    }
+    if (songState is! GetSongLyricsSuccess) {
+      return;
+    }
+    _getSongLyricsRequest?.subscription?.cancel();
+    _getSongLyricsRequest?.subscription = null;
+    _getSongLyricsRequest?.success(songState.lyricsContainer);
+    _requestFollower?.lyrics(songState.lyricsContainer);
   }
 
   void onSongQueried(SongQueryEntity? _) {
@@ -477,6 +548,7 @@ class NetworkStreamAudioSource extends StreamAudioSource {
     bytes = null;
     _querySongRequest?.reset();
     _downloadSongFileRequest?.reset();
+    _getSongLyricsRequest?.reset();
     if (onceOutput?.isClosed == false) {
       onceOutput?.close();
     }
@@ -489,6 +561,7 @@ class NetworkStreamAudioSource extends StreamAudioSource {
     void Function(SongEntity?)? onSong,
     void Function(SongPrivilegeEntity?)? onSongPrivilege,
     void Function(SongFileEntity?)? onSongFile,
+    void Function(LyricsContainer?)? onLyrics,
   }) {
     _requestFollower?.follow(
       id: id,
@@ -496,12 +569,14 @@ class NetworkStreamAudioSource extends StreamAudioSource {
       onSong: onSong,
       onSongPrivilege: onSongPrivilege,
       onSongFile: onSongFile,
+      onLyrics: onLyrics
     );
     _requestFollower?.call(
       coverRequest?.notifier?.value,
       _querySongRequest?.song,
       _querySongRequest?.privilege,
       _downloadSongFileRequest?.songFile,
+      _getSongLyricsRequest?.lyricsContainer
     );
 
     return () {
@@ -514,6 +589,8 @@ class NetworkStreamAudioSource extends StreamAudioSource {
     _querySongRequest = null;
     _downloadSongFileRequest?.dispose();
     _downloadSongFileRequest = null;
+    _getSongLyricsRequest?.dispose();
+    _getSongLyricsRequest = null;
     _requestFollower?.dispose();
     _requestFollower = null;
     coverRequest?.dispose();

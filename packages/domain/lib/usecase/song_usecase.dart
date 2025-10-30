@@ -1,5 +1,3 @@
-import 'dart:isolate';
-
 import 'package:dartz/dartz.dart';
 import 'package:domain/entity/song_file_entity.dart';
 import 'package:domain/entity/song_quality_entity.dart';
@@ -20,16 +18,17 @@ abstract class SongUseCase {
   void downloadPlayerFiles(
     List<int> ids,
     SongQualityLevel level,
-    void Function(
-      Either<Failure, Pair<SongFileEntity, Stream<List<int>>>>,
-    )
+    void Function(Either<Failure, Pair<SongFileEntity, Stream<List<int>>>>)
     receiver, {
     List<String> effects = const [],
     String? encodeType,
     bool cache = true,
   });
 
-  Future<Either<Failure, LyricsContainer>> getLyrics(int id);
+  Future<Either<Failure, LyricsContainer>> getLyrics(
+    int id, {
+    bool cache = true,
+  });
 }
 
 class SongUseCaseImpl extends StrawberryUseCase implements SongUseCase {
@@ -84,14 +83,19 @@ class SongUseCaseImpl extends StrawberryUseCase implements SongUseCase {
   }
 
   @override
-  Future<Either<Failure, LyricsContainer>> getLyrics(int id) async {
-    serviceLogger!.trace("getting song lyrics, id: $id");
+  Future<Either<Failure, LyricsContainer>> getLyrics(
+    int id, {
+    bool cache = true,
+  }) async {
+    serviceLogger!.trace("getting song lyrics, id: $id, cache: $cache");
 
     try {
       final lyrics = await songRepository.getLyrics(id);
       return Right(lyrics);
     } catch (e, s) {
-      serviceLogger!.error("getting song lyrics error, id: $id: $e\n$s");
+      serviceLogger!.error(
+        "getting song lyrics error, id: $id, cache: $cache: $e\n$s",
+      );
       return Left(Failure(e, s));
     }
   }

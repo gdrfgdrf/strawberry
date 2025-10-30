@@ -1,4 +1,3 @@
-
 import 'package:data/cache/cache_system.dart';
 import 'package:data/center/song_combination.dart';
 import 'package:domain/entity/account_entity.dart';
@@ -11,6 +10,7 @@ import 'package:domain/entity/song_entity.dart';
 import 'package:domain/entity/song_file_entity.dart';
 import 'package:domain/entity/song_privilege_entity.dart';
 import 'package:domain/entity/song_quality_entity.dart';
+import 'package:domain/entity/store_lyrics_entity.dart';
 import 'package:domain/entity/user_habit_entity.dart';
 import 'package:hive_ce/hive.dart';
 
@@ -43,8 +43,14 @@ part 'hive_adapters.g.dart';
   AdapterSpec<UserHabit>(),
   AdapterSpec<SongFileEntity>(),
   AdapterSpec<SongFlag>(),
-  AdapterSpec<FreeTrialInfo>()
+  AdapterSpec<FreeTrialInfo>(),
+  AdapterSpec<StoreLyric>(),
+  AdapterSpec<StoreWordInfo>(),
+  AdapterSpec<StoreWordBasedLyric>(),
+  AdapterSpec<StoreStandardLyrics>(),
+  AdapterSpec<StoreTranslatedLyrics>(),
+  AdapterSpec<StoreRomanLyrics>(),
+  AdapterSpec<StoreWordBasedLyrics>(),
+  AdapterSpec<StoreLyrics>()
 ])
-class HiveAdapters {
-  
-}
+class HiveAdapters {}

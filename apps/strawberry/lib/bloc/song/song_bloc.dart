@@ -43,9 +43,9 @@ class SongBloc extends StrawberryBloc<SongEvent, SongState> {
     on<AttemptGetSongLyricsEvent>((event, emit) async {
       emit(SongLoading());
 
-      final data = await songUseCase.getLyrics(event.id);
+      final data = await songUseCase.getLyrics(event.id, cache: event.cache);
       data.fold(
-        (failure) => emit(SongFailure(failure)),
+        (failure) => emit(GetSongLyricsFailure(failure)),
         (lyrics) => emit(GetSongLyricsSuccess(lyrics)),
       );
     });

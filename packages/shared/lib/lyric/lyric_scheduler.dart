@@ -12,7 +12,7 @@ void main() async {
 
   for (final combination in combined) {
     print(
-      "${combination.text} | ${combination.translatedText} | ${combination.romanText} | ${combination.position} | ${combination.wordBasedLyric?.position} | ${combination.wordBasedLyric?.duration}",
+      "${combination.text} | ${combination.translatedText} | ${combination.romanText} | ${combination.position} | ${combination.wordBasedLyric?.text} | ${combination.wordBasedLyric?.position} | ${combination.wordBasedLyric?.duration}",
     );
   }
 
@@ -31,7 +31,7 @@ void main() async {
     if (data is WordBasedLyricStreamData) {
       if (lyric is CombinedLyric) {
         print(
-          "[$currentPosition ms] Combined - 行: ${data.index} | 文本: ${lyric.text} | 当前字: ${data.wordInfo?.word}",
+          "[$currentPosition ms] Combined - 行: ${data.index} | 文本: ${lyric.wordBasedLyric?.text} | 当前字: ${data.wordInfo?.word}",
         );
       }
       if (lyric is WordBasedLyric) {
@@ -257,7 +257,11 @@ class LyricScheduler {
   }
 
   WordInfo? _findCurrentWord(Duration position, WordBasedLyric lyricLine) {
-    for (final wordInfo in lyricLine.wordInfos) {
+    if (lyricLine.wordInfos == null) {
+      return null;
+    }
+
+    for (final wordInfo in lyricLine.wordInfos!) {
       final wordEndPosition = wordInfo.position + wordInfo.duration;
 
       if (position >= wordInfo.position && position <= wordEndPosition) {
@@ -268,8 +272,8 @@ class LyricScheduler {
     final lineEndTime = lyricLine.position + lyricLine.duration;
     if (position >= lyricLine.position &&
         position < lineEndTime &&
-        lyricLine.wordInfos.isNotEmpty) {
-      return lyricLine.wordInfos.last;
+        lyricLine.wordInfos!.isNotEmpty) {
+      return lyricLine.wordInfos!.last;
     }
 
     return null;
