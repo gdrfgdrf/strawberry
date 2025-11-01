@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 
-class MutationCurve extends Curve {
+class Zero2OneMutationCurve extends Curve {
   final List<double> values;
   final int segmentCount;
 
-  const MutationCurve(this.values) : segmentCount = values.length;
+  const Zero2OneMutationCurve(this.values) : segmentCount = values.length;
 
   @override
   double transform(double t) {
@@ -16,8 +16,11 @@ class MutationCurve extends Curve {
     }
 
     double position = t * segmentCount;
-
     int index = position.floor();
+
+    if ((position + 0.01).floor() == position.floor() + 1) {
+      index = position.floor() + 1;
+    }
 
     if (index < 0) {
       return values.first;
@@ -173,7 +176,7 @@ class _SmoothOverflowWidgetAnimationState
     mainAnimation = Tween(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: mainController!,
-        curve: MutationCurve(
+        curve: Zero2OneMutationCurve(
           List.generate(chunks.length, (index) => index.toDouble()),
         ),
       ),

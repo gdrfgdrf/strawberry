@@ -17,14 +17,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "7.5.2"
-  anchor_scroll_controller:
-    dependency: transitive
-    description:
-      name: anchor_scroll_controller
-      sha256: "8b4efa597392d4b90e57fe3d4e19cdd9bec3bcc38527246c2f57785dfdbfdc41"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.4.4"
   animated_digit:
     dependency: "direct main"
     description:
@@ -303,6 +295,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "7.0.1"
+  find_size:
+    dependency: transitive
+    description:
+      name: find_size
+      sha256: "6bc596e88f3680c5a2174144456f9a90a72ef4bc5b6076673121e5c5fb51c2fb"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.0"
   fixnum:
     dependency: transitive
     description:

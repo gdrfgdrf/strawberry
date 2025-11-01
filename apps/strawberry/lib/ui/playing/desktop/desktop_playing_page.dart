@@ -56,14 +56,14 @@ class _PlayingPageState
           );
 
           final mutationColors = [
-            colorScheme.primary,
-            colorScheme.primaryContainer,
-            colorScheme.secondary,
-            colorScheme.secondaryContainer,
-            colorScheme.surface,
-            colorScheme.secondaryContainer,
-            colorScheme.tertiary,
-            colorScheme.tertiaryContainer,
+            colorScheme.primary.withAlpha(160),
+            colorScheme.primaryContainer.withAlpha(160),
+            colorScheme.secondary.withAlpha(160),
+            colorScheme.secondaryContainer.withAlpha(160),
+            colorScheme.surface.withAlpha(160),
+            colorScheme.secondaryContainer.withAlpha(160),
+            colorScheme.tertiary.withAlpha(160),
+            colorScheme.tertiaryContainer.withAlpha(160),
           ];
           fluidBackgroundController.mutateToColors(mutationColors);
         });
@@ -166,8 +166,8 @@ class _PlayingPageState
           lyricWidth: screenSize.width - ((screenSize.height / 3) - 256.w / 2 + 256.w) - screenSize.width / 3,
           lyricsStream: audioPlayerTranslator!.lyricsStream(),
           positionStream: audioPlayerTranslator!.audioPlayer.positionStream,
-          onSeekPosition: (position) {
-            audioPlayerTranslator!.audioPlayer.seek(position);
+          onClicked: (index, lyric) {
+            audioPlayerTranslator!.audioPlayer.seek(lyric.position);
           },
         ).applyConstraint(
           top: parent.top,
@@ -266,14 +266,14 @@ class _PlayingPageState
   Widget buildContent(BuildContext context) {
     final colorScheme = themeData().colorScheme;
     final initialColors = [
-      colorScheme.primary,
-      colorScheme.primaryContainer,
-      colorScheme.secondary,
-      colorScheme.secondaryContainer,
-      colorScheme.surface,
-      colorScheme.secondaryContainer,
-      colorScheme.tertiary,
-      colorScheme.tertiaryContainer,
+      colorScheme.primary.withAlpha(160),
+      colorScheme.primaryContainer.withAlpha(160),
+      colorScheme.secondary.withAlpha(160),
+      colorScheme.secondaryContainer.withAlpha(160),
+      colorScheme.surface.withAlpha(160),
+      colorScheme.secondaryContainer.withAlpha(160),
+      colorScheme.tertiary.withAlpha(160),
+      colorScheme.tertiaryContainer.withAlpha(160),
     ];
 
     return FluidBackground(

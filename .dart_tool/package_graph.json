@@ -121,9 +121,9 @@
       "name": "widgets",
       "version": "1.0.0+1",
       "dependencies": [
-        "anchor_scroll_controller",
         "animated_digit",
         "country_flags",
+        "find_size",
         "flutter",
         "flutter_bloc",
         "flutter_constraintlayout",
@@ -323,8 +323,8 @@
       ]
     },
     {
-      "name": "anchor_scroll_controller",
-      "version": "0.4.4",
+      "name": "find_size",
+      "version": "1.0.0",
       "dependencies": [
         "flutter"
       ]

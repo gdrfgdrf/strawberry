@@ -14,12 +14,6 @@
       "languageVersion": "3.7"
     },
     {
-      "name": "anchor_scroll_controller",
-      "rootUri": "file:///H:/flutter-pub-cache/hosted/pub.flutter-io.cn/anchor_scroll_controller-0.4.4",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
-    },
-    {
       "name": "animated_digit",
       "rootUri": "file:///H:/flutter-pub-cache/hosted/pub.flutter-io.cn/animated_digit-3.2.3",
       "packageUri": "lib/",
@@ -234,6 +228,12 @@
       "rootUri": "file:///H:/flutter-pub-cache/hosted/pub.flutter-io.cn/file-7.0.1",
       "packageUri": "lib/",
       "languageVersion": "3.0"
+    },
+    {
+      "name": "find_size",
+      "rootUri": "file:///H:/flutter-pub-cache/hosted/pub.flutter-io.cn/find_size-1.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
     },
     {
       "name": "fixnum",

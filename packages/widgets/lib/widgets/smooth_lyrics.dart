@@ -1,16 +1,206 @@
 import 'dart:async';
 
-import 'package:anchor_scroll_controller/anchor_scroll_controller.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_constraintlayout/flutter_constraintlayout.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared/lyric/lyric_parser.dart';
 import 'package:shared/lyric/lyric_scheduler.dart';
-import 'package:shared/themes.dart';
-import 'package:smooth_corner/smooth_corner.dart';
-import 'package:smooth_list_view/smooth_list_view.dart';
-import 'package:widgets/widgets/animated_hover_widget.dart';
+import 'package:widgets/widgets/scrollable_lyrics.dart';
+
+// class Lyric extends StatefulWidget {
+//   final double? width;
+//   final double? height;
+//   final TextAlign? textAlign;
+//   final EdgeInsets? padding;
+//
+//   final MainAxisAlignment? mainAxisAlignment;
+//   final CrossAxisAlignment? crossAxisAlignment;
+//
+//   final VoidCallback? onClick;
+//
+//   final int index;
+//   final CombinedLyric lyric;
+//   final Stream<int?> indexStream;
+//
+//   final double scrollPosition;
+//   final double scrollLength;
+//   final Stream<double?> scrollStream;
+//
+//   final Duration duration;
+//   final ScaleRatio? scaleRatio;
+//   final Alignment? animationAlignment;
+//
+//   const Lyric({
+//     super.key,
+//     this.width,
+//     this.height,
+//     this.textAlign,
+//     this.padding,
+//     this.mainAxisAlignment,
+//     this.crossAxisAlignment,
+//     this.onClick,
+//     required this.index,
+//     required this.lyric,
+//     required this.indexStream,
+//     required this.scrollPosition,
+//     required this.scrollLength,
+//     required this.scrollStream,
+//     this.duration = const Duration(milliseconds: 500),
+//     this.scaleRatio,
+//     this.animationAlignment,
+//   });
+//
+//   @override
+//   State<StatefulWidget> createState() => _LyricState();
+// }
+//
+// class _LyricState extends State<Lyric> with TickerProviderStateMixin {
+//   StreamSubscription? indexSubscription;
+//   StreamSubscription? scrollSubscription;
+//   AnimationController? animationController;
+//   Animation<double>? scaleAnimation;
+//   ValueNotifier<double>? opacityNotifier = ValueNotifier(0.0);
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//
+//     animationController = AnimationController(
+//       vsync: this,
+//       duration: widget.duration,
+//     );
+//     scaleAnimation = Tween(
+//       begin: widget.scaleRatio?.before ?? 0.8,
+//       end: widget.scaleRatio?.after ?? 1.0,
+//     ).animate(
+//       CurvedAnimation(
+//         parent: animationController!,
+//         curve: Curves.fastEaseInToSlowEaseOut,
+//       ),
+//     );
+//     indexSubscription = widget.indexStream.listen((targetIndex) {
+//       if (targetIndex == null) {
+//         animationController?.reverse();
+//         return;
+//       }
+//
+//       if (targetIndex == widget.index) {
+//         animationController?.forward();
+//         return;
+//       }
+//       animationController?.reverse();
+//     });
+//     scrollSubscription = widget.scrollStream.listen((offset) {
+//       if (offset == null) {
+//         return;
+//       }
+//
+//       final a = (widget.scrollPosition - offset).abs();
+//       final k = 1 / widget.scrollLength;
+//       final opacity = 1 - k * a * 5;
+//       if (opacity <= 0) {
+//         opacityNotifier?.value = min(0, -opacity);
+//       } else {
+//         opacityNotifier?.value = min(1, opacity);
+//       }
+//     });
+//   }
+//
+//   @override
+//   void dispose() {
+//     indexSubscription?.cancel();
+//     indexSubscription = null;
+//     scrollSubscription?.cancel();
+//     scrollSubscription = null;
+//     animationController?.dispose();
+//     animationController = null;
+//     scaleAnimation = null;
+//     opacityNotifier?.dispose();
+//     super.dispose();
+//   }
+//
+//   Widget buildLyric(CombinedLyric combinedLyric) {
+//     final lyric = combinedLyric.text;
+//     final translatedLyric = combinedLyric.translatedText;
+//     final romanLyric = combinedLyric.romanText;
+//
+//     if (lyric == null) {
+//       return SizedBox.shrink();
+//     }
+//     Widget translatedLyricText = SizedBox.shrink();
+//     Widget romanLyricText = SizedBox.shrink();
+//     if (translatedLyric != null) {
+//       translatedLyricText = Text(
+//         translatedLyric,
+//         softWrap: true,
+//         textAlign: widget.textAlign,
+//         style: TextStyle(fontSize: 24.sp, shadows: [Shadow(blurRadius: 6)]),
+//       );
+//     }
+//     if (romanLyric != null) {
+//       romanLyricText = Text(
+//         romanLyric,
+//         softWrap: true,
+//         textAlign: widget.textAlign,
+//         style: TextStyle(fontSize: 24.sp, shadows: [Shadow(blurRadius: 6)]),
+//       );
+//     }
+//
+//     return GestureDetector(
+//       onTap: () {
+//         widget.onClick?.call();
+//       },
+//       child: AnimatedHoverWidget(
+//         width: widget.width ?? 240,
+//         height: widget.height,
+//         borderRadius: BorderRadius.circular(16),
+//         hoverColor: themeData().colorScheme.surfaceBright.withAlpha(120),
+//         main:
+//             SmoothContainer(
+//                   width: widget.width ?? 240,
+//                   height: widget.height,
+//                   child: Column(
+//                     mainAxisAlignment:
+//                         widget.mainAxisAlignment ?? MainAxisAlignment.center,
+//                     crossAxisAlignment:
+//                         widget.crossAxisAlignment ?? CrossAxisAlignment.start,
+//                     children: [
+//                       Text(
+//                         lyric,
+//                         softWrap: true,
+//                         textAlign: widget.textAlign,
+//                         style: TextStyle(
+//                           fontSize: 32.sp,
+//                           shadows: [Shadow(blurRadius: 6)],
+//                         ),
+//                       ),
+//                       romanLyricText,
+//                       translatedLyricText,
+//                     ],
+//                   ),
+//                 ).applyConstraint(left: parent.left, top: parent.top)
+//                 as Constrained,
+//       ),
+//     );
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return ValueListenableBuilder(
+//       valueListenable: opacityNotifier!,
+//       builder: (context, opacity, _) {
+//         return Opacity(
+//           opacity: opacity,
+//           child: ScaleTransition(
+//             alignment: widget.animationAlignment ?? Alignment.centerLeft,
+//             scale: scaleAnimation!,
+//             child: buildLyric(widget.lyric),
+//           ),
+//         );
+//       },
+//     );
+//   }
+// }
 
 class SmoothLyrics extends StatefulWidget {
   final Stream<LyricsContainer?> lyricsStream;
@@ -20,9 +210,9 @@ class SmoothLyrics extends StatefulWidget {
   final double? lyricHeight;
   final MainAxisAlignment? lyricMainAxisAlignment;
   final CrossAxisAlignment? lyricCrossAxisAlignment;
-  final TextAlign? textAlign;
+  final TextAlign? lyricTextAlign;
 
-  final void Function(Duration)? onSeekPosition;
+  final void Function(int, CombinedLyric)? onClicked;
 
   const SmoothLyrics({
     super.key,
@@ -32,8 +222,8 @@ class SmoothLyrics extends StatefulWidget {
     this.lyricHeight,
     this.lyricMainAxisAlignment,
     this.lyricCrossAxisAlignment,
-    this.textAlign,
-    this.onSeekPosition
+    this.lyricTextAlign,
+    this.onClicked,
   });
 
   @override
@@ -43,9 +233,10 @@ class SmoothLyrics extends StatefulWidget {
 class _SmoothLyricsState extends State<SmoothLyrics> {
   LyricScheduler? lyricScheduler;
   StreamSubscription? lyricSchedulerSubscription;
-  BehaviorSubject<int?>? indexSubject = BehaviorSubject.seeded(null);
-  AnchorScrollController? scrollController;
   List<StreamSubscription> subscriptions = [];
+
+  BehaviorSubject<int?>? indexSubject = BehaviorSubject.seeded(null);
+  BehaviorSubject<double?>? scrollSubject = BehaviorSubject.seeded(null);
 
   @override
   void initState() {
@@ -84,81 +275,10 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
           return;
         }
 
-        scrollController?.scrollToIndex(
-          index: lyricStreamData.index,
-          curve: Curves.fastEaseInToSlowEaseOut,
-        );
         indexSubject?.add(lyricStreamData.index);
       });
     });
     subscriptions.add(lyricsSubscription);
-  }
-
-  Widget buildLyric(CombinedLyric combinedLyric) {
-    final lyric = combinedLyric.text;
-    final translatedLyric = combinedLyric.translatedText;
-    final romanLyric = combinedLyric.romanText;
-
-    if (lyric == null) {
-      return SizedBox.shrink();
-    }
-    Widget translatedLyricText = SizedBox.shrink();
-    Widget romanLyricText = SizedBox.shrink();
-    if (translatedLyric != null) {
-      translatedLyricText = Text(
-        translatedLyric,
-        softWrap: true,
-        textAlign: widget.textAlign,
-        style: TextStyle(fontSize: 24.sp, shadows: [Shadow(blurRadius: 6)]),
-      );
-    }
-    if (romanLyric != null) {
-      romanLyricText = Text(
-        romanLyric,
-        softWrap: true,
-        textAlign: widget.textAlign,
-        style: TextStyle(fontSize: 24.sp, shadows: [Shadow(blurRadius: 6)]),
-      );
-    }
-
-    return GestureDetector(
-      onTap: () {
-        final position = combinedLyric.position;
-        widget.onSeekPosition?.call(position);
-      },
-      child: AnimatedHoverWidget(
-        width: widget.lyricWidth ?? 240,
-        height: widget.lyricHeight,
-        borderRadius: BorderRadius.circular(16),
-        hoverColor: themeData().colorScheme.surfaceBright.withAlpha(120),
-        main:
-        SmoothContainer(
-          width: widget.lyricWidth ?? 240,
-          height: widget.lyricHeight,
-          child: Column(
-            mainAxisAlignment:
-            widget.lyricMainAxisAlignment ?? MainAxisAlignment.center,
-            crossAxisAlignment:
-            widget.lyricCrossAxisAlignment ??
-                CrossAxisAlignment.start,
-            children: [
-              Text(
-                lyric,
-                softWrap: true,
-                textAlign: widget.textAlign,
-                style: TextStyle(
-                  fontSize: 32.sp,
-                  shadows: [Shadow(blurRadius: 6)],
-                ),
-              ),
-              romanLyricText,
-              translatedLyricText,
-            ],
-          ),
-        ).applyConstraint(left: parent.left, top: parent.top)
-        as Constrained,
-      ),
-    );
   }
 
   @override
@@ -169,16 +289,21 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
     lyricSchedulerSubscription = null;
     indexSubject?.close();
     indexSubject = null;
+    scrollSubject?.close();
+    scrollSubject = null;
     for (final subscription in subscriptions) {
       subscription.cancel();
     }
     subscriptions.clear();
-    scrollController?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      indexSubject?.add(indexSubject?.valueOrNull);
+    });
+
     return StreamBuilder(
       stream: widget.lyricsStream,
       builder: (context, lyricsData) {
@@ -193,32 +318,18 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
           return SizedBox.shrink();
         }
 
-        scrollController = null;
-        scrollController = AnchorScrollController();
-
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          final latest = indexSubject?.value;
-          if (latest != null) {
-            scrollController?.scrollToIndex(
-              index: latest,
-              curve: Curves.fastEaseInToSlowEaseOut,
-            );
-          }
-        });
-
-        return SmoothListView.builder(
-          key: UniqueKey(),
-          physics: BouncingScrollPhysics(),
-          controller: scrollController,
-          itemCount: combined.length,
-          duration: Duration(milliseconds: 500),
-          itemBuilder: (context, index) {
-            return AnchorItemWrapper(
-              index: index,
-              controller: scrollController,
-              child: buildLyric(combined[index]),
-            );
-          },
+        return ClipRect(
+          child: ScrollableLyrics(
+            lyrics: combined,
+            indexStream: indexSubject!.stream,
+            lyricWidth: widget.lyricWidth,
+            lyricMainAxisAlignment: widget.lyricMainAxisAlignment,
+            lyricCrossAxisAlignment: widget.lyricCrossAxisAlignment,
+            lyricTextAlign: widget.lyricTextAlign,
+            onLyricClicked: (index) {
+              widget.onClicked?.call(index, combined[index]);
+            },
+          ),
         );
       },
     );
