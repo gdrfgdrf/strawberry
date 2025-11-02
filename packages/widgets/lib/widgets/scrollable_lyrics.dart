@@ -10,6 +10,11 @@ import 'package:shared/lyric/lyric_parser.dart';
 import 'package:smooth_corner/smooth_corner.dart';
 import 'package:widgets/animation/smooth_overflow_widget_animation.dart';
 
+enum LyricDisplay {
+  aligned,
+  center,
+}
+
 class LyricOffsetDeltas {
   final int index;
   final Offset begin;
@@ -34,9 +39,7 @@ class ScrollableLyrics extends StatefulWidget {
 
   final void Function(int)? onLyricClicked;
   final double? lyricWidth;
-  final MainAxisAlignment? lyricMainAxisAlignment;
-  final CrossAxisAlignment? lyricCrossAxisAlignment;
-  final TextAlign? lyricTextAlign;
+  final LyricDisplay? lyricDisplay;
 
   const ScrollableLyrics({
     super.key,
@@ -46,9 +49,7 @@ class ScrollableLyrics extends StatefulWidget {
     required this.indexStream,
     this.onLyricClicked,
     this.lyricWidth,
-    this.lyricMainAxisAlignment,
-    this.lyricCrossAxisAlignment,
-    this.lyricTextAlign,
+    this.lyricDisplay,
   });
 
   @override
@@ -195,6 +196,20 @@ class _ScrollableLyricsState extends State<ScrollableLyrics> {
 
     final mapped = <Widget>[];
     for (int i = 0; i < widget.lyrics.length; i++) {
+      Constraint constraint;
+      if (widget.lyricDisplay == null || widget.lyricDisplay == LyricDisplay.aligned) {
+        constraint = Constraint(
+          left: parent.left,
+          top: parent.top
+        );
+      } else {
+        constraint = Constraint(
+          top: parent.top,
+          left: parent.left,
+          right: parent.right
+        );
+      }
+
       mapped.add(
         Lyric(
           key: UniqueKey(),
@@ -205,16 +220,14 @@ class _ScrollableLyricsState extends State<ScrollableLyrics> {
           total: widget.lyrics.length,
           lyric: widget.lyrics[i],
           width: widget.lyricWidth,
-          mainAxisAlignment: widget.lyricMainAxisAlignment,
-          crossAxisAlignment: widget.lyricCrossAxisAlignment,
-          textAlign: widget.lyricTextAlign,
+          display: widget.lyricDisplay,
           onSizeCompleted: (size) {
             onSizeCompleted(i, size);
           },
           onClicked: () {
             widget.onLyricClicked?.call(i);
           },
-        ).applyConstraint(left: parent.left, top: parent.top),
+        ).apply(constraint: constraint),
       );
     }
 
@@ -260,9 +273,8 @@ class Lyric extends StatefulWidget {
   final CombinedLyric lyric;
 
   final double? width;
-  final MainAxisAlignment? mainAxisAlignment;
-  final CrossAxisAlignment? crossAxisAlignment;
-  final TextAlign? textAlign;
+
+  final LyricDisplay? display;
 
   const Lyric({
     super.key,
@@ -275,9 +287,7 @@ class Lyric extends StatefulWidget {
     required this.total,
     required this.lyric,
     this.width,
-    this.mainAxisAlignment,
-    this.crossAxisAlignment,
-    this.textAlign,
+    this.display,
   });
 
   @override
@@ -414,10 +424,10 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
     });
   }
 
-  Widget buildLyric(CombinedLyric combinedLyric) {
-    final lyric = combinedLyric.text;
-    final translatedLyric = combinedLyric.translatedText;
-    final romanLyric = combinedLyric.romanText;
+  Widget buildCenterLyric() {
+    final lyric = widget.lyric.text;
+    final translatedLyric = widget.lyric.translatedText;
+    final romanLyric = widget.lyric.romanText;
 
     Widget translatedLyricText = SizedBox.shrink();
     Widget romanLyricText = SizedBox.shrink();
@@ -425,7 +435,7 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
       translatedLyricText = Text(
         translatedLyric,
         softWrap: true,
-        textAlign: widget.textAlign,
+        textAlign: TextAlign.center,
         style: TextStyle(fontSize: 24.sp, shadows: [Shadow(blurRadius: 6)]),
       );
     }
@@ -433,7 +443,7 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
       romanLyricText = Text(
         romanLyric,
         softWrap: true,
-        textAlign: widget.textAlign,
+        textAlign: TextAlign.center,
         style: TextStyle(fontSize: 24.sp, shadows: [Shadow(blurRadius: 6)]),
       );
     }
@@ -452,7 +462,76 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
           Text(
             lyric ?? "",
             softWrap: true,
-            textAlign: widget.textAlign,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 32.sp, shadows: [Shadow(blurRadius: 6)]),
+          ).applyConstraint(
+            id: lyricId,
+            top: parent.top,
+            left: parent.left,
+            right: parent.right,
+            width: widget.width ?? 240,
+          ),
+          romanLyricText.applyConstraint(
+            id: romanId,
+            top: lyricId.bottom,
+            left: parent.left,
+            right: parent.right,
+            width: widget.width ?? 240,
+          ),
+          translatedLyricText.applyConstraint(
+            id: translatedId,
+            top: romanId.bottom,
+            left: parent.left,
+            right: parent.right,
+            width: widget.width ?? 240,
+          ),
+          SizedBox().applyConstraint(
+            top: translatedId.bottom,
+            left: parent.left,
+            right: parent.right,
+            height: 24.h,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildAlignedLyric() {
+    final lyric = widget.lyric.text;
+    final translatedLyric = widget.lyric.translatedText;
+    final romanLyric = widget.lyric.romanText;
+
+    Widget translatedLyricText = SizedBox.shrink();
+    Widget romanLyricText = SizedBox.shrink();
+    if (translatedLyric != null) {
+      translatedLyricText = Text(
+        translatedLyric,
+        softWrap: true,
+        style: TextStyle(fontSize: 24.sp, shadows: [Shadow(blurRadius: 6)]),
+      );
+    }
+    if (romanLyric != null) {
+      romanLyricText = Text(
+        romanLyric,
+        softWrap: true,
+        style: TextStyle(fontSize: 24.sp, shadows: [Shadow(blurRadius: 6)]),
+      );
+    }
+    final lyricId = ConstraintId("lyric");
+    final romanId = ConstraintId("roman");
+    final translatedId = ConstraintId("translated");
+
+    return FindSize(
+      onChange: (size) {
+        widget.onSizeCompleted?.call(size);
+      },
+      child: ConstraintLayout(
+        width: widget.width ?? 240,
+        height: wrapContent,
+        children: [
+          Text(
+            lyric ?? "",
+            softWrap: true,
             style: TextStyle(fontSize: 32.sp, shadows: [Shadow(blurRadius: 6)]),
           ).applyConstraint(
             id: lyricId,
@@ -475,11 +554,18 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
           SizedBox().applyConstraint(
             top: translatedId.bottom,
             left: parent.left,
-            height: 24.h
-          )
+            height: 24.h,
+          ),
         ],
       ),
     );
+  }
+
+  Widget buildLyric() {
+    if (widget.display == null || widget.display == LyricDisplay.aligned) {
+      return buildAlignedLyric();
+    }
+    return buildCenterLyric();
   }
 
   @override
@@ -514,7 +600,7 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
             animations.isEmpty ||
             primaryAnimation == null ||
             primaryAnimationController == null) {
-          return buildLyric(widget.lyric);
+          return buildLyric();
         }
 
         return AnimatedBuilder(
@@ -522,7 +608,7 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
           builder: (context, _) {
             final index = primaryAnimation?.value.toInt();
             if (index == null) {
-              return buildLyric(widget.lyric);
+              return buildLyric();
             }
             final part = animations[index];
             final animation = part.animation;
@@ -558,20 +644,20 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
               builder: (_, __) {
                 final translated = Transform.translate(
                   offset: Offset(0, animation.value),
-                  child: buildLyric(widget.lyric),
+                  child: buildLyric(),
                 );
 
                 final distance = (widget.index - index).abs();
-                double k = 1 / distance;
+                double k1 = 1 / distance;
                 if (distance == 0) {
-                  k = 1;
+                  k1 = 1;
                 }
                 if (distance == 1) {
-                  k = 0.6;
+                  k1 = 0.6;
                 }
 
                 return AnimatedOpacity(
-                  opacity: k,
+                  opacity: k1,
                   duration: Duration(milliseconds: 250),
                   child: translated,
                 );

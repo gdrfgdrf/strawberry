@@ -13,6 +13,7 @@ import 'package:smooth_corner/smooth_corner.dart';
 import 'package:strawberry/play/audio_player_translator.dart';
 import 'package:strawberry/ui/abstract_page.dart';
 import 'package:widgets/widgets/next_smooth_image.dart';
+import 'package:widgets/widgets/scrollable_lyrics.dart';
 import 'package:widgets/widgets/smooth_lyrics.dart';
 import 'package:widgets/widgets/smooth_stream_builder.dart';
 
@@ -88,6 +89,113 @@ class _PlayingPageState
     super.dispose();
   }
 
+  Widget buildDisplayV2() {
+    final screenSize = MediaQuery.of(context).size;
+    final coverId = ConstraintId("cover");
+    final nameId = ConstraintId("name");
+
+    return ConstraintLayout(
+      children: [
+        SmoothClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Material(
+            color: Colors.transparent,
+            elevation: 8,
+            child: NextSmoothImage.bytesStream(
+              stream: audioPlayerTranslator!.coverStream(),
+              width: 128.w,
+              height: 128.w,
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        ).applyConstraint(
+          id: coverId,
+          top: parent.top,
+          left: parent.left,
+          margin: EdgeInsets.only(
+            top: 24,
+            left: 24,
+          ),
+        ),
+
+        SmoothStreamBuilder(
+          stream: audioPlayerTranslator!.songStream(),
+          alignment: AlignmentDirectional.centerStart,
+          builder: (context, songData) {
+            if (!songData.hasData) {
+              return SizedBox.shrink();
+            }
+            final song = songData.data as SongEntity;
+            return SizedBox(
+              width: screenSize.width / 4,
+              child: Text(
+                song.name,
+                softWrap: true,
+                style: TextStyle(
+                  fontSize: 24.sp,
+                  shadows: [Shadow(blurRadius: 6)],
+                ),
+              ),
+            );
+          },
+        ).applyConstraint(
+          id: nameId,
+          top: coverId.top,
+          left: coverId.right,
+          margin: EdgeInsets.only(
+            top: 2,
+            left: 6
+          )
+        ),
+
+        SmoothStreamBuilder(
+          stream: audioPlayerTranslator!.songStream(),
+          alignment: AlignmentDirectional.centerStart,
+          builder: (context, songData) {
+            if (!songData.hasData) {
+              return SizedBox.shrink();
+            }
+            final song = songData.data as SongEntity;
+            return SizedBox(
+              width: screenSize.width / 4.5,
+              child: Text(
+                song.buildArtists(),
+                softWrap: true,
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  shadows: [Shadow(blurRadius: 6)],
+                ),
+              ),
+            );
+          },
+        ).applyConstraint(
+          top: nameId.bottom,
+          left: coverId.right,
+          margin: EdgeInsets.only(
+            left: 6
+          )
+        ),
+
+        SmoothLyrics(
+          width: screenSize.width,
+          height: screenSize.height,
+          lyricDisplay: LyricDisplay.center,
+          lyricWidth: screenSize.width - 2 * (screenSize.width / 6),
+          lyricsStream: audioPlayerTranslator!.lyricsStream(),
+          positionStream: audioPlayerTranslator!.audioPlayer.positionStream,
+          onClicked: (index, lyric) {
+            audioPlayerTranslator!.audioPlayer.seek(lyric.position);
+          },
+        ).applyConstraint(
+          top: parent.top,
+          bottom: parent.bottom,
+          left: parent.left,
+          right: parent.right,
+        ),
+      ],
+    );
+  }
+
   Widget buildDisplay() {
     final screenSize = MediaQuery.of(context).size;
     final coverId = ConstraintId("cover");
@@ -125,11 +233,15 @@ class _PlayingPageState
               return SizedBox.shrink();
             }
             final song = songData.data as SongEntity;
-            return Text(
-              song.name,
-              style: TextStyle(
-                fontSize: 32.sp,
-                shadows: [Shadow(blurRadius: 6)],
+            return SizedBox(
+              width: screenSize.width / 2.6,
+              child: Text(
+                song.name,
+                softWrap: true,
+                style: TextStyle(
+                  fontSize: 32.sp,
+                  shadows: [Shadow(blurRadius: 6)],
+                ),
               ),
             );
           },
@@ -148,11 +260,15 @@ class _PlayingPageState
               return SizedBox.shrink();
             }
             final song = songData.data as SongEntity;
-            return Text(
-              song.buildArtists(),
-              style: TextStyle(
-                fontSize: 16.sp,
-                shadows: [Shadow(blurRadius: 6)],
+            return SizedBox(
+              width: screenSize.width / 3,
+              child: Text(
+                song.buildArtists(),
+                softWrap: true,
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  shadows: [Shadow(blurRadius: 6)],
+                ),
               ),
             );
           },
@@ -175,73 +291,6 @@ class _PlayingPageState
           left: coverId.right,
           margin: EdgeInsets.only(left: screenSize.width / 3),
         ),
-
-        // StreamBuilder(
-        //   stream: audioPlayerTranslator!.lyricsStream(),
-        //   builder: (context, lyricsData) {
-        //     if (!lyricsData.hasData) {
-        //       return SizedBox.shrink();
-        //     }
-        //     final lyrics = lyricsData.data!;
-        //     lyrics.wordBasedLyrics?.clear();
-        //     final combined = lyrics.combine();
-        //     if (combined == null) {
-        //       return SizedBox.shrink();
-        //     }
-        //
-        //     lyricScheduler?.dispose();
-        //     lyricScheduler = LyricScheduler(
-        //       combined,
-        //       audioPlayerTranslator!.audioPlayer.positionStream,
-        //     );
-        //     lyricScheduler?.start();
-        //
-        //     return StreamBuilder(
-        //       stream: lyricScheduler!.lyricStream,
-        //       builder: (context, lyricStreamData) {
-        //         if (!lyricStreamData.hasData) {
-        //           return SizedBox.shrink();
-        //         }
-        //         final lyricStream = lyricStreamData.data!;
-        //         final index = lyricStream.index;
-        //         final lyric = lyricStream.lyric;
-        //
-        //         if (lyric is CombinedLyric) {
-        //           StringBuffer text = StringBuffer();
-        //           text.writeln(lyric.text);
-        //
-        //           // if (lyric.wordBasedLyric != null) {
-        //           //   text.writeln(lyric.wordBasedLyric!.text);
-        //           // } else {
-        //           //   text.writeln(lyric.text);
-        //           // }
-        //
-        //           if (lyric.romanText != null) {
-        //             text.writeln(lyric.romanText!);
-        //           }
-        //           if (lyric.translatedText != null) {
-        //             text.writeln(lyric.translatedText!);
-        //           }
-        //
-        //           return Text(
-        //             text.toString(),
-        //             style: TextStyle(
-        //               fontSize: 24.sp,
-        //               shadows: [Shadow(blurRadius: 6)],
-        //             ),
-        //           );
-        //         }
-        //
-        //         return SizedBox.shrink();
-        //       },
-        //     );
-        //   },
-        // ).applyConstraint(
-        //   top: parent.top,
-        //   bottom: parent.bottom,
-        //   left: coverId.right,
-        //   margin: EdgeInsets.only(left: screenSize.width / 3),
-        // ),
       ],
     );
   }
@@ -255,7 +304,7 @@ class _PlayingPageState
         SliverToBoxAdapter(
           child: SmoothContainer(
             height: screenSize.height,
-            child: buildDisplay(),
+            child: buildDisplayV2(),
           ),
         ),
       ],
