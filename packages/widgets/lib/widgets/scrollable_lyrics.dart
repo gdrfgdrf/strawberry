@@ -111,21 +111,43 @@ class _ScrollableLyricsState extends State<ScrollableLyrics> {
     });
   }
 
+  List<double> calculateInitialOffsets() {
+    final results = <double>[];
+
+    final screenSize = MediaQuery.of(context).size;
+    for (int i = 0; i < _sizes.length; i++) {
+      if (i <= 0) {
+        results.add(screenSize.height / 2.6);
+        continue;
+      }
+
+      double previousTotal = 0;
+      for (int x = 0; x < i; x++) {
+        previousTotal += _sizes[x].size.height;
+      }
+      if (previousTotal <= 0) {
+        continue;
+      }
+
+      results.add(screenSize.height / 2.6 + previousTotal);
+    }
+
+    return results;
+  }
+
   void onAllSizeCompleted() {
     allSizeCompleted = true;
 
     _sizes.sort((a, b) => a.index.compareTo(b.index));
 
-    final screenSize = MediaQuery.of(context).size;
+    final initialOffsets = calculateInitialOffsets();
+
     for (int i = 0; i < _sizes.length; i++) {
       final deltas = <double>[];
 
       final height = _sizes[i].size.height;
-      double cumulativePrevious = height + screenSize.width / 5;
-
       for (int x = 0; x < i; x++) {
         final previous = _sizes[x];
-        cumulativePrevious = cumulativePrevious + previous.size.height;
         deltas.add(-previous.size.height);
       }
 
@@ -138,7 +160,7 @@ class _ScrollableLyricsState extends State<ScrollableLyrics> {
 
       final wrapped = LyricOffsetDeltas(
         i,
-        Offset(0, cumulativePrevious),
+        Offset(0, initialOffsets[i]),
         deltas.map((delta) => Offset(0, delta)).toList(),
       );
       offsetDeltasStream.add(wrapped);
@@ -271,7 +293,6 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
 
   Animation<double>? primaryAnimation;
   AnimationController? primaryAnimationController;
-  AnimationController? opacityAnimationController;
   final Duration singleAnimationDuration = Duration(milliseconds: 500);
   final ValueNotifier<List<_AnimationPart>?> animationsNotifier = ValueNotifier(
     null,
@@ -279,7 +300,7 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
 
   int? latestIndex;
   int? previousIndex;
-  double? previousOpacity;
+  double? totalOffset;
 
   void rebuildAnimations(LyricOffsetDeltas deltas) {
     previousIndex = null;
@@ -289,22 +310,40 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
     double begin = deltas.begin.dy;
     final results = <_AnimationPart>[];
 
-    for (final delta in deltas.deltas) {
+    for (int i = 0; i < deltas.deltas.length; i++) {
+      final delta = deltas.deltas[i];
       final dy = delta.dy;
+
+      double animationBegin = begin - dy;
+      final animationEnd = begin;
+
+      if (i >= 1) {
+        final previousDelta = deltas.deltas[i - 1];
+        final previousDy = previousDelta.dy;
+
+        final extraDelta = (dy - previousDy).abs();
+        if (previousDy > dy) {
+          animationBegin = begin - dy - extraDelta;
+        }
+        if (previousDy < dy) {
+          animationBegin = begin - dy + extraDelta;
+        }
+      }
+
       final controller = AnimationController(
         vsync: this,
         duration: singleAnimationDuration,
       );
-      final animation = Tween(begin: begin, end: begin + dy).animate(
+      final animation = Tween(begin: animationBegin, end: animationEnd).animate(
         CurvedAnimation(
           parent: controller,
           curve: Curves.fastEaseInToSlowEaseOut,
         ),
       );
-      begin = begin + dy;
-
       final animationPart = _AnimationPart(animation, controller);
       results.add(animationPart);
+
+      begin = begin + dy;
     }
 
     if (results.isEmpty) {
@@ -324,10 +363,6 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
           List.generate(results.length, (index) => index.toDouble()),
         ),
       ),
-    );
-    opacityAnimationController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 250),
     );
     animationsNotifier.value = results;
 
@@ -404,6 +439,7 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
     }
     final lyricId = ConstraintId("lyric");
     final romanId = ConstraintId("roman");
+    final translatedId = ConstraintId("translated");
 
     return FindSize(
       onChange: (size) {
@@ -417,27 +453,30 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
             lyric ?? "",
             softWrap: true,
             textAlign: widget.textAlign,
-            style: TextStyle(
-              fontSize: 32.sp,
-              shadows: [Shadow(blurRadius: 6)],
-            ),
+            style: TextStyle(fontSize: 32.sp, shadows: [Shadow(blurRadius: 6)]),
           ).applyConstraint(
             id: lyricId,
             top: parent.top,
             left: parent.left,
-            // width: widget.width ?? 240,
+            width: widget.width ?? 240,
           ),
           romanLyricText.applyConstraint(
             id: romanId,
             top: lyricId.bottom,
             left: parent.left,
-            // width: widget.width ?? 240,
+            width: widget.width ?? 240,
           ),
           translatedLyricText.applyConstraint(
+            id: translatedId,
             top: romanId.bottom,
             left: parent.left,
-            // width: widget.width ?? 240,
+            width: widget.width ?? 240,
           ),
+          SizedBox().applyConstraint(
+            top: translatedId.bottom,
+            left: parent.left,
+            height: 24.h
+          )
         ],
       ),
     );
@@ -454,8 +493,6 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
     primaryAnimation = null;
     primaryAnimationController?.dispose();
     primaryAnimationController = null;
-    opacityAnimationController?.dispose();
-    opacityAnimationController = null;
 
     if (animationsNotifier.value != null) {
       for (final part in animationsNotifier.value!) {
@@ -487,7 +524,6 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
             if (index == null) {
               return buildLyric(widget.lyric);
             }
-
             final part = animations[index];
             final animation = part.animation;
 

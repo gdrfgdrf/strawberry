@@ -299,6 +299,13 @@
             </list>
           </value>
         </entry>
+        <entry key="find_size">
+          <value>
+            <list>
+              <option value="$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/find_size-1.0.0/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="fixnum">
           <value>
             <list>
@@ -1264,6 +1271,7 @@
       <root url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/ffi-2.1.4/lib" />
       <root url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/ffigen-19.0.0/lib" />
       <root url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/file-7.0.1/lib" />
+      <root url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/find_size-1.0.0/lib" />
       <root url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/fixnum-1.1.1/lib" />
       <root url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/fluid_background-1.0.5/lib" />
       <root url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/fluro-2.0.5/lib" />
