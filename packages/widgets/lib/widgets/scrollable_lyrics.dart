@@ -78,7 +78,7 @@ class _ScrollableLyricsState extends State<ScrollableLyrics> {
   void updateLyricAnimationDurations(int index) {
     for (int i = 1; i < widget.lyrics.length + 1; i++) {
       final k = i / (index + 1);
-      final extraDuration = Duration(milliseconds: (pow(70, k)).toInt());
+      final extraDuration = Duration(milliseconds: (pow(500, k)).toInt());
       Duration target = singleAnimationDuration * k + extraDuration;
       if (target < Duration.zero) {
         target = singleAnimationDuration * k;
@@ -532,7 +532,6 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
       translatedLyricText = Text(
         translatedLyric,
         softWrap: true,
-
         style: TextStyle(
           fontSize: 24.sp,
           fontFamily: getFont(),
