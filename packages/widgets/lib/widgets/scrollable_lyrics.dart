@@ -532,14 +532,25 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
       translatedLyricText = Text(
         translatedLyric,
         softWrap: true,
-        style: TextStyle(fontSize: 24.sp, shadows: [Shadow(blurRadius: 6)]),
+
+        style: TextStyle(
+          fontSize: 24.sp,
+          fontFamily: getFont(),
+          fontFamilyFallback: getFallbackFonts(),
+          shadows: [Shadow(blurRadius: 6)],
+        ),
       );
     }
     if (romanLyric != null) {
       romanLyricText = Text(
         romanLyric,
         softWrap: true,
-        style: TextStyle(fontSize: 24.sp, shadows: [Shadow(blurRadius: 6)]),
+        style: TextStyle(
+          fontSize: 24.sp,
+          fontFamily: getFont(),
+          fontFamilyFallback: getFallbackFonts(),
+          shadows: [Shadow(blurRadius: 6)],
+        ),
       );
     }
     final lyricId = ConstraintId("lyric");
@@ -557,7 +568,12 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
           Text(
             lyric ?? "",
             softWrap: true,
-            style: TextStyle(fontSize: 32.sp, shadows: [Shadow(blurRadius: 6)]),
+            style: TextStyle(
+              fontSize: 32.sp,
+              fontFamily: getFont(),
+              fontFamilyFallback: getFallbackFonts(),
+              shadows: [Shadow(blurRadius: 6)],
+            ),
           ).applyConstraint(
             id: lyricId,
             top: parent.top,
