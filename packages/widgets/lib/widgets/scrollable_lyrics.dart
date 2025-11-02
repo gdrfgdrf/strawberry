@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:find_size/find_size.dart';
@@ -10,10 +11,7 @@ import 'package:shared/lyric/lyric_parser.dart';
 import 'package:smooth_corner/smooth_corner.dart';
 import 'package:widgets/animation/smooth_overflow_widget_animation.dart';
 
-enum LyricDisplay {
-  aligned,
-  center,
-}
+enum LyricDisplay { aligned, center }
 
 class LyricOffsetDeltas {
   final int index;
@@ -197,16 +195,14 @@ class _ScrollableLyricsState extends State<ScrollableLyrics> {
     final mapped = <Widget>[];
     for (int i = 0; i < widget.lyrics.length; i++) {
       Constraint constraint;
-      if (widget.lyricDisplay == null || widget.lyricDisplay == LyricDisplay.aligned) {
-        constraint = Constraint(
-          left: parent.left,
-          top: parent.top
-        );
+      if (widget.lyricDisplay == null ||
+          widget.lyricDisplay == LyricDisplay.aligned) {
+        constraint = Constraint(left: parent.left, top: parent.top);
       } else {
         constraint = Constraint(
           top: parent.top,
           left: parent.left,
-          right: parent.right
+          right: parent.right,
         );
       }
 
@@ -424,6 +420,20 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
     });
   }
 
+  String? getFont() {
+    if (!Platform.isWindows) {
+      return null;
+    }
+    return "Microsoft YaHei";
+  }
+
+  List<String>? getFallbackFonts() {
+    if (!Platform.isWindows) {
+      return null;
+    }
+    return ["Arial"];
+  }
+
   Widget buildCenterLyric() {
     final lyric = widget.lyric.text;
     final translatedLyric = widget.lyric.translatedText;
@@ -436,7 +446,12 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
         translatedLyric,
         softWrap: true,
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 24.sp, shadows: [Shadow(blurRadius: 6)]),
+        style: TextStyle(
+          fontSize: 24.sp,
+          fontFamily: getFont(),
+          fontFamilyFallback: getFallbackFonts(),
+          shadows: [Shadow(blurRadius: 6)],
+        ),
       );
     }
     if (romanLyric != null) {
@@ -444,7 +459,12 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
         romanLyric,
         softWrap: true,
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 24.sp, shadows: [Shadow(blurRadius: 6)]),
+        style: TextStyle(
+          fontSize: 24.sp,
+          fontFamily: getFont(),
+          fontFamilyFallback: getFallbackFonts(),
+          shadows: [Shadow(blurRadius: 6)],
+        ),
       );
     }
     final lyricId = ConstraintId("lyric");
@@ -463,7 +483,12 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
             lyric ?? "",
             softWrap: true,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 32.sp, shadows: [Shadow(blurRadius: 6)]),
+            style: TextStyle(
+              fontSize: 32.sp,
+              fontFamily: getFont(),
+              fontFamilyFallback: getFallbackFonts(),
+              shadows: [Shadow(blurRadius: 6)],
+            ),
           ).applyConstraint(
             id: lyricId,
             top: parent.top,
