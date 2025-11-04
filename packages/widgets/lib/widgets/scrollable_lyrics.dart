@@ -76,16 +76,66 @@ class _ScrollableLyricsState extends State<ScrollableLyrics> {
   }
 
   void updateLyricAnimationDurations(int index) {
-    for (int i = 1; i < widget.lyrics.length + 1; i++) {
-      final k = i / (index + 1);
-      final extraDuration = Duration(milliseconds: (pow(500, k)).toInt());
-      Duration target = singleAnimationDuration * k + extraDuration;
-      if (target < Duration.zero) {
-        target = singleAnimationDuration * k;
+    final durations = <Duration>[];
+    Duration lowestDuration = Duration(milliseconds: 100);
+
+    for (int i = 0; i < widget.lyrics.length; i++) {
+      Duration? target;
+      if (index == 0) {
+        target = singleAnimationDuration;
+        durations.add(target);
+
+        if (target < lowestDuration) {
+          lowestDuration = target;
+        }
+        continue;
+      }
+      final distance = i - index;
+      Duration delta;
+      if (distance <= 0) {
+        final k = i / index;
+        delta = Duration(
+          milliseconds: pow(singleAnimationDuration.inMilliseconds, k).toInt(),
+        );
+      } else {
+        delta = Duration(
+          milliseconds:
+              (sqrt(distance) * singleAnimationDuration.inMilliseconds).toInt(),
+        );
       }
 
-      lyricAnimationDurationStream.add(LyricAnimationDuration(i - 1, target));
+      target = singleAnimationDuration + delta;
+
+      if (target <= Duration.zero) {
+        durations.add(Duration.zero);
+      } else {
+        durations.add(target);
+
+        if (target < lowestDuration) {
+          lowestDuration = target;
+        }
+      }
     }
+
+    for (int i = 0; i < durations.length; i++) {
+      Duration duration = durations[i];
+      if (duration <= Duration.zero) {
+        duration = lowestDuration;
+      }
+
+      lyricAnimationDurationStream.add(LyricAnimationDuration(i, duration));
+    }
+
+    // for (int i = 1; i < widget.lyrics.length + 1; i++) {
+    //   final k = i / (index + 1);
+    //   final extraDuration = Duration(milliseconds: (pow(500, k)).toInt());
+    //   Duration target = singleAnimationDuration * k + extraDuration;
+    //   if (target < Duration.zero) {
+    //     target = singleAnimationDuration * k;
+    //   }
+    //
+    //   lyricAnimationDurationStream.add(LyricAnimationDuration(i - 1, target));
+    // }
   }
 
   @override
