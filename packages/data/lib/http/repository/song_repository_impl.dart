@@ -314,4 +314,32 @@ class SongRepositoryImpl extends AbstractSongRepository {
 
     return completer.future;
   }
+
+  @override
+  Future<int> like(int id, bool like) {
+    final completer = Completer<int>();
+    final endpoint = GetIt.instance.get<UrlProvider>().songLike(id, like);
+    final taskChain = TaskChain();
+
+    taskChain
+        .stringNetwork(() => endpoint)
+        .onComplete((response, _) {
+          final parsedResponse = jsonDecode(response);
+
+          if (parsedResponse["code"] != 200) {
+            final exception = ApiServiceException(
+              parsedResponse["message"] ?? parsedResponse.toString(),
+            );
+            completer.completeError(exception);
+            return;
+          }
+
+          final playlistId = parsedResponse["playlistId"];
+          completer.complete(playlistId);
+        })
+        .globalOnError((_, e, s) => completer.completeError(e, s))
+        .run();
+
+    return completer.future;
+  }
 }

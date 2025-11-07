@@ -29,6 +29,8 @@ abstract class SongUseCase {
     int id, {
     bool cache = true,
   });
+
+  Future<Either<Failure, int>> like(int id, bool like);
 }
 
 class SongUseCaseImpl extends StrawberryUseCase implements SongUseCase {
@@ -95,6 +97,21 @@ class SongUseCaseImpl extends StrawberryUseCase implements SongUseCase {
     } catch (e, s) {
       serviceLogger!.error(
         "getting song lyrics error, id: $id, cache: $cache: $e\n$s",
+      );
+      return Left(Failure(e, s));
+    }
+  }
+
+  @override
+  Future<Either<Failure, int>> like(int id, bool like) async {
+    serviceLogger!.trace("liking or unliking a song, id: $id, like: $like");
+
+    try {
+      final playlistId = await songRepository.like(id, like);
+      return Right(playlistId);
+    } catch (e, s) {
+      serviceLogger!.error(
+        "liking or unliking a song error, id: $id, like: $like: $e\n$s",
       );
       return Left(Failure(e, s));
     }

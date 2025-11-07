@@ -4,9 +4,11 @@ import 'dart:async';
 import 'package:domain/entity/song_entity.dart';
 import 'package:domain/entity/song_file_entity.dart';
 import 'package:domain/entity/song_privilege_entity.dart';
+import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared/lyric/lyric_parser.dart';
+import 'package:strawberry/play/playlist_manager.dart';
 import 'package:uuid/v4.dart';
 
 import 'network_stream_audio_source.dart';
@@ -32,6 +34,7 @@ class AudioPlayerTranslator {
   final BehaviorSubject<Duration?> totalDurationController =
   BehaviorSubject.seeded(null);
 
+  StreamSubscription? audioSourcesSubscription;
   StreamSubscription<int?>? currentIndexSubscription;
   int? latestIndex;
   SongEntity? latestSong;
@@ -64,58 +67,65 @@ class AudioPlayerTranslator {
 
   void start() {
     id = UuidV4().generate();
-    currentIndexSubscription = audioPlayer.currentIndexStream.listen((index) {
-      if (songController.isClosed || privilegeController.isClosed) {
-        return;
-      }
-      if (index == null) {
-        addNull();
-        return;
-      }
+    audioSourcesSubscription = GetIt.instance.get<PlaylistManager>().subscribeAudioSources((_) {
+      currentIndexSubscription?.cancel();
+      currentIndexSubscription = null;
+      latestIndex = null;
+      latestSong = null;
+      addNull();
 
-      final audioSource = audioPlayer.audioSources.elementAtOrNull(index);
-      if (audioSource == null || audioSource is! NetworkStreamAudioSource) {
-        addNull();
-        return;
-      }
-
-      /// currentIndexStream 这玩意会一直推送，不管有没有变化
-      if (latestIndex == index) {
-        return;
-      }
-
-      latestIndex = index;
-      canceler = audioSource.followRequest(
-        id: id!,
-        onCover: (bytes) {
-          if (latestIndex == index) {
-            coverController.add(bytes);
-          }
-        },
-        onSong: (song) {
-          if (latestIndex == index) {
-            latestSong = song;
-            songController.add(song);
-            totalDurationController.add(song?.duration);
-          }
-        },
-        onSongPrivilege: (privilege) {
-          if (latestIndex == index) {
-            privilegeController.add(privilege);
-          }
-        },
-        onSongFile: (songFile) {
-          if (latestIndex == index) {
-            songFileController.add(songFile);
-          }
-        },
-        onLyrics: (lyrics) {
-          if (latestIndex == index) {
-            lyricsController.add(lyrics);
-          }
+      currentIndexSubscription = audioPlayer.currentIndexStream.listen((index) {
+        if (songController.isClosed || privilegeController.isClosed) {
+          return;
         }
-      );
+        if (index == null) {
+          addNull();
+          return;
+        }
 
+        final audioSource = audioPlayer.audioSources.elementAtOrNull(index);
+        if (audioSource == null || audioSource is! NetworkStreamAudioSource) {
+          addNull();
+          return;
+        }
+
+        /// currentIndexStream 这玩意会一直推送，不管有没有变化
+        if (latestIndex == index) {
+          return;
+        }
+
+        latestIndex = index;
+        canceler = audioSource.followRequest(
+            id: id!,
+            onCover: (bytes) {
+              if (latestIndex == index) {
+                coverController.add(bytes);
+              }
+            },
+            onSong: (song) {
+              if (latestIndex == index) {
+                latestSong = song;
+                songController.add(song);
+                totalDurationController.add(song?.duration);
+              }
+            },
+            onSongPrivilege: (privilege) {
+              if (latestIndex == index) {
+                privilegeController.add(privilege);
+              }
+            },
+            onSongFile: (songFile) {
+              if (latestIndex == index) {
+                songFileController.add(songFile);
+              }
+            },
+            onLyrics: (lyrics) {
+              if (latestIndex == index) {
+                lyricsController.add(lyrics);
+              }
+            }
+        );
+      });
     });
   }
 
@@ -130,6 +140,7 @@ class AudioPlayerTranslator {
 
   void dispose() {
     canceler?.call();
+    audioSourcesSubscription?.cancel();
     currentIndexSubscription?.cancel();
     coverController.close();
     songController.close();

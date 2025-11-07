@@ -139,13 +139,13 @@ class _SongListState extends AbstractUiWidgetState<SongList, EmptyDelegate> {
     }
 
     final playlistManager = GetIt.instance.get<PlaylistManager>();
-    final currentId = playlistManager.getCurrentSha256();
+    final currentSha256 = playlistManager.getCurrentSha256();
     final sha256 = await calculateSha256();
     if (sha256 == null) {
       return;
     }
 
-    if (currentId != null && currentId == sha256) {
+    if (currentSha256 != null && currentSha256 == sha256) {
       playlistManager.playAt(index);
       return;
     }

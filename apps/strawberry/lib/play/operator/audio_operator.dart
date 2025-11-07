@@ -1,6 +1,15 @@
+import 'dart:async';
+
+import 'package:domain/entity/song_entity.dart';
+import 'package:domain/loved_playlist_ids_holder.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_constraintlayout/flutter_constraintlayout.dart';
+import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:strawberry/bloc/song/like_song_event_state.dart';
+import 'package:strawberry/bloc/song/song_bloc.dart';
 import 'package:widgets/widgets/smooth_stream_builder.dart';
 
 import '../audio_player_translator.dart';
@@ -23,15 +32,19 @@ class AudioOperator extends StatefulWidget {
 
 class _AudioOperatorState extends State<AudioOperator>
     with TickerProviderStateMixin {
+  SongBloc? songBloc = GetIt.instance.get();
   AudioPlayerTranslator? audioPlayerTranslator;
 
   AnimationController? playOperatorAnimationController;
   Animation<double>? playOperatorAnimation;
 
+  StreamController<bool?>? songLikeStream = BehaviorSubject.seeded(null);
+
   @override
   void initState() {
     super.initState();
     audioPlayerTranslator = AudioPlayerTranslator(widget.audioPlayer);
+    audioPlayerTranslator?.start();
     playOperatorAnimationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 500),
@@ -42,21 +55,91 @@ class _AudioOperatorState extends State<AudioOperator>
         curve: Curves.linear,
       ),
     );
+
+    songBloc?.stream.listen((state) {
+      if (state is LikeSongSuccess) {
+        final idsHolder = GetIt.instance.get<LovedPlaylistIdsHolder>();
+        if (state.like) {
+          idsHolder.add(state.id);
+        } else {
+          idsHolder.remove(state.id);
+        }
+
+        songLikeStream?.add(state.like);
+      }
+    });
   }
 
   @override
   void dispose() {
+    songBloc?.close();
+    songBloc = null;
     audioPlayerTranslator?.dispose();
+    audioPlayerTranslator = null;
     playOperatorAnimationController?.dispose();
+    playOperatorAnimationController = null;
     playOperatorAnimation = null;
+    songLikeStream?.close();
+    songLikeStream = null;
     super.dispose();
   }
 
+  void toggleSongLike(bool like) {
+    final latestSong = audioPlayerTranslator?.latestSong;
+    if (latestSong == null) {
+      return;
+    }
+    final id = latestSong.id;
+    songBloc?.add(AttemptLikeSongEvent(id, like));
+  }
+
   Widget buildFavorite() {
-    return IconButton(
-      iconSize: 24,
-      onPressed: () {},
-      icon: Icon(Icons.favorite_border_rounded),
+    return SmoothStreamBuilder(
+      stream: Rx.combineLatest2(
+        audioPlayerTranslator!.songStream(),
+        songLikeStream!.stream,
+        (a, b) => (a, b),
+      ),
+      builder: (context, combined) {
+        if (!combined.hasData) {
+          return IconButton(
+            iconSize: 24,
+            onPressed: null,
+            icon: Icon(Icons.favorite_border_rounded),
+          );
+        }
+
+        final combination = combined.data as (SongEntity?, bool?);
+        final id = combination.$1?.id;
+        if (id == null) {
+          return IconButton(
+            iconSize: 24,
+            onPressed: null,
+            icon: Icon(Icons.favorite_border_rounded),
+          );
+        }
+
+        final idsHolder = GetIt.instance.get<LovedPlaylistIdsHolder>();
+        final like = idsHolder.exists(id);
+
+        if (like) {
+          return IconButton(
+            iconSize: 24,
+            onPressed: () {
+              toggleSongLike(false);
+            },
+            icon: Icon(Icons.favorite_rounded),
+          );
+        } else {
+          return IconButton(
+            iconSize: 24,
+            onPressed: () {
+              toggleSongLike(true);
+            },
+            icon: Icon(Icons.favorite_border_rounded),
+          );
+        }
+      },
     );
   }
 

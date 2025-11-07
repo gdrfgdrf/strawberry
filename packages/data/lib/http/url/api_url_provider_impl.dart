@@ -338,4 +338,29 @@ class UrlProviderImpl extends UrlProvider {
       )
     );
   }
+  
+  @override
+  Endpoint songLike(int id, bool like) {
+    final checkToken = CheckTokenGenerator.entrypoint();
+
+    return Endpoint.post(path: "/eapi/song/like",
+    eapiPath: "/api/song/like",
+    baseUrl: "https://interface.music.163.com",
+    requiresEncryption: true,
+    requiresDecryption: true,
+      body: buildBody(
+        extra: {
+          "trackId": "$id",
+          "userid": "0",
+          "like": "$like",
+          "hotKey": "undefined",
+          "checkToken": checkToken,
+        },
+        extraHeader: {
+          "Nm-GCore-Status": "1",
+          "X-antiCheatToken": checkToken
+        }
+      )
+    );
+  }
 }

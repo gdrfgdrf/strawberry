@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:domain/entity/song_quality_entity.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:natives/wrap/strawberry_logger_wrapper.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:shared/files.dart';
 import 'package:strawberry/bloc/album/album_bloc.dart';
 import 'package:strawberry/bloc/song/song_bloc.dart';
@@ -18,6 +21,10 @@ class PlaylistUnit {
 }
 
 abstract class PlaylistManager {
+  StreamSubscription<List<int>?> subscribeAudioSources(
+    void Function(List<int>?) listener,
+  );
+
   Future<void> replace(String sha256, List<PlaylistUnit> list);
 
   Future<void> seekAt(int index);
@@ -39,6 +46,8 @@ class PlaylistManagerImpl extends PlaylistManager {
   final SongBloc songBloc = GetIt.instance.get();
   final AlbumBloc albumBloc = GetIt.instance.get();
   final AudioPlayer audioPlayer = GetIt.instance.get();
+  final StreamController<List<int>?> audioSourcesStream =
+      BehaviorSubject.seeded(null);
 
   String? currentSha256;
 
@@ -85,7 +94,9 @@ class PlaylistManagerImpl extends PlaylistManager {
   }
 
   void restoreSongList() async {
-    if (restoreTempSha256 == null || restoreTempIds == null || restoreTempIndex == null) {
+    if (restoreTempSha256 == null ||
+        restoreTempIds == null ||
+        restoreTempIndex == null) {
       return;
     }
     final index = int.tryParse(restoreTempIndex!);
@@ -123,6 +134,13 @@ class PlaylistManagerImpl extends PlaylistManager {
   }
 
   @override
+  StreamSubscription<List<int>?> subscribeAudioSources(
+    void Function(List<int>? p1) listener,
+  ) {
+    return audioSourcesStream.stream.listen(listener);
+  }
+
+  @override
   Future<void> replace(String sha256, List<PlaylistUnit> list) async {
     serviceLogger!.trace("replacing playlist");
 
@@ -143,6 +161,8 @@ class PlaylistManagerImpl extends PlaylistManager {
             .toList();
     await audioPlayer.setAudioSources(sources);
     currentSha256 = sha256;
+
+    audioSourcesStream.add(list.map((unit) => unit.songId).toList());
   }
 
   @override

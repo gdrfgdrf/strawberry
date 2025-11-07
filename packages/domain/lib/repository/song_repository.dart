@@ -25,4 +25,6 @@ abstract class AbstractSongRepository {
   });
 
   Future<LyricsContainer> getLyrics(int id, {bool cache = true});
+
+  Future<int> like(int id, bool like);
 }
