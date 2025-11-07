@@ -2,55 +2,6 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
-// import 'package:shared_preferences/shared_preferences.dart';
-
-class StateManager {
-  Map<String, dynamic> state;
-  List<Function> listeners = [];
-  Map<String, Function> updateHandlerMap = {};
-  Map<String, dynamic> initialProps = {};
-
-  StateManager(Map<String, dynamic> config)
-    : state = Map<String, dynamic>.from(config['state'] ?? {}),
-      initialProps = Map<String, dynamic>.from(config['initialState'] ?? {}),
-      updateHandlerMap = Map<String, Function>.from(
-        config['updateHandlers'] ?? {},
-      );
-
-  void mergeUpdateHandlers(Map<String, Function> handlers) {
-    updateHandlerMap = {...updateHandlerMap, ...handlers};
-  }
-
-  void mergeInitialState(Map<String, dynamic> stateProps) {
-    initialProps = {...initialProps, ...stateProps};
-  }
-}
-
-class StorageManager {
-  static final delimiter = "__";
-  final Map<String, String> cache = {};
-  final String prefix;
-
-  StorageManager({this.prefix = ""});
-
-  String prefixedKey(String key) {
-    return prefix.isNotEmpty ? "$prefix:$key" : key;
-  }
-
-  String getValue(String key) {
-    final prefixed = prefixedKey(key);
-    if (cache.containsKey(prefixed)) {
-      return cache[prefixed]!;
-    }
-    return "not found";
-
-    // final prefs = await SharedPreferences.getInstance();
-    // final value = prefs.getString(prefixed) ?? '';
-    // cache[prefixed] = value;
-    // return value.split(delimiter).first;
-  }
-}
-
 class CheckTokenGenerator {
   static final UPDATE_FUNC_TIMING = "UPDATE_FUNC_TIMING";
   static final UPDATE_TIME_OFFSET = "UPDATE_TIME_OFFSET";
@@ -187,27 +138,7 @@ class CheckTokenGenerator {
     '+',
     '/',
   ];
-
-  static final globalState = StateManager({
-    'state': {
-      'options': {},
-      'Aa': 0,
-      r'$': [0, 0, 0, 0, 0, 0],
-    },
-    'initialState': {},
-    'updateHandlers': {
-      UPDATE_OPTIONS: (state, newOptions) {
-        state['options'] = newOptions;
-      },
-      UPDATE_FUNC_TIMING: (state, timingData) {
-        state['\$'][timingData['cursor']] = timingData['value'] ?? 0;
-      },
-      UPDATE_TIME_OFFSET: (a, timeOffset) {
-        a['Aa'] = timeOffset;
-      },
-    },
-  });
-
+  
   static int clamp2int8(int value) {
     if (value < -128) return clamp2int8(128 - (-128 - value));
     if (value >= -128 && value <= 127) return value;
@@ -564,8 +495,6 @@ class CheckTokenGenerator {
     return target;
   }
 
-  static final Map<String, StorageManager> storageCache = {};
-
   static String generateComponent() {
     final currentTime = DateTime.now().millisecondsSinceEpoch;
     final highBits = currentTime ~/ 4294967296;
@@ -668,26 +597,10 @@ class CheckTokenGenerator {
     return bytes2hex(bytes);
   }
 
-  static StorageManager getStorageManager() {
-    final options = globalState.state['options'];
-    final productNum =
-        options['merged'] == true ? options['productNumber'] : "";
-
-    if (storageCache.containsKey(productNum)) {
-      return storageCache[productNum]!;
-    }
-
-    final manager = StorageManager(prefix: productNum);
-    storageCache[productNum] = manager;
-    return manager;
-  }
-
   static String entrypoint() {
-    final storage = getStorageManager();
-    final did = storage.getValue("WM_DID");
     final component = generateComponent();
 
-    final payload = jsonEncode({"r": 1, "d": did, "b": component});
+    final payload = jsonEncode({"r": 1, "d": "check_token", "b": component});
 
     return encode(payload);
   }
