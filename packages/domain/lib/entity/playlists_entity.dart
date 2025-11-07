@@ -14,6 +14,15 @@ class PlaylistsEntity {
     });
   }
 
+  PlaylistItemEntity? findLovedPlaylist() {
+    for (final playlist in playlists) {
+      if (playlist.type == 5) {
+        return playlist;
+      }
+    }
+    return null;
+  }
+
   static PlaylistsEntity parseJson(String string) {
     final json = jsonDecode(string);
     final playlistJson = json["playlist"] as List;
@@ -30,7 +39,8 @@ class PlaylistItemEntity {
   final int id;
   final String name;
   final String? description;
-  /// specialType
+  /// specialType，
+  /// 5 为喜欢的音乐
   final int type;
   final bool privacy;
 

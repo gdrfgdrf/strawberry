@@ -37,7 +37,7 @@ class _PlaylistDesktopPageState
   final PlaylistBloc playlistBloc = GetIt.instance.get();
   final ValueNotifier<Either<Failure, List<int>>?> coverBytesNotifier =
       ValueNotifier(null);
-  final ValueNotifier<Either<Failure, List<PlaylistSongId>>?> idsNotifier =
+  final ValueNotifier<Either<Failure, PlaylistQueryEntity>?> idsNotifier =
       ValueNotifier(null);
   final SearchController searchController = SearchController();
 
@@ -80,7 +80,7 @@ class _PlaylistDesktopPageState
         bloc: playlistBloc,
         listener: (context, state) {
           if (state is QueryBasicPlaylistSuccess) {
-            idsNotifier.value = Right(state.playlistQuery.songIds);
+            idsNotifier.value = Right(state.playlistQuery);
           }
           if (state is PlaylistFailure) {
             idsNotifier.value = Left(state.failure);
@@ -242,7 +242,9 @@ class _PlaylistDesktopPageState
                   (failure) {
                     return SliverToBoxAdapter(child: AnErrorWidget());
                   },
-                  (songIds) {
+                  (query) {
+                    final songIds = query.songIds;
+
                     final ids = <int>[];
                     final addTimes = <int, int>{};
 
@@ -255,6 +257,7 @@ class _PlaylistDesktopPageState
                       ids: ids,
                       addTimes: addTimes,
                       searchController: searchController,
+                      lovedPlaylist: query.lovedPlaylist(),
                     );
                   },
                 );

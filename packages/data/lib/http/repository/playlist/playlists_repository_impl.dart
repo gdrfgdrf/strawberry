@@ -32,7 +32,8 @@ class PlaylistsRepositoryImpl extends AbstractPlaylistsRepository {
             return;
           }
 
-          completer.complete(PlaylistsEntity.parseJson(response));
+          final playlists = PlaylistsEntity.parseJson(response);
+          completer.complete(playlists);
         })
         .globalOnError((_, e, s) => completer.completeError(e, s))
         .run();

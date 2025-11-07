@@ -16,7 +16,11 @@ class PlaylistQueryEntity {
     this.songs,
     this.songIds,
   );
-  
+
+  bool lovedPlaylist() {
+    return playlist.type == 5;
+  }
+
   static PlaylistQueryEntity parseJson(String string) {
     final json = jsonDecode(string);
 

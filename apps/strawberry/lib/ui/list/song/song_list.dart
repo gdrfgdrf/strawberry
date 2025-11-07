@@ -4,6 +4,7 @@ import 'package:dartz/dartz.dart' hide State;
 import 'package:domain/entity/song_entity.dart';
 import 'package:domain/entity/song_privilege_entity.dart';
 import 'package:domain/entity/song_query_entity.dart';
+import 'package:domain/loved_playlist_ids_holder.dart';
 import 'package:domain/result/result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_constraintlayout/flutter_constraintlayout.dart';
@@ -53,12 +54,14 @@ class SongList extends AbstractUiWidget {
   final List<int> ids;
   final Map<int, int>? addTimes;
   final SearchController? searchController;
+  final bool lovedPlaylist;
 
   const SongList({
     super.key,
     required this.ids,
     this.addTimes,
     this.searchController,
+    this.lovedPlaylist = false,
   });
 
   @override
@@ -92,6 +95,9 @@ class _SongListState extends AbstractUiWidgetState<SongList, EmptyDelegate> {
   List<VoidCallback> postListeners() {
     return [
       () {
+        if (widget.lovedPlaylist) {
+          GetIt.instance.get<LovedPlaylistIdsHolder>().update(widget.ids);
+        }
         songBloc?.add(AttemptQuerySongEvent(widget.ids, songReceiver));
       },
     ];
