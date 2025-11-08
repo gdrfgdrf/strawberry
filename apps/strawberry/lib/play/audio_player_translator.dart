@@ -66,14 +66,16 @@ class AudioPlayerTranslator {
   }
 
   void start() {
-    id = UuidV4().generate();
     audioSourcesSubscription = GetIt.instance.get<PlaylistManager>().subscribeAudioSources((_) {
       currentIndexSubscription?.cancel();
       currentIndexSubscription = null;
       latestIndex = null;
       latestSong = null;
+      canceler?.call();
+      canceler = null;
       addNull();
 
+      id = UuidV4().generate();
       currentIndexSubscription = audioPlayer.currentIndexStream.listen((index) {
         if (songController.isClosed || privilegeController.isClosed) {
           return;
@@ -94,16 +96,26 @@ class AudioPlayerTranslator {
           return;
         }
 
+        canceler?.call();
+        canceler = null;
         latestIndex = index;
         canceler = audioSource.followRequest(
             id: id!,
             onCover: (bytes) {
               if (latestIndex == index) {
+                if (bytes == coverController.valueOrNull) {
+                  return;
+                }
+
                 coverController.add(bytes);
               }
             },
             onSong: (song) {
               if (latestIndex == index) {
+                if (song == latestSong) {
+                  return;
+                }
+
                 latestSong = song;
                 songController.add(song);
                 totalDurationController.add(song?.duration);
@@ -111,16 +123,25 @@ class AudioPlayerTranslator {
             },
             onSongPrivilege: (privilege) {
               if (latestIndex == index) {
+                if (privilege == privilegeController.valueOrNull) {
+                  return;
+                }
                 privilegeController.add(privilege);
               }
             },
             onSongFile: (songFile) {
               if (latestIndex == index) {
+                if (songFile == songFileController.valueOrNull) {
+                  return;
+                }
                 songFileController.add(songFile);
               }
             },
             onLyrics: (lyrics) {
               if (latestIndex == index) {
+                if (lyrics == lyricsController.valueOrNull) {
+                  return;
+                }
                 lyricsController.add(lyrics);
               }
             }

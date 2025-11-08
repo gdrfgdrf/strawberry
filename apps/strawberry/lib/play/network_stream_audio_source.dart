@@ -353,45 +353,91 @@ class _InternalRequestFollower {
   }
 }
 
+class _InternalBytesReference {
+  WeakReference<List<int>>? bytesReference;
+
+  bool available() {
+    if (bytesReference == null) {
+      return false;
+    }
+
+    return bytesReference!.target != null ? bytesReference!.target!.isNotEmpty : false;
+  }
+
+  void update(List<int> bytes) {
+    bytesReference = WeakReference(bytes);
+  }
+
+  List<int>? data() {
+    return bytesReference?.target;
+  }
+
+  void clear() {
+    bytesReference?.target?.clear();
+    bytesReference = null;
+  }
+}
+
 class NetworkStreamAudioSource extends StreamAudioSource {
   final SongBloc songBloc;
   final AlbumBloc albumBloc;
   final int songId;
+  bool initialized = false;
 
-  _InternalQuerySongRequest? _querySongRequest = _InternalQuerySongRequest();
-  _InternalDownloadSongFileRequest? _downloadSongFileRequest =
-      _InternalDownloadSongFileRequest();
-  _InternalGetSongLyricsRequest? _getSongLyricsRequest =
-      _InternalGetSongLyricsRequest();
-  _InternalRequestFollower? _requestFollower = _InternalRequestFollower();
+  _InternalQuerySongRequest? _querySongRequest;
+  _InternalDownloadSongFileRequest? _downloadSongFileRequest;
+  _InternalGetSongLyricsRequest? _getSongLyricsRequest;
+  _InternalRequestFollower? _requestFollower;
   CoverRequest? coverRequest;
 
-  StreamController<List<int>>? onceOutput = StreamController();
-  List<int>? bytes;
+  StreamController<List<int>>? onceOutput;
+  _InternalBytesReference? _bytesReference;
 
   NetworkStreamAudioSource(this.songId, this.songBloc, this.albumBloc);
 
+  void initialize() {
+    if (initialized) {
+      return;
+    }
+    initialized = true;
+
+    _querySongRequest ??= _InternalQuerySongRequest();
+    _downloadSongFileRequest ??= _InternalDownloadSongFileRequest();
+    _getSongLyricsRequest ??= _InternalGetSongLyricsRequest();
+    _requestFollower ??= _InternalRequestFollower();
+    onceOutput ??= StreamController();
+    _bytesReference ??= _InternalBytesReference();
+  }
+
   @override
   Future<StreamAudioResponse> request([int? start, int? end]) async {
-    final shouldSongRequest = _querySongRequest?.shouldRequest() ?? false;
+    initialize();
+
+    bool shouldSongRequest = _querySongRequest?.shouldRequest() ?? false;
+    if (!_bytesReference!.available() && !shouldSongRequest) {
+      resetSongRequest();
+      shouldSongRequest = true;
+    }
     if (shouldSongRequest == true) {
       _querySongRequest!.onceSubscribe(onSongQueried);
       songBloc.add(
         AttemptQuerySongEvent([songId], _querySongRequest!.songQueryReceiver),
       );
     }
-    final shouldLyricsRequest = _getSongLyricsRequest?.shouldRequest() ?? false;
+
+    bool shouldLyricsRequest = _getSongLyricsRequest?.shouldRequest() ?? false;
     if (shouldLyricsRequest == true) {
       final subscription = songBloc.stream.listen(onLyricsGot);
       _getSongLyricsRequest!.subscription = subscription;
       songBloc.add(AttemptGetSongLyricsEvent(songId));
     }
 
-    if (bytes != null) {
-      end ??= bytes!.length;
-      final controller = apart(start, end);
+    if (_bytesReference!.available()) {
+      final bytes = _bytesReference!.data()!;
+      end ??= bytes.length;
+      final controller = apart(bytes, start, end);
       return StreamAudioResponse(
-        sourceLength: bytes!.length,
+        sourceLength: bytes.length,
         contentLength: end - (start ?? 0),
         offset: start,
         stream: controller!.stream,
@@ -413,16 +459,12 @@ class NetworkStreamAudioSource extends StreamAudioSource {
     );
   }
 
-  StreamController<List<int>>? apart(int? start, int? end) {
-    if (bytes == null) {
-      return null;
-    }
-
+  StreamController<List<int>>? apart(List<int> bytes, int? start, int? end) {
     final chunkSize = 1024 * 1024;
     int current = start ?? 0;
-    end ??= bytes!.length;
-    if (end > bytes!.length) {
-      end = bytes!.length;
+    end ??= bytes.length;
+    if (end > bytes.length) {
+      end = bytes.length;
     }
 
     final controller = StreamController<List<int>>();
@@ -430,7 +472,7 @@ class NetworkStreamAudioSource extends StreamAudioSource {
       while (current < end! && !controller.isClosed) {
         final chunkEnd =
             (current + chunkSize < end) ? current + chunkSize : end;
-        final chunk = bytes!.sublist(current, chunkEnd);
+        final chunk = bytes.sublist(current, chunkEnd);
         controller.add(chunk);
         current = chunkEnd;
         await Future.delayed(Duration.zero);
@@ -534,7 +576,7 @@ class NetworkStreamAudioSource extends StreamAudioSource {
         onceOutput?.add(data);
       },
       onDone: () {
-        bytes = tempBytes;
+        _bytesReference?.update(tempBytes);
         onceOutput?.close();
         onceOutput = null;
       },
@@ -545,10 +587,8 @@ class NetworkStreamAudioSource extends StreamAudioSource {
   }
 
   void resetSongRequest() {
-    bytes = null;
-    _querySongRequest?.reset();
+    _bytesReference?.clear();
     _downloadSongFileRequest?.reset();
-    _getSongLyricsRequest?.reset();
     if (onceOutput?.isClosed == false) {
       onceOutput?.close();
     }
@@ -563,6 +603,8 @@ class NetworkStreamAudioSource extends StreamAudioSource {
     void Function(SongFileEntity?)? onSongFile,
     void Function(LyricsContainer?)? onLyrics,
   }) {
+    _requestFollower ??= _InternalRequestFollower();
+
     _requestFollower?.follow(
       id: id,
       onCover: onCover,
@@ -597,7 +639,7 @@ class NetworkStreamAudioSource extends StreamAudioSource {
     coverRequest = null;
     onceOutput?.close();
     onceOutput = null;
-    bytes?.clear();
-    bytes = null;
+    _bytesReference?.clear();
+    _bytesReference = null;
   }
 }

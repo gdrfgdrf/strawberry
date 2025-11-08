@@ -84,6 +84,8 @@ abstract class AbstractUiWidgetState<
     serviceLogger!.info("disposing: $hashCode");
 
     delegate!.dispose();
+    delegate = null;
+    serviceLogger = null;
     super.dispose();
   }
 }

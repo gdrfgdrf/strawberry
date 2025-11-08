@@ -503,7 +503,5 @@ types:
         index: 1
       romanLyrics:
         index: 2
-      wordBasedLyrics:
-        index: 3
       roleCounts:
         index: 4

@@ -1564,7 +1564,6 @@ class StoreLyricsAdapter extends TypeAdapter<StoreLyrics> {
       fields[0] as StoreStandardLyrics,
       fields[1] as StoreTranslatedLyrics,
       fields[2] as StoreRomanLyrics,
-      fields[3] as StoreWordBasedLyrics,
       (fields[4] as num).toInt(),
     );
   }
@@ -1572,15 +1571,13 @@ class StoreLyricsAdapter extends TypeAdapter<StoreLyrics> {
   @override
   void write(BinaryWriter writer, StoreLyrics obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.standardLyrics)
       ..writeByte(1)
       ..write(obj.translatedLyrics)
       ..writeByte(2)
       ..write(obj.romanLyrics)
-      ..writeByte(3)
-      ..write(obj.wordBasedLyrics)
       ..writeByte(4)
       ..write(obj.roleCounts);
   }
