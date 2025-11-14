@@ -1,14 +1,13 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_constraintlayout/flutter_constraintlayout.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:smooth_corner/smooth_corner.dart';
 import 'package:widgets/animation/animation_combine.dart';
 import 'package:widgets/animation/smooth_widget_switch_animation.dart';
-import 'package:widgets/widgets/animated_linear_progress_indicator.dart';
+import 'package:widgets/widgets/smooth_stream_builder.dart';
 
-class SmoothLinearProgressIndicator extends StatefulWidget {
+class SmoothSlider extends StatefulWidget {
   /// 480.w
   final double? progressWidth;
 
@@ -26,7 +25,7 @@ class SmoothLinearProgressIndicator extends StatefulWidget {
 
   final void Function(Duration?)? onClick;
 
-  const SmoothLinearProgressIndicator({
+  const SmoothSlider({
     super.key,
     this.progressWidth,
     this.progressHeight,
@@ -38,11 +37,10 @@ class SmoothLinearProgressIndicator extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() => _SmoothLinearProgressIndicatorState();
+  State<StatefulWidget> createState() => _SmoothSliderState();
 }
 
-class _SmoothLinearProgressIndicatorState
-    extends State<SmoothLinearProgressIndicator> {
+class _SmoothSliderState extends State<SmoothSlider> {
   final List<StreamSubscription> subscriptions = [];
   final ValueNotifier<Duration?> innerTotalDurationNotifier = ValueNotifier(
     null,
@@ -88,138 +86,75 @@ class _SmoothLinearProgressIndicatorState
 
   @override
   Widget build(BuildContext context) {
+    final currentPositionId = ConstraintId("current-position");
+    final sliderId = ConstraintId("slider");
+    final endPositionId = ConstraintId("end-position");
+
     final actualProgressWidth = widget.progressWidth ?? 480.w;
     final actualProgressHeight = widget.progressHeight ?? 4;
-    final actualDurationWidth = widget.durationWidth ?? 48.w;
-    final actualDurationHeight = widget.durationHeight ?? 16;
 
-    return SizedBox(
-      width: actualProgressWidth + actualDurationWidth * 2,
-      height: max(actualProgressHeight, actualDurationHeight),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SmoothContainer(
-            height: actualDurationHeight,
-            child: Material(
-              color: Colors.transparent,
-              child: ValueListenableBuilder(
-                valueListenable: innerTotalDurationNotifier,
-                builder: (context, totalDuration, _) {
-                  String previousString = "Nothing";
-                  if (previousTotalDuration != null) {
-                    previousString = "0:00:00";
-                  }
+    return ConstraintLayout(
+      children: [
+        Material(
+          color: Colors.transparent,
+          child: StreamBuilder(stream: widget.currentDurationStream, builder: (context, positionData) {
+            String text = "Nothing";
+            if (positionData.hasData) {
+              text = positionData.data!.toString();
+              text = text.substring(0, text.indexOf("."));
+            }
+            return Text(text, style: TextStyle(fontSize: 10.sp));
+          }),
+        ).applyConstraint(
+          top: parent.top,
+          bottom: parent.bottom,
+          right: sliderId.left,
+        ),
 
-                  String totalString = "Nothing";
-                  if (totalDuration != null) {
-                    totalString = "0:00:00";
-                  }
-
-                  final animation = SmoothWidgetSwitchAnimation(
-                    before: Text(
-                      previousString,
-                      style: TextStyle(fontSize: 10.sp),
-                    ),
-                    after: Text(totalString, style: TextStyle(fontSize: 10.sp)),
-                    duration: Duration(milliseconds: 500),
+        Material(
+          color: Colors.transparent,
+          child: ValueListenableBuilder(
+            valueListenable: progressNotifier,
+            builder: (context, progress, _) {
+              return Slider(
+                value: progress,
+                thumbColor: Colors.transparent,
+                onChanged: (value) {
+                  final clickDuration = Duration(
+                    milliseconds:
+                        (totalDuration!.inMilliseconds * value).toInt(),
                   );
-
-                  AnimationCombination.newBuilder()
-                      .add(animation)
-                      .build(
-                        onReady: (animation) {
-                          animation.forwardAll();
-                        },
-                      );
-
-                  return animation;
+                  widget.onClick?.call(clickDuration);
                 },
-              ),
-            ),
-          ),
-
-          GestureDetector(
-            onTapUp: (details) {
-              if (totalDuration == null) {
-                return;
-              }
-
-              final position = details.localPosition;
-              final dx = position.dx;
-              final target = dx / actualProgressWidth;
-              final clickDuration = Duration(
-                milliseconds: (totalDuration!.inMilliseconds * target).toInt(),
               );
-              widget.onClick?.call(clickDuration);
             },
-            child: SizedBox(
-              width: actualProgressWidth,
-              height: actualProgressHeight,
-              child: SmoothClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: AnimatedLinearProgressIndicator(
-                  valueNotifier: progressNotifier,
-                ),
-              ),
-            ),
           ),
+        ).applyConstraint(
+          id: sliderId,
+          top: parent.top,
+          bottom: parent.bottom,
+          left: parent.left,
+          right: parent.right,
+          width: actualProgressWidth,
+          height: actualProgressHeight,
+        ),
 
-          SmoothContainer(
-            height: actualDurationHeight,
-            child: Material(
-              color: Colors.transparent,
-              child: ValueListenableBuilder(
-                valueListenable: innerTotalDurationNotifier,
-                builder: (context, totalDuration, _) {
-                  String previousString = "Nothing";
-                  if (previousTotalDuration != null) {
-                    previousString = previousTotalDuration!.toString();
-                    if (previousString.contains(".")) {
-                      previousString = previousString.substring(
-                        0,
-                        previousString.indexOf("."),
-                      );
-                    }
-                  }
-
-                  String totalString = "Nothing";
-                  if (totalDuration != null) {
-                    totalString = totalDuration.toString();
-                    if (totalString.contains(".")) {
-                      totalString = totalString.substring(
-                        0,
-                        totalString.indexOf("."),
-                      );
-                    }
-                  }
-
-                  final animation = SmoothWidgetSwitchAnimation(
-                    key: UniqueKey(),
-                    before: Text(
-                      previousString,
-                      style: TextStyle(fontSize: 10.sp),
-                    ),
-                    after: Text(totalString, style: TextStyle(fontSize: 10.sp)),
-                    duration: Duration(milliseconds: 500),
-                  );
-
-                  AnimationCombination.newBuilder()
-                      .add(animation)
-                      .build(
-                        onReady: (animation) {
-                          animation.forwardAll();
-                        },
-                      );
-
-                  return animation;
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
+        Material(
+          color: Colors.transparent,
+          child: SmoothStreamBuilder(stream: widget.totalDurationStream, builder: (context, positionData) {
+            String text = "Nothing";
+            if (positionData.hasData) {
+              text = positionData.data!.toString();
+              text = text.substring(0, text.indexOf("."));
+            }
+            return Text(text, style: TextStyle(fontSize: 10.sp));
+          }),
+        ).applyConstraint(
+          top: parent.top,
+          bottom: parent.bottom,
+          left: sliderId.right,
+        ),
+      ],
     );
   }
 }

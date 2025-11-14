@@ -177,7 +177,7 @@ class _NextSongBarDesktopState
             margin: EdgeInsets.only(bottom: 2.w, left: 6),
           ),
 
-          SmoothLinearProgressIndicator(
+          SmoothSlider(
             totalDurationStream: audioPlayerTranslator!.totalDurationStream(),
             currentDurationStream:
                 audioPlayerTranslator!.audioPlayer.positionStream,
