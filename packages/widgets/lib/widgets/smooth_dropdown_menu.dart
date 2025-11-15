@@ -176,6 +176,7 @@ class _SmoothDropdownMenuState extends State<SmoothDropdownMenu>
   bool expanded = false;
   OverlayEntry? overlayEntry;
   AnimationCombination? expandAnimation;
+  AnimationController? selectionAnimationController;
 
   Rect? outerRect;
   Rect? overlayRect;
@@ -494,7 +495,8 @@ class _SmoothDropdownMenuState extends State<SmoothDropdownMenu>
                   }
                   previousEntryIndex = entryIndex;
 
-                  final controller = AnimationController(
+                  selectionAnimationController?.dispose();
+                  selectionAnimationController = AnimationController(
                     vsync: this,
                     duration: Duration(milliseconds: 500),
                   );
@@ -503,15 +505,15 @@ class _SmoothDropdownMenuState extends State<SmoothDropdownMenu>
                     duration: Duration(milliseconds: 500),
                     direction: fadeInDirection,
                     child: combineEntry(entry),
-                  ).buildAnimatedWidget(context, controller);
+                  ).buildAnimatedWidget(context, selectionAnimationController!);
 
                   final fadeOut = SmoothFadeOutAnimation(
                     duration: Duration(milliseconds: 500),
                     direction: fadeOutDirection,
                     child: combineEntry(previousEntry),
-                  ).buildAnimatedWidget(context, controller);
+                  ).buildAnimatedWidget(context, selectionAnimationController!);
 
-                  controller.forward();
+                  selectionAnimationController!.forward();
 
                   return ConstraintLayout(
                     children: [
@@ -546,6 +548,8 @@ class _SmoothDropdownMenuState extends State<SmoothDropdownMenu>
 
   @override
   void dispose() {
+    selectionAnimationController?.dispose();
+    expandAnimation?.disposeAll();
     entrySelectionNotifier?.dispose();
     forceHideOverlay();
     super.dispose();
