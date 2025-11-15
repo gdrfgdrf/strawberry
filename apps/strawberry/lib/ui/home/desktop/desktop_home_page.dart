@@ -26,7 +26,6 @@ class DesktopHomePageState
   List<VoidCallback> postListeners() {
     return [
       () {
-        ProfileSheetController.prepare(context);
         DesktopPlayingPageController.prepare(context);
         DesktopSongBarController.prepare(context);
         DesktopSongBarRecorder.prepare();

@@ -10,6 +10,8 @@ import 'package:strawberry/ui/home/desktop/desktop_home_page.dart';
 import 'package:strawberry/ui/home/mobile/mobile_home_page.dart';
 import 'package:domain/loved_playlist_ids_holder.dart';
 
+import '../profile/profile_sheet_controller.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -31,6 +33,8 @@ class _HomePageState extends State<HomePage> {
       playlistBloc.add(
         AttemptGetPlaylistsEvent(profile.userId, PlaylistSource.userCreated),
       );
+
+      ProfileSheetController.prepare(context);
     });
   }
 

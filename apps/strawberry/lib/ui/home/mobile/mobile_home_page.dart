@@ -48,6 +48,9 @@ class MobileHomePageState
             height: screenSize.height,
             color: themeData().colorScheme.surfaceContainer,
             borderRadius: BorderRadius.circular(16),
+            child: Center(
+              child: Text("Inner"),
+            ),
           ),
           panelMinSize: songBarSize.height,
           panelMaxSize: screenSize.height,

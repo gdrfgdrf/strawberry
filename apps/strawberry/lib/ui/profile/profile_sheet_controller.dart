@@ -20,10 +20,12 @@ class ProfileSheetController {
     if (id != null) {
       return;
     }
-    final recorder = GetIt.instance.get<DesktopSongBarRecorder>();
     id = UuidV4().generate();
 
-    recorder.record("profile-sheet-$id");
+    if (PlatformExtension.isDesktop) {
+      final recorder = GetIt.instance.get<DesktopSongBarRecorder>();
+      recorder.record("profile-sheet-$id");
+    }
 
     logger.info("showing profile sheet, id: $userId");
 
@@ -47,7 +49,10 @@ class ProfileSheetController {
         );
       },
     ).then((_) {
-      recorder.dismiss("profile-sheet-$id");
+      if (PlatformExtension.isDesktop) {
+        final recorder = GetIt.instance.get<DesktopSongBarRecorder>();
+        recorder.dismiss("profile-sheet-$id");
+      }
       id = null;
     });
   }
@@ -61,9 +66,6 @@ class ProfileSheetController {
   }
 
   static void prepare(BuildContext context) {
-    if (!PlatformExtension.isDesktop) {
-      return;
-    }
     if (!GetIt.instance.isRegistered<ProfileSheetController>()) {
       final playingPageController = ProfileSheetController(context);
       GetIt.instance.registerSingleton<ProfileSheetController>(

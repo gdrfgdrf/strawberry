@@ -112,15 +112,6 @@ Future<void> main() async {
   JustAudioMediaKit.title = "Strawberry";
   JustAudioMediaKit.ensureInitialized();
 
-  // await AudioService.init(
-  //   builder: () => GetIt.instance.get<BaseAudioHandler>(),
-  //   config: AudioServiceConfig(
-  //     androidNotificationChannelId:
-  //         "io.github.gdrfgdrf.strawberry.channel.audio",
-  //     androidNotificationChannelName: "Audio playback",
-  //   ),
-  // );
-
   PlatformSpecificController.auto()?.prepare();
 
   runApp(Strawberry());

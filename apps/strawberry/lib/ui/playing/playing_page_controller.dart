@@ -19,9 +19,12 @@ class DesktopPlayingPageController {
       return;
     }
 
-    final recorder = GetIt.instance.get<DesktopSongBarRecorder>();
     id = UuidV4().generate();
-    recorder.record("playing-page-$id");
+
+    if (PlatformExtension.isDesktop) {
+      final recorder = GetIt.instance.get<DesktopSongBarRecorder>();
+      recorder.record("playing-page-$id");
+    }
 
     final screenSize = MediaQuery.of(context).size;
 
@@ -42,7 +45,10 @@ class DesktopPlayingPageController {
         return DesktopPlayingPage(audioPlayer: GetIt.instance.get());
       },
     ).then((_) {
-      recorder.dismiss("playing-page-$id");
+      if (PlatformExtension.isDesktop) {
+        final recorder = GetIt.instance.get<DesktopSongBarRecorder>();
+        recorder.dismiss("playing-page-$id");
+      }
       id = null;
     });
   }

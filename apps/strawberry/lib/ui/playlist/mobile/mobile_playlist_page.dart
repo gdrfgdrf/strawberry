@@ -16,6 +16,8 @@ import 'package:strawberry/bloc/user/get_user_avatar_event_state.dart';
 import 'package:strawberry/bloc/user/user_bloc.dart';
 import 'package:strawberry/ui/abstract_page.dart';
 import 'package:strawberry/ui/list/song/song_list.dart';
+import 'package:strawberry/ui/slivertracker/scroll_view_listener.dart';
+import 'package:strawberry/ui/slivertracker/sliver_scroll_listener.dart';
 import 'package:widgets/animation/overflow_widget_wrapper.dart';
 import 'package:widgets/widgets/an_error_widget.dart';
 import 'package:widgets/widgets/loading_widget.dart';
@@ -269,19 +271,21 @@ class _PlaylistPageMobileState
         if (bytes == null) {
           return LoadingWidget();
         }
-        return CustomScrollView(
-          physics: BouncingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(child: buildTopBody()),
-            SliverPadding(
-              padding: EdgeInsets.only(top: 6, left: 36.w, right: 16),
-              sliver: SliverToBoxAdapter(child: buildSearchBar()),
-            ),
-            SliverPadding(
-              padding: EdgeInsets.only(top: 16, bottom: 64.w),
-              sliver: buildListBody(),
-            ),
-          ],
+        return ScrollViewListener(
+          child: CustomScrollView(
+            physics: BouncingScrollPhysics(),
+            slivers: [
+              SliverToBoxAdapter(child: buildTopBody()),
+              SliverPadding(
+                padding: EdgeInsets.only(top: 6, left: 36.w, right: 16),
+                sliver: SliverToBoxAdapter(child: buildSearchBar()),
+              ),
+              SliverPadding(
+                padding: EdgeInsets.only(top: 16, bottom: 64.w),
+                sliver: buildListBody(),
+              ),
+            ],
+          ),
         );
       },
     );

@@ -167,6 +167,9 @@ class PlaylistManagerImpl extends PlaylistManager {
 
   @override
   Future<void> seekAt(int index) async {
+    if (audioPlayer.currentIndex == index) {
+      return;
+    }
     serviceLogger!.trace("seek at $index");
 
     await audioPlayer.seek(Duration.zero, index: index);
@@ -174,6 +177,9 @@ class PlaylistManagerImpl extends PlaylistManager {
 
   @override
   Future<void> playAt(int index) async {
+    if (audioPlayer.currentIndex == index) {
+      return;
+    }
     serviceLogger!.trace("play at $index");
 
     await audioPlayer.seek(Duration.zero, index: index);
