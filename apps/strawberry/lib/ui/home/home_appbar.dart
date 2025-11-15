@@ -72,7 +72,7 @@ class HomeAppBarProvider<D extends AbstractDelegate>
           content: Text(Localizer.of(context)!.goto_profile_page),
           onClicked: () {
             linker!.updateHoverState(delegate!.avatarKey, false);
-            ProfileSheetController(profile.userId, context).show();
+            GetIt.instance.get<ProfileSheetController>().show(profile.userId);
           },
         ),
       ],

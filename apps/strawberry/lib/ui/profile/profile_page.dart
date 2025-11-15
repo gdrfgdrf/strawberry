@@ -21,9 +21,9 @@ import '../../bloc/user/get_user_detail_event_state.dart';
 import '../profile/profile_page_delegate.dart';
 
 class ProfilePage extends AbstractUiWidget {
-  final ProfileSheetController controller;
+  final int userId;
 
-  const ProfilePage({super.key, required this.controller});
+  const ProfilePage({super.key, required this.userId});
 
   @override
   State<StatefulWidget> createState() => _ProfilePageState();
@@ -40,7 +40,7 @@ class _ProfilePageState
   List<VoidCallback> postListeners() {
     return [
       () {
-        delegate!.tryGetUserDetail(widget.controller.userId);
+        delegate!.tryGetUserDetail(widget.userId);
         // delegate!.tryGetUserDetail(9003);
       },
     ];
@@ -198,7 +198,8 @@ class _ProfilePageState
                     source: source,
                     userId: profile.userId,
                     onClick: (playlist) {
-                      widget.controller.hide();
+                      final controller = GetIt.instance.get<ProfileSheetController>();
+                      controller.hide();
                       final navigator =
                           GetIt.instance.get<AbstractHomeNavigator>();
                       navigator.navigatePlaylist(playlist);
