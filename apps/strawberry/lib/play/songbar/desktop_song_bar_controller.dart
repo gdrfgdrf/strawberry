@@ -10,31 +10,11 @@ import 'package:widgets/animation/smooth_fade_animation.dart';
 
 import '../playlist_manager.dart';
 
-abstract class SongBarController {
-  void show(BuildContext context, {double coefficient = 1});
-
-  void hide();
-
-  static SongBarController getOrCreate() {
-    if (GetIt.instance.isRegistered<SongBarController>()) {
-      return GetIt.instance.get<SongBarController>();
-    }
-    final controller = _DesktopSongBarController();
-    GetIt.instance.registerSingleton<SongBarController>(controller);
-    return controller;
-  }
-}
-
-abstract class _CommonSongBarController extends SongBarController {
+class DesktopSongBarController {
   OverlayEntry? overlayEntry;
   AnimationCombination? animationCombination;
 
-  Widget build(BuildContext context);
-
-  Size getSize(BuildContext context);
-
-  @override
-  void show(BuildContext context, {double coefficient = 1}) {
+  void show(BuildContext context) {
     GetIt.instance.get<PlaylistManager>();
 
     if (overlayEntry != null) {
@@ -47,7 +27,9 @@ abstract class _CommonSongBarController extends SongBarController {
         final animation = SmoothFadeInAnimation(
           duration: Duration(milliseconds: 500),
           direction: AnimationDirection.verticalBottomToTop,
-          child: build(context),
+          child: NextSongBarDesktop(
+            audioPlayer: GetIt.instance.get<AudioPlayer>(),
+          ),
         );
 
         AnimationCombination.newBuilder()
@@ -60,15 +42,14 @@ abstract class _CommonSongBarController extends SongBarController {
             );
 
         final screenSize = MediaQuery.of(context).size;
-        final size = getSize(context);
-        final i = (screenSize.width - size.width) / 2;
+        final i = (screenSize.width - 1440.w - 120.w) / 2;
 
         return Stack(
           children: [
             Positioned(
-              width: size.width,
-              height: size.height,
-              top: screenSize.height - size.height - coefficient * i,
+              width: 1440.w - 120.w,
+              height: 64.w + 56.h,
+              top: screenSize.height - 64.w + 56.h - i,
               left: i,
               child: animation,
             ),
@@ -79,7 +60,6 @@ abstract class _CommonSongBarController extends SongBarController {
     Overlay.of(context).insert(overlayEntry!);
   }
 
-  @override
   void hide() {
     if (overlayEntry == null) {
       return;
@@ -97,33 +77,12 @@ abstract class _CommonSongBarController extends SongBarController {
     };
     animationCombination?.reverseAll();
   }
-}
 
-class _DesktopSongBarController extends _CommonSongBarController {
-  @override
-  void show(BuildContext context, {double coefficient = 1}) {
+  static void prepare() {
     if (!PlatformExtension.isDesktop) {
       return;
     }
-
-    super.show(context, coefficient: coefficient);
-  }
-
-  @override
-  void hide() {
-    if (!PlatformExtension.isDesktop) {
-      return;
-    }
-    super.hide();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return NextSongBarDesktop(audioPlayer: GetIt.instance.get<AudioPlayer>());
-  }
-
-  @override
-  Size getSize(BuildContext context) {
-    return Size(1440.w - 120.w, 64.w + 56.h);
+    final controller = DesktopSongBarController();
+    GetIt.instance.registerSingleton<DesktopSongBarController>(controller);
   }
 }

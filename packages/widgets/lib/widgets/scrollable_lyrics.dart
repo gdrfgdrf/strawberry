@@ -734,7 +734,13 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
               builder: (_, __) {
                 final translated = Transform.translate(
                   offset: Offset(0, animation.value),
-                  child: buildLyric(),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTapUp: (details) {
+                      print(widget.index);
+                    },
+                    child: buildLyric(),
+                  ),
                 );
 
                 final distance = (widget.index - index).abs();

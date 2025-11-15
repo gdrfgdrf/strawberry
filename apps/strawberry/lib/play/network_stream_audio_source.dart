@@ -511,7 +511,7 @@ class NetworkStreamAudioSource extends StreamAudioSource {
     _requestFollower?.song(song);
     _requestFollower?.privilege(privilege);
 
-    coverRequest = CoverRequest.fromSong(song);
+    coverRequest ??= CoverRequest.fromSong(song);
     if (coverRequest == null) {
       resetSongRequest();
       return;
@@ -593,6 +593,7 @@ class NetworkStreamAudioSource extends StreamAudioSource {
       onceOutput?.close();
     }
     onceOutput = StreamController();
+    coverRequest = null;
   }
 
   void Function() followRequest({

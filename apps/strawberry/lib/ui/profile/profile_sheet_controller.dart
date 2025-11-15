@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:natives/wrap/strawberry_logger_wrapper.dart';
-import 'package:strawberry/play/songbar/song_bar_controller.dart';
+import 'package:strawberry/play/songbar/desktop_song_bar_controller.dart';
 import 'package:strawberry/ui/profile/profile_page.dart';
 
 class ProfileSheetController {
@@ -15,8 +15,6 @@ class ProfileSheetController {
 
   void show() {
     logger.info("showing profile sheet, id: $userId");
-
-    SongBarController.getOrCreate().hide();
 
     showModalBottomSheet(
       context: context,
@@ -40,7 +38,6 @@ class ProfileSheetController {
       },
     ).then((_) {
       shown = false;
-      SongBarController.getOrCreate().show(context);
     });
   }
 

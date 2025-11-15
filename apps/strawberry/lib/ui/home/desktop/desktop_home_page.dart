@@ -6,7 +6,7 @@ import 'package:strawberry/ui/home/home_page_delegate.dart';
 import 'package:strawberry/ui/playing/playing_page_controller.dart';
 import 'package:strawberry/ui/router/home_router.dart';
 
-import '../../../play/songbar/song_bar_controller.dart';
+import '../../../play/songbar/desktop_song_bar_controller.dart';
 
 class DesktopHomePage extends AbstractUiWidget {
   @override
@@ -23,14 +23,9 @@ class DesktopHomePageState
   @override
   Widget buildContent(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final playingPageController = DesktopPlayingPageController(context);
-      if (!GetIt.instance.isRegistered<DesktopPlayingPageController>()) {
-        GetIt.instance.registerSingleton<DesktopPlayingPageController>(
-          playingPageController,
-        );
-      }
-
-      final songBarController = SongBarController.getOrCreate();
+      DesktopPlayingPageController.prepare(context);
+      DesktopSongBarController.prepare();
+      final songBarController = GetIt.instance.get<DesktopSongBarController>();
       songBarController.show(context);
     });
 
