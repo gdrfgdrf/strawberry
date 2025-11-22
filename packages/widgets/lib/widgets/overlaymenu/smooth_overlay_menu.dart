@@ -33,8 +33,8 @@ class SmoothOverlayMenu {
   final Widget? topDivider;
   final Widget? bottomDivider;
 
-  VoidCallback? onHover;
-  VoidCallback? onExit;
+  final VoidCallback? onHover;
+  final VoidCallback? onExit;
 
   final List<Widget> _builtChildren = [];
   AnimatedOverlayEntry? _overlayEntry;
@@ -259,5 +259,13 @@ class SmoothOverlayMenu {
     _overlayEntry?.hide();
     _overlayEntry = null;
     shown = false;
+  }
+
+  void toggle(BuildContext context) {
+    if (shown) {
+      hide();
+    } else {
+      show(context);
+    }
   }
 }

@@ -3,17 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared/l10n/localizer.dart';
-import 'package:shared/platform_extension.dart';
 import 'package:shared/themes.dart';
 import 'package:smooth_corner/smooth_corner.dart';
 import 'package:strawberry/ui/abstract_delegate.dart';
 import 'package:strawberry/ui/abstract_widget_provider.dart';
 import 'package:strawberry/ui/home/home_appbar_delegate.dart';
 import 'package:strawberry/ui/profile/profile_sheet_controller.dart';
-import 'package:widgets/widgets/overlaymenu/smooth_overlay_menu.dart';
-import 'package:widgets/widgets/overlaymenu/smooth_overlay_menu_linker.dart';
 import 'package:widgets/widgets/next_smooth_image.dart';
 import 'package:widgets/widgets/overlay/animated_overlay_entry.dart';
+import 'package:widgets/widgets/overlaymenu/auto_overlay_menu.dart';
+import 'package:widgets/widgets/overlaymenu/smooth_overlay_menu.dart';
 import 'package:widgets/widgets/strawberry_title.dart';
 
 class HomeAppBarProviderFactory<D extends AbstractDelegate>
@@ -24,9 +23,7 @@ class HomeAppBarProviderFactory<D extends AbstractDelegate>
   String identifier() => "appbar";
 
   @override
-  AbstractWidgetProvider<D, HomeAppBarDelegate> createImpl(
-    parameter,
-  ) {
+  AbstractWidgetProvider<D, HomeAppBarDelegate> createImpl(parameter) {
     return HomeAppBarProvider(primaryDelegate);
   }
 }
@@ -59,29 +56,7 @@ class HomeAppBarProvider<D extends AbstractDelegate>
   @override
   Widget provideImpl(BuildContext context) {
     final profile = GetIt.instance.get<Profile>();
-
-    SmoothOverlayMenuLinker? linker;
-
-    final contextMenu = SmoothOverlayMenu(
-      parentKey: delegate!.avatarKey,
-      positionDirection: PositionDirection.downLeft,
-      top: Text(profile.nickname, textAlign: TextAlign.center),
-      children: [
-        OverlayMenuEntry(
-          leadingIcon: Icon(Icons.person, size: 20),
-          content: Text(Localizer.of(context)!.goto_profile_page),
-          onClicked: () {
-            linker!.updateHoverState(delegate!.avatarKey, false);
-            GetIt.instance.get<ProfileSheetController>().show(profile.userId);
-          },
-        ),
-      ],
-    );
-
-    linker = SmoothOverlayMenuLinker(
-      overlayMenu: contextMenu,
-      linkedKeys: [delegate!.avatarKey],
-    );
+    final overlayMenuController = OverlayMenuController();
 
     return AppBar(
       backgroundColor: themeData().colorScheme.surfaceContainerHigh,
@@ -100,49 +75,78 @@ class HomeAppBarProvider<D extends AbstractDelegate>
           child: SmoothContainer(
             width: 40,
             height: 40,
-            child: NextSmoothImage.notifier(
-              key: delegate!.avatarKey,
-              notifier: delegate!.avatarNotifier,
-              borderRadius: BorderRadius.circular(16),
-              enableGestureDetection: true,
-              onClicked: () {
-                if (PlatformExtension.isDesktop) {
-                  return;
-                }
-
-                final currentState = linker!.state(delegate!.avatarKey);
-                if (currentState) {
-                  linker.updateHoverState(delegate!.avatarKey, false);
-                } else {
-                  linker.updateHoverState(delegate!.avatarKey, true);
-                  if (contextMenu.shown == true) {
-                    return;
-                  }
-                  contextMenu.show(context);
-                }
-              },
-              onHovered: () {
-                if (PlatformExtension.isMobile) {
-                  return;
-                }
-
-                linker!.updateHoverState(delegate!.avatarKey, true);
-
-                if (contextMenu.shown == true) {
-                  return;
-                }
-                contextMenu.show(context);
-              },
-              onHoverCancelled: () {
-                if (PlatformExtension.isMobile) {
-                  return;
-                }
-
-                linker!.updateHoverState(delegate!.avatarKey, false);
-              },
+            child: AutoOverlayMenu(
+              positionDirection: PositionDirection.downLeft,
+              top: Text(profile.nickname, textAlign: TextAlign.center),
+              children: [
+                OverlayMenuEntry(
+                  leadingIcon: Icon(Icons.person, size: 20),
+                  content: Text(Localizer.of(context)!.goto_profile_page),
+                  onClicked: () {
+                    overlayMenuController.hide();
+                    GetIt.instance.get<ProfileSheetController>().show(
+                      profile.userId,
+                    );
+                  },
+                ),
+              ],
+              controller: overlayMenuController,
+              child: NextSmoothImage.notifier(
+                notifier: delegate!.avatarNotifier,
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
           ),
         ),
+
+        // Padding(
+        //   padding: EdgeInsets.only(right: 8),
+        //   child: SmoothContainer(
+        //     width: 40,
+        //     height: 40,
+        //     child: NextSmoothImage.notifier(
+        //       key: delegate!.avatarKey,
+        //       notifier: delegate!.avatarNotifier,
+        //       borderRadius: BorderRadius.circular(16),
+        //       enableGestureDetection: true,
+        //       onClicked: () {
+        //         if (PlatformExtension.isDesktop) {
+        //           return;
+        //         }
+        //
+        //         final currentState = linker!.state(delegate!.avatarKey);
+        //         if (currentState) {
+        //           linker.updateHoverState(delegate!.avatarKey, false);
+        //         } else {
+        //           linker.updateHoverState(delegate!.avatarKey, true);
+        //           if (contextMenu.shown == true) {
+        //             return;
+        //           }
+        //           contextMenu.show(context);
+        //         }
+        //       },
+        //       onHovered: () {
+        //         if (PlatformExtension.isMobile) {
+        //           return;
+        //         }
+        //
+        //         linker!.updateHoverState(delegate!.avatarKey, true);
+        //
+        //         if (contextMenu.shown == true) {
+        //           return;
+        //         }
+        //         contextMenu.show(context);
+        //       },
+        //       onHoverCancelled: () {
+        //         if (PlatformExtension.isMobile) {
+        //           return;
+        //         }
+        //
+        //         linker!.updateHoverState(delegate!.avatarKey, false);
+        //       },
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }
