@@ -56,7 +56,7 @@ class SongBloc extends StrawberryBloc<SongEvent, SongState> {
 
       final data = await songUseCase.like(event.id, event.like);
       data.fold(
-        (failure) => emit(SongFailure(failure)),
+        (failure) => emit(LikeSongFailure(event.id, event.like, failure)),
         (playlistId) => emit(LikeSongSuccess(event.id, event.like, playlistId)),
       );
     });

@@ -32,7 +32,9 @@ class AudioOperator extends StatefulWidget {
 
 class _AudioOperatorState extends State<AudioOperator>
     with TickerProviderStateMixin {
+  List<StreamSubscription> subscriptions = [];
   SongBloc? songBloc = GetIt.instance.get();
+
   AudioPlayerTranslator? audioPlayerTranslator;
 
   AnimationController? playOperatorAnimationController;
@@ -56,7 +58,25 @@ class _AudioOperatorState extends State<AudioOperator>
       ),
     );
 
-    songBloc?.stream.listen((state) {
+    final songSubscription = audioPlayerTranslator!.songStream().listen((song) {
+      if (song == null) {
+        songLikeStream?.add(null);
+        return;
+      }
+
+      final idsHolder = GetIt.instance.get<LovedPlaylistIdsHolder>();
+      final id = song.id;
+      songLikeStream?.add(idsHolder.exists(id));
+    });
+    subscriptions.add(songSubscription);
+
+    final songBlocSubscription = songBloc!.stream.listen((state) {
+      if (state is SongLoading) {
+        songLikeStream?.add(null);
+      }
+      if (state is LikeSongFailure) {
+        songLikeStream?.add(state.like);
+      }
       if (state is LikeSongSuccess) {
         final idsHolder = GetIt.instance.get<LovedPlaylistIdsHolder>();
         if (state.like) {
@@ -68,6 +88,7 @@ class _AudioOperatorState extends State<AudioOperator>
         songLikeStream?.add(state.like);
       }
     });
+    subscriptions.add(songBlocSubscription);
   }
 
   @override
@@ -81,6 +102,10 @@ class _AudioOperatorState extends State<AudioOperator>
     playOperatorAnimation = null;
     songLikeStream?.close();
     songLikeStream = null;
+    for (final subscription in subscriptions) {
+      subscription.cancel();
+    }
+    subscriptions.clear();
     super.dispose();
   }
 
@@ -102,14 +127,22 @@ class _AudioOperatorState extends State<AudioOperator>
       ),
       builder: (context, combined) {
         if (!combined.hasData) {
-          return IconButton(
-            iconSize: 24,
-            onPressed: null,
-            icon: Icon(Icons.favorite_border_rounded),
+          return SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(),
           );
         }
 
         final combination = combined.data as (SongEntity?, bool?);
+        if (combination.$2 == null) {
+          return SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(),
+          );
+        }
+
         final id = combination.$1?.id;
         if (id == null) {
           return IconButton(

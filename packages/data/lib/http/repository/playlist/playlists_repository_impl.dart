@@ -42,10 +42,7 @@ class PlaylistsRepositoryImpl extends AbstractPlaylistsRepository {
   }
 
   @override
-  Future<PlaylistsEntity> userCreated(
-      int userId, {
-    bool cache = true,
-  }) async {
+  Future<PlaylistsEntity> userCreated(int userId, {bool cache = true}) async {
     final entity = await fromNetwork(userId);
     final list = entity.playlists.toList();
     list.removeWhere((playlist) {
@@ -59,10 +56,7 @@ class PlaylistsRepositoryImpl extends AbstractPlaylistsRepository {
   }
 
   @override
-  Future<PlaylistsEntity> userFavored(
-      int userId, {
-    bool cache = true,
-  }) async {
+  Future<PlaylistsEntity> userFavored(int userId, {bool cache = true}) async {
     final entity = await fromNetwork(userId);
     final list = entity.playlists.toList();
     list.removeWhere((playlist) {
@@ -83,12 +77,12 @@ class PlaylistsRepositoryImpl extends AbstractPlaylistsRepository {
     bool cache = true,
   }) {
     final imageRepository = GetIt.instance.get<AbstractImageRepository>();
-    final imageItem = ImageItem(url, id.toString(), CacheChannel.playlistCovers);
-    imageRepository.fetch(
-      imageItem,
-      receiver,
-      cache: cache,
+    final imageItem = ImageItem(
+      url,
+      id.toString(),
+      CacheChannel.playlistCovers,
     );
+    imageRepository.fetch(imageItem, receiver, cache: cache);
   }
 
   @override

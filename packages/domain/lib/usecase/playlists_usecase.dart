@@ -33,9 +33,7 @@ class PlaylistsUseCaseImpl extends StrawberryUseCase
 
   @override
   Future<Either<Failure, PlaylistsEntity>> userCreated(int userId) async {
-    serviceLogger!.trace(
-      "getting user created playlists, userId: $userId",
-    );
+    serviceLogger!.trace("getting user created playlists, userId: $userId");
     try {
       final result = await playlistsRepository.userCreated(userId);
       return Right(result);
@@ -49,9 +47,7 @@ class PlaylistsUseCaseImpl extends StrawberryUseCase
 
   @override
   Future<Either<Failure, PlaylistsEntity>> userFavored(int userId) async {
-    serviceLogger!.trace(
-      "getting user favored playlists, userId: $userId",
-    );
+    serviceLogger!.trace("getting user favored playlists, userId: $userId");
     try {
       final result = await playlistsRepository.userFavored(userId);
       return Right(result);
@@ -95,9 +91,7 @@ class PlaylistsUseCaseImpl extends StrawberryUseCase
       playlistsRepository.coverBatch(items, receiver, cache: cache);
       return Right(null);
     } catch (e, s) {
-      serviceLogger!.error(
-        "getting playlist cover batch error: $e\n$s",
-      );
+      serviceLogger!.error("getting playlist cover batch error: $e\n$s");
       return Left(Failure(e, s));
     }
   }

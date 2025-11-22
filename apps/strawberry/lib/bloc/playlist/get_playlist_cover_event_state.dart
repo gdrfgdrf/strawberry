@@ -9,7 +9,12 @@ class AttemptGetPlaylistCoverEvent extends PlaylistEvent {
   final bool cache;
   final void Function(Either<Failure, ImageItemResult>) receiver;
 
-  AttemptGetPlaylistCoverEvent(this.id, this.url, this.receiver, {this.cache = true});
+  AttemptGetPlaylistCoverEvent(
+    this.id,
+    this.url,
+    this.receiver, {
+    this.cache = true,
+  });
 }
 
 class AttemptGetPlaylistCoverBatchEvent extends PlaylistEvent {
