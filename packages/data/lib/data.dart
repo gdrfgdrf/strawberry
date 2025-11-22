@@ -10,6 +10,7 @@ import 'package:data/http/repository/auth_repository_impl.dart';
 import 'package:data/http/repository/image_repository_impl.dart';
 import 'package:data/http/repository/playlist/playlist_repository_impl.dart';
 import 'package:data/http/repository/qr_code_repository_impl.dart';
+import 'package:data/http/repository/search_repository_impl.dart';
 import 'package:data/http/repository/song_repository_impl.dart';
 import 'package:data/http/repository/user_habit_repository_impl.dart';
 import 'package:data/http/url/api_url_provider.dart';
@@ -26,6 +27,7 @@ import 'package:domain/repository/image_repository.dart';
 import 'package:domain/repository/playlist/playlist_repository.dart';
 import 'package:domain/repository/playlist/playlists_repository.dart';
 import 'package:domain/repository/qr_code_repository.dart';
+import 'package:domain/repository/search_repository.dart';
 import 'package:domain/repository/song_repository.dart';
 import 'package:domain/repository/user/user_avatar_repository.dart';
 import 'package:domain/repository/user/user_detail_repository.dart';
@@ -168,6 +170,11 @@ class DataModule {
     logger.trace("configuring user habit repository");
     getIt.registerLazySingleton<AbstractUserHabitRepository>(
       () => UserHabitRepositoryImpl(),
+    );
+
+    logger.trace("configuring search repository");
+    getIt.registerLazySingleton<AbstractSearchRepository>(
+      () => SearchRepositoryImpl(),
     );
   }
 }

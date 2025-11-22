@@ -73,7 +73,7 @@ class SmoothOverlayMenu {
         topLeft: isBottom ? Radius.zero : Radius.circular(16),
         topRight: isBottom ? Radius.zero : Radius.circular(16),
         bottomLeft: isBottom ? Radius.circular(16) : Radius.zero,
-        bottomRight: isBottom ? Radius.circular(16) : Radius.zero
+        bottomRight: isBottom ? Radius.circular(16) : Radius.zero,
       ),
       color: themeData().colorScheme.surfaceContainerLow,
       child: ConstraintLayout(
@@ -106,8 +106,10 @@ class SmoothOverlayMenu {
     final borderRadius = BorderRadius.only(
       topLeft: (isFirst && top == null) ? Radius.circular(12) : Radius.zero,
       topRight: (isFirst && top == null) ? Radius.circular(12) : Radius.zero,
-      bottomLeft: (isLast && bottom == null) ? Radius.circular(12) : Radius.zero,
-      bottomRight: (isLast && bottom == null) ? Radius.circular(12) : Radius.zero,
+      bottomLeft:
+          (isLast && bottom == null) ? Radius.circular(12) : Radius.zero,
+      bottomRight:
+          (isLast && bottom == null) ? Radius.circular(12) : Radius.zero,
     );
 
     return AnimatedListItem(
@@ -140,9 +142,9 @@ class SmoothOverlayMenu {
                     width: 110.w,
                     height: 43.h,
                     alignment:
-                    trailingIcon != null
-                        ? Alignment.centerLeft
-                        : Alignment.center,
+                        trailingIcon != null
+                            ? Alignment.centerLeft
+                            : Alignment.center,
                     child: content,
                   ).applyConstraint(
                     id: contentId,
@@ -220,7 +222,11 @@ class SmoothOverlayMenu {
             right: parent.right,
             top: topId.bottom,
           ),
-          buildEnd(bottom, divider: bottomDivider, isBottom: true).applyConstraint(
+          buildEnd(
+            bottom,
+            divider: bottomDivider,
+            isBottom: true,
+          ).applyConstraint(
             left: parent.left,
             right: parent.right,
             bottom: parent.bottom,

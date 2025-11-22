@@ -1,6 +1,9 @@
 import 'package:domain/entity/account_entity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_constraintlayout/flutter_constraintlayout.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared/l10n/localizer.dart';
 import 'package:shared/themes.dart';
@@ -53,6 +56,45 @@ class HomeAppBarProvider<D extends AbstractDelegate>
     ];
   }
 
+  Widget buildSearchBar() {
+    final iconId = ConstraintId("icon");
+
+    return SmoothContainer(
+      width: 240.w,
+      height: 64,
+      borderRadius: BorderRadius.circular(24),
+      color: themeData().colorScheme.surfaceContainerHigh,
+      alignment: Alignment.centerRight,
+      child: ConstraintLayout(
+        children: [
+          Icon(
+            size: 24,
+            Icons.search_rounded,
+            color: themeData().colorScheme.onSurfaceVariant,
+          ).applyConstraint(
+            id: iconId,
+            top: parent.top,
+            bottom: parent.bottom,
+            left: parent.left,
+            margin: EdgeInsets.only(left: 12),
+          ),
+
+          SmoothContainer(
+            width: 240.w - 24 - 12,
+            child: TextField(
+              decoration: InputDecoration(border: InputBorder.none),
+              onChanged: (text) {},
+            ),
+          ).applyConstraint(
+            top: parent.top,
+            bottom: parent.bottom,
+            left: iconId.right,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget provideImpl(BuildContext context) {
     final profile = GetIt.instance.get<Profile>();
@@ -70,6 +112,26 @@ class HomeAppBarProvider<D extends AbstractDelegate>
       title: StrawberryTitle(hero: true),
       centerTitle: true,
       actions: [
+        Padding(
+          padding: EdgeInsets.only(right: 8),
+          child: SmoothContainer(
+            width: 320,
+            height: 40,
+            child: SearchAnchor.bar(
+              barBackgroundColor: WidgetStatePropertyAll(
+                themeData().colorScheme.surfaceContainerLow,
+              ),
+              viewBackgroundColor: themeData().colorScheme.surfaceContainerLow,
+              viewConstraints: BoxConstraints(
+                maxWidth: 320,
+              ),
+              suggestionsBuilder: (context, controller) {
+                return [];
+              },
+            ),
+          ),
+        ),
+
         Padding(
           padding: EdgeInsets.only(right: 8),
           child: SmoothContainer(
@@ -98,55 +160,6 @@ class HomeAppBarProvider<D extends AbstractDelegate>
             ),
           ),
         ),
-
-        // Padding(
-        //   padding: EdgeInsets.only(right: 8),
-        //   child: SmoothContainer(
-        //     width: 40,
-        //     height: 40,
-        //     child: NextSmoothImage.notifier(
-        //       key: delegate!.avatarKey,
-        //       notifier: delegate!.avatarNotifier,
-        //       borderRadius: BorderRadius.circular(16),
-        //       enableGestureDetection: true,
-        //       onClicked: () {
-        //         if (PlatformExtension.isDesktop) {
-        //           return;
-        //         }
-        //
-        //         final currentState = linker!.state(delegate!.avatarKey);
-        //         if (currentState) {
-        //           linker.updateHoverState(delegate!.avatarKey, false);
-        //         } else {
-        //           linker.updateHoverState(delegate!.avatarKey, true);
-        //           if (contextMenu.shown == true) {
-        //             return;
-        //           }
-        //           contextMenu.show(context);
-        //         }
-        //       },
-        //       onHovered: () {
-        //         if (PlatformExtension.isMobile) {
-        //           return;
-        //         }
-        //
-        //         linker!.updateHoverState(delegate!.avatarKey, true);
-        //
-        //         if (contextMenu.shown == true) {
-        //           return;
-        //         }
-        //         contextMenu.show(context);
-        //       },
-        //       onHoverCancelled: () {
-        //         if (PlatformExtension.isMobile) {
-        //           return;
-        //         }
-        //
-        //         linker!.updateHoverState(delegate!.avatarKey, false);
-        //       },
-        //     ),
-        //   ),
-        // ),
       ],
     );
   }

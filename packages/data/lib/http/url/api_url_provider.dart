@@ -59,6 +59,8 @@ abstract class UrlProvider {
   Endpoint songLyric(int id);
 
   Endpoint songLike(int id, bool like);
+
+  Endpoint searchSuggestion(String keyword);
 }
 
 class UrlManager {

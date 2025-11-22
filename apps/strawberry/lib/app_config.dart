@@ -7,6 +7,7 @@ import 'package:domain/repository/auth_repository.dart';
 import 'package:domain/repository/playlist/playlist_repository.dart';
 import 'package:domain/repository/playlist/playlists_repository.dart';
 import 'package:domain/repository/qr_code_repository.dart';
+import 'package:domain/repository/search_repository.dart';
 import 'package:domain/repository/song_repository.dart';
 import 'package:domain/repository/user/user_avatar_repository.dart';
 import 'package:domain/repository/user/user_detail_repository.dart';
@@ -18,6 +19,7 @@ import 'package:domain/usecase/playlists_usecase.dart';
 import 'package:domain/usecase/qr_code_use_case.dart';
 import 'package:domain/usecase/song_usecase.dart';
 import 'package:domain/usecase/user_usecase.dart';
+import 'package:domain/usecase/search_usecase.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
@@ -31,6 +33,7 @@ import 'package:strawberry/bloc/album/album_bloc.dart';
 import 'package:strawberry/bloc/auth/auth_bloc.dart';
 import 'package:strawberry/bloc/playlist/playlist_bloc.dart';
 import 'package:strawberry/bloc/qrcode/qr_code_bloc.dart';
+import 'package:strawberry/bloc/search/search_bloc.dart';
 import 'package:strawberry/bloc/song/song_bloc.dart';
 import 'package:strawberry/bloc/user/user_bloc.dart';
 import 'package:strawberry/play/playlist_manager.dart';
@@ -254,5 +257,11 @@ class AppConfig {
 
     logger.trace("configuring album bloc creation");
     getIt.registerFactory<AlbumBloc>(() => AlbumBloc(getIt<AlbumUseCase>()));
+    
+    logger.trace("configuring search usecase singleton");
+    getIt.registerLazySingleton<SearchUseCase>(() => SearchUseCaseImpl(getIt<AbstractSearchRepository>()));
+    
+    logger.trace("configuring search bloc creation");
+    getIt.registerFactory<SearchBloc>(() => SearchBloc(getIt<SearchUseCase>()));
   }
 }

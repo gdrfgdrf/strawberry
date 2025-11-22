@@ -307,10 +307,7 @@ class UrlProviderImpl extends UrlProvider {
       baseUrl: "https://interface.music.163.com",
       requiresEncryption: true,
       requiresDecryption: true,
-      body: buildBody(
-        extra: extra,
-        extraHeader: {"Nm-GCore-Status": "1"},
-      ),
+      body: buildBody(extra: extra, extraHeader: {"Nm-GCore-Status": "1"}),
     );
   }
 
@@ -332,22 +329,23 @@ class UrlProviderImpl extends UrlProvider {
           "rv": "-1",
           "yv": "1",
           "showRole": "true",
-          "cp": "true"
+          "cp": "true",
         },
         extraHeader: {"Nm-GCore-Status": "1"},
-      )
+      ),
     );
   }
-  
+
   @override
   Endpoint songLike(int id, bool like) {
     final checkToken = CheckTokenGenerator.entrypoint();
 
-    return Endpoint.post(path: "/eapi/song/like",
-    eapiPath: "/api/song/like",
-    baseUrl: "https://interface.music.163.com",
-    requiresEncryption: true,
-    requiresDecryption: true,
+    return Endpoint.post(
+      path: "/eapi/song/like",
+      eapiPath: "/api/song/like",
+      baseUrl: "https://interface.music.163.com",
+      requiresEncryption: true,
+      requiresDecryption: true,
       body: buildBody(
         extra: {
           "trackId": "$id",
@@ -356,11 +354,23 @@ class UrlProviderImpl extends UrlProvider {
           "hotKey": "undefined",
           "checkToken": checkToken,
         },
-        extraHeader: {
-          "Nm-GCore-Status": "1",
-          "X-antiCheatToken": checkToken
-        }
-      )
+        extraHeader: {"Nm-GCore-Status": "1", "X-antiCheatToken": checkToken},
+      ),
+    );
+  }
+
+  @override
+  Endpoint searchSuggestion(String keyword) {
+    return Endpoint.post(
+      path: "/eapi/search/suggest/web",
+      eapiPath: "/api/search/suggest/web",
+      baseUrl: "https://interface.music.163.com",
+      requiresEncryption: true,
+      requiresDecryption: true,
+      body: buildBody(
+        extra: {"keyword": keyword},
+        extraHeader: {"Nm-GCore-Status": "1"},
+      ),
     );
   }
 }
