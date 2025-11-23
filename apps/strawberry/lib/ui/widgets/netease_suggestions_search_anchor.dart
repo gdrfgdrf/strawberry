@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:domain/entity/search_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared/themes.dart';
 import 'package:strawberry/bloc/search/get_search_suggestions_event_state.dart';
@@ -77,40 +76,18 @@ class _NeteaseSuggestionsSearchAnchorState
     bool first = false,
     bool last = false,
   }) {
-    if (first) {
-      return Container(
-        width: widget.maxWidth ?? 320,
-        constraints: BoxConstraints(minHeight: widget.minTextHeight ?? 40),
-        padding: EdgeInsets.only(top: 4, left: 8, right: 8),
-        child: Column(
-          children: [
-            Text(suggestion.keyword ?? "", style: TextStyle(fontSize: 24.sp)),
-            Divider(),
-          ],
-        ),
-      );
-    }
-    if (last) {
-      return Container(
-        width: widget.maxWidth ?? 320,
-        constraints: BoxConstraints(minHeight: widget.minTextHeight ?? 40),
-        padding: EdgeInsets.only(left: 8, right: 8),
-        child: Column(
-          children: [
-            Text(suggestion.keyword ?? "", style: TextStyle(fontSize: 24.sp)),
-          ],
-        ),
-      );
-    }
-
     return Container(
       width: widget.maxWidth ?? 320,
       constraints: BoxConstraints(minHeight: widget.minTextHeight ?? 40),
-      padding: EdgeInsets.only(left: 8, right: 8),
+      padding: EdgeInsets.only(top: first ? 8 : 0, left: 8, right: 8),
       child: Column(
         children: [
-          Text(suggestion.keyword ?? "", style: TextStyle(fontSize: 24.sp)),
-          Divider(),
+          Text(
+            suggestion.keyword ?? "",
+            style: TextStyle(fontSize: 16),
+            textAlign: TextAlign.center,
+          ),
+          if (!last) Divider(),
         ],
       ),
     );
