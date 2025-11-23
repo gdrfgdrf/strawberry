@@ -17,14 +17,14 @@ void main() {
   // print(params.json);
   // print(params.hash);
 
-  final data = "72 3B 4D 78 A0 8E 2C 3F 83 04 11 49 28 F1 0A 3D 2C 0C 4C AF A5 0C E3 92 3F 8D 22 A7 D1 6A 9A 15 E8 50 F8 55 2B C4 B4 9E 9B 9A 29 AA 24 5C 32 BB A2 F3 D2 DB C0 54 D6 CD 99 A8 B5 49 2D 6C E2 F3 3B 76 CA DD 5C 9C 61 AE 75 99 AD 84 BA 24 83 62 78 7F ED 42 3B 31 C4 CC 07 33 75 55 1B B6 38 BA FF 5A B4 DD A6 BB 09 B1 CF 55 AF 81 0C 08 98 28 2A 9F CD 95 F4 AC 91 1F E2 F3 D2 C7 B0 CF 3F 52 83 3A 6B 9C DC DD 3B 0E 4A FE 1B B5 B1 17 EE DC 12 49 54 92 4F 3A 1E D6 0D 4F E1 37 4A C4 EA A5 48 22 B5 61 DF 35 AA 58 8C 67 D0 53 26 30 A8 25 93 70 E4 4A FE F1 1C C0 F9 3E 07 7E CD 4D DC 87 74 F4 8F 6A E4 99 7B E9 5A D7 47 F4 A0 12 8C 38";
+  final data = "DC C5 2B 30 13 E9 B6 6C 03 8F 8E 02 7E 58 0E CE 07 87 24 60 5B A2 58 4E EF 27 94 D0 7B 99 D1 3E B0 CA 5F 17 C2 EB B4 5C D6 5F E7 88 1D C0 13 55 C5 97 BC EB C3 0E A9 8F C8 7A 39 AC F2 D9 3F FA 6B 15 F6 7F 11 55 BA 10 5B 43 30 23 7B CF 4B 93 DB 6F DA 22 02 57 F9 42 EE FE 2F 71 86 6D 25 53 8E 1D 97 66 89 36 D0 EF 2B 12 47 C4 61 DA 1B 0C";
   final data_ = data.replaceAll(" ", "");
 
   final decrypted = EapiCrypto.dataDecrypt(data_);
   print(decrypted);
 
-  // final string = '''{"e_r":true,"userId":"3288672225","all":"true","header":"{\\"os\\":\\"pc\\",\\"appver\\":\\"2.10.13.202675\\",\\"deviceId\\":\\"B90EBE633AECFFBC47B0677DE17D2EC10837EE27144ED6EFE741\\",\\"requestId\\":\\"12419918\\",\\"clientSign\\":\\"73:D1:B2:72:21:BC@@@32442B892A85D@@@@@@aec85632-106f-09bb-f21e-96943e32dea87602c864e7768dbea7a670e5a0540c78\\",\\"osver\\":\\"Microsoft-Windows-10-Professional-build-16541-64bit\\",\\"Nm-GCore-Status\\":\\"1\\"}"}''';
-  // final params = EapiParams("/api/w/v1/user/detail/3288672225", string);
+  // final string = '''{"keyword":"89451","e_r":true,"header":"{\\"os\\":\\"pc\\",\\"appver\\":\\"2.10.13.202675\\",\\"deviceId\\":\\"B90EBE633AECFFBC47B0677DE17D2EC10837EE27144ED6EFE741\\",\\"requestId\\":\\"12419918\\",\\"clientSign\\":\\"73:D1:B2:72:21:BC@@@32442B892A85D@@@@@@aec85632-106f-09bb-f21e-96943e32dea87602c864e7768dbea7a670e5a0540c78\\",\\"osver\\":\\"Microsoft-Windows-10-Professional-build-16541-64bit\\",\\"Nm-GCore-Status\\":\\"1\\"}"}''';
+  // final params = EapiParams("/api/search/suggest/keyword/get", string);
   // final result = EapiCrypto.paramsEncrypt(params);
   // print(result);
 }

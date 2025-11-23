@@ -12,6 +12,7 @@ import 'package:strawberry/ui/abstract_delegate.dart';
 import 'package:strawberry/ui/abstract_widget_provider.dart';
 import 'package:strawberry/ui/home/home_appbar_delegate.dart';
 import 'package:strawberry/ui/profile/profile_sheet_controller.dart';
+import 'package:strawberry/ui/widgets/netease_suggestions_search_anchor.dart';
 import 'package:widgets/widgets/next_smooth_image.dart';
 import 'package:widgets/widgets/overlay/animated_overlay_entry.dart';
 import 'package:widgets/widgets/overlaymenu/auto_overlay_menu.dart';
@@ -117,17 +118,8 @@ class HomeAppBarProvider<D extends AbstractDelegate>
           child: SmoothContainer(
             width: 320,
             height: 40,
-            child: SearchAnchor.bar(
-              barBackgroundColor: WidgetStatePropertyAll(
-                themeData().colorScheme.surfaceContainerLow,
-              ),
-              viewBackgroundColor: themeData().colorScheme.surfaceContainerLow,
-              viewConstraints: BoxConstraints(
-                maxWidth: 320,
-              ),
-              suggestionsBuilder: (context, controller) {
-                return [];
-              },
+            child: NeteaseSuggestionsSearchAnchor(
+              maxWidth: 320,
             ),
           ),
         ),

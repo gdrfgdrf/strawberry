@@ -362,8 +362,8 @@ class UrlProviderImpl extends UrlProvider {
   @override
   Endpoint searchSuggestion(String keyword) {
     return Endpoint.post(
-      path: "/eapi/search/suggest/web",
-      eapiPath: "/api/search/suggest/web",
+      path: "/eapi/search/suggest/keyword/get",
+      eapiPath: "/api/search/suggest/keyword/get",
       baseUrl: "https://interface.music.163.com",
       requiresEncryption: true,
       requiresDecryption: true,

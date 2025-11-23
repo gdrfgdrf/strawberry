@@ -30,7 +30,7 @@ class SearchRepositoryImpl extends AbstractSearchRepository {
             return;
           }
 
-          final suggests = parsedResponse["suggests"];
+          final suggests = parsedResponse["data"]["suggests"];
           if (suggests is! List) {
             final exception = ApiServiceException(
               "'suggests' is not a list: $suggests",
