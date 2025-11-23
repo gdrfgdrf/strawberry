@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_constraintlayout/flutter_constraintlayout.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:shared/lyric/lyric_scheduler.dart';
 import 'package:shared/themes.dart';
 import 'package:smooth_corner/smooth_corner.dart';
@@ -34,6 +35,10 @@ class _PlayingPageState
   final List<StreamSubscription> subscriptions = [];
   AudioPlayerTranslator? audioPlayerTranslator;
   LyricScheduler? lyricScheduler;
+
+  BehaviorSubject<ColorScheme?>? colorSchemeStream = BehaviorSubject.seeded(
+    null,
+  );
 
   @override
   EmptyDelegate createDelegate() {
@@ -67,6 +72,12 @@ class _PlayingPageState
             colorScheme.tertiaryContainer.withAlpha(160),
           ];
           fluidBackgroundController.mutateToColors(mutationColors);
+
+          final lastColorScheme = colorSchemeStream?.valueOrNull;
+          if (lastColorScheme != null && lastColorScheme == colorScheme) {
+            return;
+          }
+          colorSchemeStream?.add(colorScheme);
         });
         subscriptions.add(coverSubscription);
       },
@@ -84,8 +95,13 @@ class _PlayingPageState
     for (final subscription in subscriptions) {
       subscription.cancel();
     }
+    subscriptions.clear();
     audioPlayerTranslator?.dispose();
+    audioPlayerTranslator = null;
     lyricScheduler?.dispose();
+    lyricScheduler = null;
+    colorSchemeStream?.close();
+    colorSchemeStream = null;
     super.dispose();
   }
 
@@ -112,10 +128,7 @@ class _PlayingPageState
           id: coverId,
           top: parent.top,
           left: parent.left,
-          margin: EdgeInsets.only(
-            top: 24,
-            left: 24,
-          ),
+          margin: EdgeInsets.only(top: 24, left: 24),
         ),
 
         SmoothStreamBuilder(
@@ -142,10 +155,7 @@ class _PlayingPageState
           id: nameId,
           top: coverId.top,
           left: coverId.right,
-          margin: EdgeInsets.only(
-            top: 2,
-            left: 6
-          )
+          margin: EdgeInsets.only(top: 2, left: 6),
         ),
 
         SmoothStreamBuilder(
@@ -171,9 +181,7 @@ class _PlayingPageState
         ).applyConstraint(
           top: nameId.bottom,
           left: coverId.right,
-          margin: EdgeInsets.only(
-            left: 6
-          )
+          margin: EdgeInsets.only(left: 6),
         ),
 
         SmoothLyrics(
@@ -183,6 +191,7 @@ class _PlayingPageState
           lyricWidth: screenSize.width - 2 * (screenSize.width / 6),
           lyricsStream: audioPlayerTranslator!.lyricsStream(),
           positionStream: audioPlayerTranslator!.audioPlayer.positionStream,
+          colorSchemeStream: colorSchemeStream,
           onClicked: (index, lyric) {
             audioPlayerTranslator!.audioPlayer.seek(lyric.position);
           },
@@ -279,9 +288,13 @@ class _PlayingPageState
         ),
 
         SmoothLyrics(
-          lyricWidth: screenSize.width - ((screenSize.height / 3) - 256.w / 2 + 256.w) - screenSize.width / 3,
+          lyricWidth:
+              screenSize.width -
+              ((screenSize.height / 3) - 256.w / 2 + 256.w) -
+              screenSize.width / 3,
           lyricsStream: audioPlayerTranslator!.lyricsStream(),
           positionStream: audioPlayerTranslator!.audioPlayer.positionStream,
+          colorSchemeStream: colorSchemeStream,
           onClicked: (index, lyric) {
             audioPlayerTranslator!.audioPlayer.seek(lyric.position);
           },

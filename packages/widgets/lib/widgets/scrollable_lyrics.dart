@@ -39,6 +39,8 @@ class ScrollableLyrics extends StatefulWidget {
   final double? lyricWidth;
   final LyricDisplay? lyricDisplay;
 
+  final ColorScheme? colorScheme;
+
   const ScrollableLyrics({
     super.key,
     this.width,
@@ -48,6 +50,7 @@ class ScrollableLyrics extends StatefulWidget {
     this.onLyricClicked,
     this.lyricWidth,
     this.lyricDisplay,
+    this.colorScheme,
   });
 
   @override
@@ -267,6 +270,7 @@ class _ScrollableLyricsState extends State<ScrollableLyrics> {
           lyric: widget.lyrics[i],
           width: widget.lyricWidth,
           display: widget.lyricDisplay,
+          colorScheme: widget.colorScheme,
           onSizeCompleted: (size) {
             onSizeCompleted(i, size);
           },
@@ -322,6 +326,8 @@ class Lyric extends StatefulWidget {
 
   final LyricDisplay? display;
 
+  final ColorScheme? colorScheme;
+
   const Lyric({
     super.key,
     this.onSizeCompleted,
@@ -334,6 +340,7 @@ class Lyric extends StatefulWidget {
     required this.lyric,
     this.width,
     this.display,
+    this.colorScheme,
   });
 
   @override
@@ -501,6 +508,7 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
           fontFamily: getFont(),
           fontFamilyFallback: getFallbackFonts(),
           shadows: [Shadow(blurRadius: 6)],
+          color: widget.colorScheme?.secondaryContainer.withAlpha(160),
         ),
       );
     }
@@ -510,10 +518,11 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
         softWrap: true,
         textAlign: TextAlign.center,
         style: TextStyle(
-          fontSize: 24.sp,
+          fontSize: 20.sp,
           fontFamily: getFont(),
           fontFamilyFallback: getFallbackFonts(),
           shadows: [Shadow(blurRadius: 6)],
+          color: widget.colorScheme?.secondaryContainer.withAlpha(160),
         ),
       );
     }
@@ -537,7 +546,9 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
               fontSize: 32.sp,
               fontFamily: getFont(),
               fontFamilyFallback: getFallbackFonts(),
-              shadows: [Shadow(blurRadius: 6)],
+              shadows: [Shadow(blurRadius: 12)],
+              fontWeight: FontWeight.bold,
+              color: widget.colorScheme?.secondaryContainer,
             ),
           ).applyConstraint(
             id: lyricId,
@@ -587,6 +598,7 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
           fontFamily: getFont(),
           fontFamilyFallback: getFallbackFonts(),
           shadows: [Shadow(blurRadius: 6)],
+          color: widget.colorScheme?.secondaryContainer.withAlpha(160),
         ),
       );
     }
@@ -595,10 +607,11 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
         romanLyric,
         softWrap: true,
         style: TextStyle(
-          fontSize: 24.sp,
+          fontSize: 20.sp,
           fontFamily: getFont(),
           fontFamilyFallback: getFallbackFonts(),
           shadows: [Shadow(blurRadius: 6)],
+          color: widget.colorScheme?.secondaryContainer.withAlpha(160),
         ),
       );
     }
@@ -621,7 +634,9 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
               fontSize: 32.sp,
               fontFamily: getFont(),
               fontFamilyFallback: getFallbackFonts(),
-              shadows: [Shadow(blurRadius: 6)],
+              shadows: [Shadow(blurRadius: 12)],
+              fontWeight: FontWeight.bold,
+              color: widget.colorScheme?.secondaryContainer,
             ),
           ).applyConstraint(
             id: lyricId,
@@ -734,13 +749,7 @@ class _LyricState extends State<Lyric> with TickerProviderStateMixin {
               builder: (_, __) {
                 final translated = Transform.translate(
                   offset: Offset(0, animation.value),
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTapUp: (details) {
-                      print(widget.index);
-                    },
-                    child: buildLyric(),
-                  ),
+                  child: buildLyric(),
                 );
 
                 final distance = (widget.index - index).abs();

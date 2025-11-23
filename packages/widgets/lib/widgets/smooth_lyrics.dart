@@ -1,7 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_constraintlayout/flutter_constraintlayout.dart';
+import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared/lyric/lyric_parser.dart';
 import 'package:shared/lyric/lyric_scheduler.dart';
@@ -10,6 +9,7 @@ import 'package:widgets/widgets/scrollable_lyrics.dart';
 class SmoothLyrics extends StatefulWidget {
   final Stream<LyricsContainer?> lyricsStream;
   final Stream<Duration> positionStream;
+  final Stream<ColorScheme?>? colorSchemeStream;
 
   final double? width;
   final double? height;
@@ -24,6 +24,7 @@ class SmoothLyrics extends StatefulWidget {
     super.key,
     required this.lyricsStream,
     required this.positionStream,
+    this.colorSchemeStream,
     this.width,
     this.height,
     this.lyricWidth,
@@ -111,12 +112,22 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
     });
 
     return StreamBuilder(
-      stream: widget.lyricsStream,
-      builder: (context, lyricsData) {
-        if (!lyricsData.hasData) {
+      stream: Rx.combineLatest2(
+        widget.lyricsStream,
+        widget.colorSchemeStream ?? Stream.empty(),
+        (a, b) => (a, b),
+      ),
+      builder: (context, combinedData) {
+        if (!combinedData.hasData) {
           return SizedBox.shrink();
         }
-        final lyricsContainer = lyricsData.data!;
+
+        final lyricsContainer = combinedData.data!.$1;
+        final colorScheme = combinedData.data!.$2;
+
+        if (lyricsContainer == null) {
+          return SizedBox.shrink();
+        }
         lyricsContainer.wordBasedLyrics?.clear();
 
         final combined = lyricsContainer.combine();
@@ -132,6 +143,7 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
             indexStream: indexSubject!.stream,
             lyricWidth: widget.lyricWidth,
             lyricDisplay: widget.lyricDisplay,
+            colorScheme: colorScheme,
             onLyricClicked: (index) {
               widget.onClicked?.call(index, combined[index]);
             },
