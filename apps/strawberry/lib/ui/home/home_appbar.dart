@@ -6,6 +6,7 @@ import 'package:flutter_constraintlayout/flutter_constraintlayout.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared/l10n/localizer.dart';
+import 'package:shared/platform_extension.dart';
 import 'package:shared/themes.dart';
 import 'package:smooth_corner/smooth_corner.dart';
 import 'package:strawberry/ui/abstract_delegate.dart';
@@ -113,16 +114,17 @@ class HomeAppBarProvider<D extends AbstractDelegate>
       title: StrawberryTitle(hero: true),
       centerTitle: true,
       actions: [
-        Padding(
-          padding: EdgeInsets.only(right: 8),
-          child: SmoothContainer(
-            width: 320,
-            height: 40,
-            child: NeteaseSuggestionsSearchAnchor(
-              maxWidth: 320,
+        if (PlatformExtension.isDesktop)
+          Padding(
+            padding: EdgeInsets.only(right: 8),
+            child: SmoothContainer(
+              width: 320,
+              height: 40,
+              child: NeteaseSuggestionsSearchAnchor(
+                maxWidth: 320,
+              ),
             ),
           ),
-        ),
 
         Padding(
           padding: EdgeInsets.only(right: 8),

@@ -72,21 +72,20 @@ class _NeteaseSuggestionsSearchAnchorState
     ];
   }
 
-  Widget buildSuggestion(SearchSuggestionEntity suggestion, {bool first = false, bool last = false}) {
+  Widget buildSuggestion(
+    SearchSuggestionEntity suggestion, {
+    bool first = false,
+    bool last = false,
+  }) {
     if (first) {
       return Container(
         width: widget.maxWidth ?? 320,
-        constraints: BoxConstraints(
-            minHeight: widget.minTextHeight ?? 40
-        ),
+        constraints: BoxConstraints(minHeight: widget.minTextHeight ?? 40),
         padding: EdgeInsets.only(top: 4, left: 8, right: 8),
         child: Column(
           children: [
-            Text(
-              suggestion.keyword ?? "",
-              style: TextStyle(fontSize: 24.sp),
-            ),
-            Divider()
+            Text(suggestion.keyword ?? "", style: TextStyle(fontSize: 24.sp)),
+            Divider(),
           ],
         ),
       );
@@ -94,16 +93,11 @@ class _NeteaseSuggestionsSearchAnchorState
     if (last) {
       return Container(
         width: widget.maxWidth ?? 320,
-        constraints: BoxConstraints(
-            minHeight: widget.minTextHeight ?? 40
-        ),
+        constraints: BoxConstraints(minHeight: widget.minTextHeight ?? 40),
         padding: EdgeInsets.only(left: 8, right: 8),
         child: Column(
           children: [
-            Text(
-              suggestion.keyword ?? "",
-              style: TextStyle(fontSize: 24.sp),
-            ),
+            Text(suggestion.keyword ?? "", style: TextStyle(fontSize: 24.sp)),
           ],
         ),
       );
@@ -111,17 +105,12 @@ class _NeteaseSuggestionsSearchAnchorState
 
     return Container(
       width: widget.maxWidth ?? 320,
-      constraints: BoxConstraints(
-          minHeight: widget.minTextHeight ?? 40
-      ),
+      constraints: BoxConstraints(minHeight: widget.minTextHeight ?? 40),
       padding: EdgeInsets.only(left: 8, right: 8),
       child: Column(
         children: [
-          Text(
-            suggestion.keyword ?? "",
-            style: TextStyle(fontSize: 24.sp),
-          ),
-          Divider()
+          Text(suggestion.keyword ?? "", style: TextStyle(fontSize: 24.sp)),
+          Divider(),
         ],
       ),
     );
