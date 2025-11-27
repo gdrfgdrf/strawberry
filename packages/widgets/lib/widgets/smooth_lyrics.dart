@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared/lyric/lyric_parser.dart';
 import 'package:shared/lyric/lyric_scheduler.dart';
+import 'package:widgets/widgets/nextlyrics/next_smooth_lyrics.dart';
 import 'package:widgets/widgets/scrollable_lyrics.dart';
 
 class SmoothLyrics extends StatefulWidget {
@@ -134,6 +135,17 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
         if (combined == null) {
           return SizedBox.shrink();
         }
+
+        return ClipRect(
+          child: NextSmoothLyrics(
+            lyrics: combined,
+            indexStream: indexSubject!.stream,
+            width: widget.width,
+            height: widget.height,
+            lyricWidth: widget.lyricWidth,
+            colorScheme: colorScheme,
+          ),
+        );
 
         return ClipRect(
           child: ScrollableLyrics(
