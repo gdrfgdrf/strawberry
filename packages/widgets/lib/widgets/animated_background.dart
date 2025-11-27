@@ -1,6 +1,6 @@
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared/themes.dart';
+import 'package:smooth_corner/smooth_corner.dart';
 
 class AnimatedBackground extends StatefulWidget {
   final Widget child;
@@ -10,7 +10,15 @@ class AnimatedBackground extends StatefulWidget {
   final EdgeInsets? padding;
   final BorderRadius? borderRadius;
 
-  const AnimatedBackground({super.key, required this.child, this.width, this.height, this.alignment, this.padding, this.borderRadius});
+  const AnimatedBackground({
+    super.key,
+    required this.child,
+    this.width,
+    this.height,
+    this.alignment,
+    this.padding,
+    this.borderRadius,
+  });
 
   @override
   State<StatefulWidget> createState() => _AnimatedBackgroundState();
@@ -24,19 +32,24 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> {
     return MouseRegion(
       onEnter: (_) => setState(() => isHovered = true),
       onExit: (_) => setState(() => isHovered = false),
-      child: AnimatedContainer(
-        width: widget.width,
-        height: widget.height,
-        alignment: widget.alignment,
-        duration: Duration(milliseconds: 200),
-        padding: widget.padding,
-        decoration: BoxDecoration(
-          color: isHovered ? Colors.purple[100] : Colors.transparent,
-          borderRadius: widget.borderRadius
+      child: SmoothClipRRect(
+        borderRadius: widget.borderRadius ?? BorderRadius.circular(16),
+        child: AnimatedContainer(
+          width: widget.width,
+          height: widget.height,
+          alignment: widget.alignment,
+          duration: Duration(milliseconds: 200),
+          padding: widget.padding,
+          decoration: BoxDecoration(
+            color:
+                isHovered
+                    ? themeData().colorScheme.surfaceContainer.withAlpha(160)
+                    : Colors.transparent,
+            borderRadius: widget.borderRadius ?? BorderRadius.circular(16),
+          ),
+          child: widget.child,
         ),
-        child: widget.child,
       ),
     );
   }
-
 }
