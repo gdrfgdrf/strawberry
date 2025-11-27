@@ -23,6 +23,8 @@ class NextSmoothLyrics extends StatefulWidget {
 
   final ColorScheme? colorScheme;
 
+  final void Function(int)? onLyricClicked;
+
   const NextSmoothLyrics({
     super.key,
     this.width,
@@ -32,6 +34,7 @@ class NextSmoothLyrics extends StatefulWidget {
     required this.lyrics,
     required this.indexStream,
     this.colorScheme,
+    this.onLyricClicked,
   });
 
   @override
@@ -109,6 +112,9 @@ class _NextSmoothLyricsState extends State<NextSmoothLyrics> {
           onSizeCompleted: (size) {
             onSizeCompleted(i, size);
           },
+          onClicked: () {
+            widget.onLyricClicked?.call(i);
+          },
         ),
       );
     }
@@ -124,6 +130,7 @@ class _NextSmoothLyricsState extends State<NextSmoothLyrics> {
 class AnimatedPositionedLyric extends StatefulWidget {
   final double? width;
   final void Function(Size)? onSizeCompleted;
+  final VoidCallback? onClicked;
 
   final Stream<CalculatedLyrics?> calculateStream;
 
@@ -137,6 +144,7 @@ class AnimatedPositionedLyric extends StatefulWidget {
     super.key,
     this.width,
     this.onSizeCompleted,
+    this.onClicked,
     required this.calculateStream,
     required this.index,
     required this.total,
@@ -316,7 +324,12 @@ class _AnimatedPositionedLyricState extends State<AnimatedPositionedLyric> {
         child: AnimatedBlur(
           value: distance == 0 ? 0.0 : 2.0,
           duration: Duration(milliseconds: 250),
-          child: buildCenterLyric(),
+          child: GestureDetector(
+            onTap: () {
+              widget.onClicked?.call();
+            },
+            child: buildCenterLyric(),
+          ),
         ),
       ),
     );

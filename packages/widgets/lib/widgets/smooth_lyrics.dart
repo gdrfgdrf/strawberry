@@ -144,6 +144,9 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
             height: widget.height,
             lyricWidth: widget.lyricWidth,
             colorScheme: colorScheme,
+            onLyricClicked: (index) {
+              widget.onClicked?.call(index, combined[index]);
+            },
           ),
         );
 
