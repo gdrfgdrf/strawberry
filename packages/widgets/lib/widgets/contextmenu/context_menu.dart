@@ -54,3 +54,44 @@ class RawContextMenuBuilder {
     return _menu;
   }
 }
+
+class SimpleContextMenuBuilder {
+  final rawContextMenuBuilder = RawContextMenuBuilder();
+
+  SimpleContextMenuBuilder menu({String? title}) {
+    if (title == null) {
+      rawContextMenuBuilder.menu();
+      return this;
+    }
+
+    rawContextMenuBuilder.menu(title: Text(title));
+    return this;
+  }
+
+  SimpleContextMenuBuilder node({
+    Widget? leading,
+    Widget? trailing,
+    Widget? content,
+  }) {
+    rawContextMenuBuilder.node(
+      leading: leading,
+      trailing: trailing,
+      content: content,
+    );
+    return this;
+  }
+
+  SimpleContextMenuBuilder combineRaw(RawContextMenuBuilder another) {
+    rawContextMenuBuilder.combine(another);
+    return this;
+  }
+
+  SimpleContextMenuBuilder combine(SimpleContextMenuBuilder another) {
+    rawContextMenuBuilder.combine(another.rawContextMenuBuilder);
+    return this;
+  }
+
+  ContextMenu? finish() {
+    return rawContextMenuBuilder.finish();
+  }
+}
