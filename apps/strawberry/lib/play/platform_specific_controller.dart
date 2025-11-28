@@ -12,7 +12,7 @@ import 'package:strawberry/play/audio_player_translator.dart';
 enum ControlEvent { play, pause, previous, next, unknown }
 
 abstract class PlatformSpecificController {
-  void prepare();
+  Future<void> prepare();
 
   static PlatformSpecificController? auto() {
     if (Platform.isAndroid || Platform.isIOS || Platform.isLinux) {
@@ -35,7 +35,7 @@ abstract class PlatformSpecificController {
 
 class _AndroidIOSLinuxController extends PlatformSpecificController {
   @override
-  void prepare() async {
+  Future<void> prepare() async {
     StrawberryAudioHandler.prepareSingleton();
     await AudioService.init(
       builder: () {
@@ -55,7 +55,7 @@ class _AndroidIOSLinuxController extends PlatformSpecificController {
 
 class _WindowsController extends PlatformSpecificController {
   @override
-  void prepare() {
+  Future<void> prepare() async {
     final audioPlayer = GetIt.instance.get<AudioPlayer>();
     final translator = AudioPlayerTranslator(audioPlayer);
     final albumBloc = GetIt.instance.get<AlbumBloc>();

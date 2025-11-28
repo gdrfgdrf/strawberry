@@ -1,16 +1,17 @@
 import 'dart:async';
-import 'dart:isolate';
-import 'dart:typed_data';
-import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:pointycastle/digests/sha256.dart';
 
 class Files {
   static Future<String> sha256(List<int> bytes) async {
-    final digest = SHA256Digest();
-    final output = Uint8List(digest.digestSize);
-    digest.update(Uint8List.fromList(bytes), 0, bytes.length);
-    digest.doFinal(output, 0);
-    return bytesToHex(output);
+    return compute(<List, String>(bytes) {
+      final digest = SHA256Digest();
+      final output = Uint8List(digest.digestSize);
+      digest.update(Uint8List.fromList(bytes), 0, bytes.length);
+      digest.doFinal(output, 0);
+      return bytesToHex(output);
+    }, bytes);
   }
 
   static String bytesToHex(Uint8List bytes) {

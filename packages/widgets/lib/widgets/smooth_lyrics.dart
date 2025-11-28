@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared/lyric/lyric_parser.dart';
 import 'package:shared/lyric/lyric_scheduler.dart';
+import 'package:shared/lyric/next/next_lyric_scheduler.dart';
 import 'package:widgets/widgets/nextlyrics/next_smooth_lyrics.dart';
 import 'package:widgets/widgets/scrollable_lyrics.dart';
 
@@ -39,7 +40,7 @@ class SmoothLyrics extends StatefulWidget {
 }
 
 class _SmoothLyricsState extends State<SmoothLyrics> {
-  LyricScheduler? lyricScheduler;
+  NextRawLyricScheduler? lyricScheduler;
   StreamSubscription? lyricSchedulerSubscription;
   List<StreamSubscription> subscriptions = [];
 
@@ -74,9 +75,10 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
       lyricSchedulerSubscription?.cancel();
       lyricSchedulerSubscription = null;
 
-      lyricScheduler = LyricScheduler(combined, widget.positionStream);
+      lyricScheduler = NextRawLyricScheduler(combined, widget.positionStream);
+      lyricScheduler!.prepare();
       lyricScheduler!.start();
-      lyricSchedulerSubscription = lyricScheduler!.lyricStream.listen((
+      lyricSchedulerSubscription = lyricScheduler!.lyricSubject?.listen((
         lyricStreamData,
       ) {
         if (lyricStreamData == null) {

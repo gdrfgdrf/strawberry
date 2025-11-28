@@ -86,7 +86,8 @@ class IsolatePool {
   Future<void> _spawnIsolate(IsolateType type, String name) async {
     final generalConfig = GetIt.instance.get<GeneralConfig>();
     final receivePort = ReceivePort();
-    final completer = Completer<SendPort>();
+    final readyCompleter = Completer<SendPort>();
+    final initializeCompleter = Completer();
 
     serviceLogger.info("spawning $name");
     await Isolate.spawn(isolateEntry, {
@@ -106,7 +107,7 @@ class IsolatePool {
         serviceLogger.info("$name is ready");
 
         final content = action.content as SendPort;
-        completer.complete(content);
+        readyCompleter.complete(content);
         return;
       }
       if (action.type == Actions.isolateInitialized) {
@@ -121,6 +122,7 @@ class IsolatePool {
         );
 
         _workers[type]![name] = worker;
+        initializeCompleter.complete();
         return;
       }
       if (action.type == Actions.isolateTaskFinished &&
@@ -141,11 +143,13 @@ class IsolatePool {
       initParam = buildNetworkInitParam();
     }
 
-    workerSendPort = await completer.future;
+    workerSendPort = await readyCompleter.future;
     serviceLogger.info("sending init action to $name");
     workerSendPort.send(
       Actions.init.createAction(content: Pair(type, initParam)),
     );
+
+    await initializeCompleter.future;
   }
 
   void _handleIsolateTaskSuccess(ResultAction action) {

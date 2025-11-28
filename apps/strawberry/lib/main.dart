@@ -92,6 +92,9 @@ Future<void> main() async {
   // EfficientLogger.setEnabledLevels(generalConfig.logEnabledLevels);
   EfficientLogger.setEnabledLevels(DartLogLevel.debug_);
 
+  JustAudioMediaKit.title = "Strawberry";
+  JustAudioMediaKit.ensureInitialized();
+
   await AppInitializer.initHive();
   AppConfig.configure();
   await AppInitializer.initCookieCenter();
@@ -109,10 +112,7 @@ Future<void> main() async {
     });
   }
 
-  JustAudioMediaKit.title = "Strawberry";
-  JustAudioMediaKit.ensureInitialized();
-
-  PlatformSpecificController.auto()?.prepare();
+  await PlatformSpecificController.auto()?.prepare();
 
   runApp(Strawberry());
 }

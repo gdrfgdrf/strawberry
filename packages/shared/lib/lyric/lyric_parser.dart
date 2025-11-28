@@ -296,6 +296,12 @@ class LyricParser {
       if (line.isBlank()) {
         continue;
       }
+      if (line.startsWith('[ch:') ||
+          line.startsWith("[ti:") ||
+          line.startsWith("[ar:") ||
+          line.startsWith("[by:")) {
+        continue;
+      }
 
       if (line.startsWith('{') && line.endsWith('}')) {
         final unit = _parseJsonLine(line);
@@ -339,7 +345,8 @@ class LyricParser {
 
       if (line.startsWith('[ch:') ||
           line.startsWith("[ti:") ||
-          line.startsWith("[ar:")) {
+          line.startsWith("[ar:") ||
+          line.startsWith("[by:")) {
         continue;
       }
 
@@ -415,10 +422,14 @@ class LyricParser {
       return null;
     }
 
-    final regex = RegExp(r'\[(\d+):(\d+)\.(\d+)\](.*)');
-    final match = regex.firstMatch(line);
+    final regex1 = RegExp(r'\[(\d+):(\d+)\.(\d+)\](.*)');
+    RegExpMatch? match = regex1.firstMatch(line);
     if (match == null) {
-      return null;
+      final regex2 = RegExp(r'\[(\d+):(\d+):(\d+)\](.*)');
+      match = regex2.firstMatch(line);
+      if (match == null) {
+        return null;
+      }
     }
 
     final minutes = int.parse(match.group(1)!);
