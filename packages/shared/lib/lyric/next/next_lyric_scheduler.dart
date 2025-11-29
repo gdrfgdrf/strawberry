@@ -1,8 +1,22 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:rxdart/rxdart.dart';
 import 'package:shared/lyric/lyric_parser.dart';
+
+class ChunkedWordInfo {
+  final Duration begin;
+  final Duration? end;
+  final WordInfo wordInfo;
+
+  const ChunkedWordInfo(this.begin, this.end, this.wordInfo);
+
+  bool contains(Duration position) {
+    if (end == null) {
+      return position >= begin;
+    }
+    return position >= begin && position < end!;
+  }
+}
 
 class ChunkedLyric {
   final Duration begin;
@@ -20,12 +34,42 @@ class ChunkedLyric {
 }
 
 class LyricChunker {
-  static List<ChunkedLyric> make(List<CombinedLyric> combinedLyrics) {
+  static List<ChunkedWordInfo> makeWordInfos(List<WordInfo> wordInfos) {
+    final result = <ChunkedWordInfo>[];
+    for (int i = 0; i < wordInfos.length; i++) {
+      final wordInfo = wordInfos[i];
+      final next = i >= wordInfos.length - 1 ? null : wordInfos[i + 1];
+      if (next == null) {
+        result.add(
+          ChunkedWordInfo(
+            wordInfo.position,
+            wordInfo.position + wordInfo.duration,
+            wordInfo,
+          ),
+        );
+        continue;
+      }
+      if (wordInfo.position + wordInfo.duration >= next.position) {
+        result.add(ChunkedWordInfo(wordInfo.position, next.position, wordInfo));
+        continue;
+      }
+      result.add(
+        ChunkedWordInfo(
+          wordInfo.position,
+          wordInfo.position + wordInfo.duration,
+          wordInfo,
+        ),
+      );
+    }
+    return result;
+  }
+
+  static List<ChunkedLyric> makeLyrics(List<CombinedLyric> combinedLyrics) {
     final result = <ChunkedLyric>[];
     for (int i = 0; i < combinedLyrics.length; i++) {
       final lyric = combinedLyrics[i];
       final next =
-      i >= combinedLyrics.length - 1 ? null : combinedLyrics[i + 1];
+          i >= combinedLyrics.length - 1 ? null : combinedLyrics[i + 1];
       if (next == null) {
         result.add(ChunkedLyric(lyric.position, null, lyric));
         continue;
@@ -55,7 +99,7 @@ class NextRawLyricScheduler {
   NextRawLyricScheduler(this.combinedLyrics, this.positionStream);
 
   void prepare() {
-    chunkedLyrics = LyricChunker.make(combinedLyrics);
+    chunkedLyrics = LyricChunker.makeLyrics(combinedLyrics);
     lyricSubject = BehaviorSubject.seeded(null);
   }
 
@@ -111,10 +155,16 @@ class NextRawLyricScheduler {
 
 class ScheduledWordBasedLyric {
   final int index;
+  final int wordIndex;
   final CombinedLyric lyric;
-  final String word;
+  final List<WordInfo> wordInfos;
 
-  const ScheduledWordBasedLyric(this.index, this.lyric, this.word);
+  const ScheduledWordBasedLyric(
+    this.index,
+    this.wordIndex,
+    this.lyric,
+    this.wordInfos,
+  );
 }
 
 // void main() {
@@ -221,9 +271,8 @@ class NextWordBasedLyricScheduler {
 
   List<CombinedLyric>? correctedLyrics;
 
-  int? previousIndex;
   int? previousWordIndex;
-  List<ChunkedLyric>? chunkLyrics;
+  List<ChunkedLyric>? chunkedLyrics;
   BehaviorSubject<ScheduledWordBasedLyric?>? lyricSubject;
   StreamSubscription? positionSubscription;
 
@@ -232,6 +281,88 @@ class NextWordBasedLyricScheduler {
   void prepare() {
     correctLyrics();
     lyricSubject = BehaviorSubject.seeded(null);
+  }
+
+  void start() {
+    if (correctedLyrics == null) {
+      return;
+    }
+    chunkedLyrics = LyricChunker.makeLyrics(correctedLyrics!);
+    positionSubscription = positionStream.listen(_onPosition);
+  }
+
+  void _onPosition(Duration position) {
+    if (correctedLyrics == null || correctedLyrics?.isEmpty == true) {
+      return;
+    }
+    if (chunkedLyrics == null || chunkedLyrics?.isEmpty == true) {
+      return;
+    }
+    if (lyricSubject == null || lyricSubject?.isClosed == true) {
+      return;
+    }
+    int? index;
+    ChunkedLyric? chunkedLyric;
+
+    for (int i = 0; i < chunkedLyrics!.length; i++) {
+      final chunk = chunkedLyrics![i];
+      if (chunk.contains(position)) {
+        index = i;
+        chunkedLyric = chunk;
+        break;
+      }
+    }
+    if (index == null || chunkedLyric == null) {
+      return;
+    }
+
+    final wordBasedLyric = chunkedLyric.lyric.wordBasedLyric;
+    if (wordBasedLyric == null) {
+      return;
+    }
+    if (wordBasedLyric.wordInfos == null ||
+        wordBasedLyric.wordInfos?.isEmpty == true) {
+      return;
+    }
+
+    int? wordIndex;
+    ChunkedWordInfo? chunkedWordInfo;
+    final chunkedWordInfos = LyricChunker.makeWordInfos(
+      wordBasedLyric.wordInfos!,
+    );
+    for (int i = 0; i < chunkedWordInfos.length; i++) {
+      final chunk = chunkedWordInfos[i];
+      if (chunk.contains(position)) {
+        wordIndex = i;
+        chunkedWordInfo = chunk;
+        break;
+      }
+    }
+    if (wordIndex == null || chunkedWordInfo == null) {
+      return;
+    }
+    if (wordIndex == previousWordIndex) {
+      return;
+    }
+    previousWordIndex = wordIndex;
+
+    lyricSubject?.add(
+      ScheduledWordBasedLyric(
+        index,
+        wordIndex,
+        chunkedLyric.lyric,
+        wordBasedLyric.wordInfos!,
+      ),
+    );
+  }
+
+  void dispose() {
+    chunkedLyrics?.clear();
+    chunkedLyrics = null;
+    lyricSubject?.close();
+    lyricSubject = null;
+    positionSubscription?.cancel();
+    positionSubscription = null;
   }
 
   void correctLyrics() {
@@ -248,15 +379,12 @@ class NextWordBasedLyricScheduler {
     }
     combined = combined.sublist(lyricsContainer.dataCount, combined.length);
 
-    final rawTexts = <String?>[
-      ...combined.map((lyric) => lyric.text)
-    ];
+    final rawTexts = <String?>[...combined.map((lyric) => lyric.text)];
     final texts = <String?>[
-      ...wordBasedLyrics.map((lyric) => (lyric as WordBasedLyric).text)
+      ...wordBasedLyrics.map((lyric) => (lyric as WordBasedLyric).text),
     ];
     final translatedTexts = <String?>[];
     final romanTexts = <String?>[];
-
 
     if (texts.length <= combined.length) {
       for (final lyric in combined) {
@@ -328,5 +456,4 @@ class NextWordBasedLyricScheduler {
 
     correctedLyrics = result;
   }
-
 }
