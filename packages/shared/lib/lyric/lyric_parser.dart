@@ -293,8 +293,26 @@ class LyricParser {
     final lines = content.split('\n');
     final List<LyricUnit> units = [];
 
-    for (final line in lines) {
+    LyricUnit? previous;
+    for (int i = 0; i < lines.length; i++) {
+      final line = lines[i];
+
       if (line.isBlank()) {
+        String time;
+        if (previous != null) {
+          final minutes = previous.position.inMinutes;
+          final seconds = (((previous.position.inSeconds / 60) - minutes) * 60).round();
+          final hundredths = (((previous.position.inMilliseconds / 1000) - seconds) * 1000).round();
+
+          time = "[$minutes:$seconds.${hundredths + 1}] ";
+        } else {
+          time = "[00:00.00] ";
+        }
+
+        final unit = _parseStandardLyric(time);
+        if (unit != null) {
+          units.add(unit);
+        }
         continue;
       }
       if (line.startsWith('[ch:') ||
@@ -307,6 +325,7 @@ class LyricParser {
       if (line.startsWith('{') && line.endsWith('}')) {
         final unit = _parseJsonLine(line);
         if (unit != null) {
+          previous = unit;
           units.add(unit);
         }
         continue;
@@ -315,6 +334,7 @@ class LyricParser {
       if (line.startsWith('[') && line.contains(':') && line.contains(']')) {
         final unit = _parseStandardLyric(line);
         if (unit != null) {
+          previous = unit;
           units.add(unit);
         }
         continue;
@@ -323,6 +343,7 @@ class LyricParser {
       if (line.startsWith('[') && line.contains(',')) {
         final unit = _parseWordBasedLyric(line);
         if (unit != null) {
+          previous = unit;
           units.add(unit);
         }
         continue;

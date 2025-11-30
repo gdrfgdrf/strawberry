@@ -22,21 +22,35 @@ class NextWordBasedLyricCorrector {
     final translatedTexts = <String?>[];
     final romanTexts = <String?>[];
 
+    final offsets = <int, int>{};
     if (texts.length <= combined.length) {
+      int index = 0;
+
       for (final lyric in combined) {
         final rawText = lyric.text;
         if (rawText == null) {
+          if (!offsets.containsKey(index)) {
+            offsets[index] = 1;
+          } else {
+            offsets[index] = offsets[index]! + 1;
+          }
+
+          translatedTexts.add(lyric.translatedText);
+          romanTexts.add(lyric.romanText);
+          index++;
           continue;
         }
 
         if (!texts.contains(rawText)) {
           translatedTexts.add(lyric.translatedText);
           romanTexts.add(lyric.romanText);
+          index++;
           continue;
         }
 
         translatedTexts.add(lyric.translatedText);
         romanTexts.add(lyric.romanText);
+        index++;
       }
     } else {
       for (int i = 0; i < texts.length; i++) {
@@ -73,11 +87,19 @@ class NextWordBasedLyricCorrector {
       }
     }
 
+    int cumulativeOffset = 0;
     final result = <CombinedLyric>[];
     for (int i = 0; i < texts.length; i++) {
       final text = texts[i];
-      final translatedText = translatedTexts[i];
-      final romanText = romanTexts[i];
+
+      int offset = 0;
+      if (offsets.containsKey(i + cumulativeOffset)) {
+        offset = offsets[i + cumulativeOffset]!;
+      }
+      cumulativeOffset = cumulativeOffset + offset;
+
+      final translatedText = translatedTexts[i + cumulativeOffset];
+      final romanText = romanTexts[i + cumulativeOffset];
       final wordBasedLyric = wordBasedLyrics[i] as WordBasedLyric;
       result.add(
         CombinedLyric(
