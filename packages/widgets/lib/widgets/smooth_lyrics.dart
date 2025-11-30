@@ -46,7 +46,7 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
   StreamSubscription? lyricSchedulerSubscription;
   List<StreamSubscription> subscriptions = [];
 
-  BehaviorSubject<int?>? indexSubject = BehaviorSubject.seeded(null);
+  BehaviorSubject<int?>? indexSubject = BehaviorSubject.seeded(0);
   BehaviorSubject<(int?, int?)?>? wordBasedIndexSubject =
       BehaviorSubject.seeded(null);
 
