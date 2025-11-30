@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared/lyric/lyric_parser.dart';
-import 'package:shared/lyric/lyric_scheduler.dart';
 import 'package:shared/lyric/next/next_lyric_scheduler.dart';
+import 'package:shared/lyric/next/next_word_based_lyric_corrector.dart';
 import 'package:widgets/widgets/nextlyrics/next_smooth_lyrics.dart';
 import 'package:widgets/widgets/scrollable_lyrics.dart';
 
@@ -41,66 +41,101 @@ class SmoothLyrics extends StatefulWidget {
 
 class _SmoothLyricsState extends State<SmoothLyrics> {
   NextRawLyricScheduler? lyricScheduler;
+  NextWordBasedLyricScheduler? wordBasedLyricScheduler;
+
   StreamSubscription? lyricSchedulerSubscription;
   List<StreamSubscription> subscriptions = [];
 
   BehaviorSubject<int?>? indexSubject = BehaviorSubject.seeded(null);
-  BehaviorSubject<double?>? scrollSubject = BehaviorSubject.seeded(null);
+  BehaviorSubject<(int?, int?)?>? wordBasedIndexSubject =
+      BehaviorSubject.seeded(null);
 
   @override
   void initState() {
     super.initState();
 
     final lyricsSubscription = widget.lyricsStream.listen((lyricsContainer) {
-      if (lyricsContainer == null) {
-        lyricSchedulerSubscription?.cancel();
-        lyricSchedulerSubscription = null;
-        lyricScheduler?.dispose();
-        lyricScheduler = null;
-        return;
-      }
-
-      lyricsContainer.wordBasedLyrics?.clear();
-      final combined = lyricsContainer.combine();
-      if (combined == null) {
-        lyricSchedulerSubscription?.cancel();
-        lyricSchedulerSubscription = null;
-        lyricScheduler?.dispose();
-        lyricScheduler = null;
-        return;
-      }
-
       lyricScheduler?.dispose();
       lyricScheduler = null;
       lyricSchedulerSubscription?.cancel();
       lyricSchedulerSubscription = null;
 
-      lyricScheduler = NextRawLyricScheduler(combined, widget.positionStream);
-      lyricScheduler!.prepare();
-      lyricScheduler!.start();
-      lyricSchedulerSubscription = lyricScheduler!.lyricSubject?.listen((
-        lyricStreamData,
-      ) {
-        if (lyricStreamData == null) {
+      if (lyricsContainer == null) {
+        return;
+      }
+
+      if (!shouldWordBased(lyricsContainer)) {
+        final combined = lyricsContainer.combine();
+        if (combined == null) {
           return;
         }
 
-        indexSubject?.add(lyricStreamData.index);
-      });
+        prepareForRaw(combined);
+        return;
+      }
+      prepareForWordBased(lyricsContainer);
     });
     subscriptions.add(lyricsSubscription);
+  }
+
+  bool shouldWordBased(LyricsContainer container) {
+    if (container.wordBasedLyrics == null ||
+        container.wordBasedLyrics?.isEmpty == true) {
+      return false;
+    }
+    if (container.wordBasedLyrics!.length > container.dataCount) {
+      return true;
+    }
+    return false;
+  }
+
+  void prepareForRaw(List<CombinedLyric> combined) {
+    lyricScheduler = NextRawLyricScheduler(combined, widget.positionStream);
+    lyricScheduler!.prepare();
+    lyricScheduler!.start();
+    lyricSchedulerSubscription = lyricScheduler!.lyricSubject?.listen((
+      scheduledLyric,
+    ) {
+      if (scheduledLyric == null) {
+        return;
+      }
+
+      indexSubject?.add(scheduledLyric.index);
+    });
+  }
+
+  void prepareForWordBased(LyricsContainer container) {
+    wordBasedLyricScheduler = NextWordBasedLyricScheduler(
+      container,
+      widget.positionStream,
+    );
+    wordBasedLyricScheduler!.prepare();
+    wordBasedLyricScheduler!.start();
+    lyricSchedulerSubscription = wordBasedLyricScheduler!.lyricSubject?.listen((
+      scheduledWordBasedLyric,
+    ) {
+      if (scheduledWordBasedLyric == null) {
+        return;
+      }
+      wordBasedIndexSubject?.add((
+        scheduledWordBasedLyric.index,
+        scheduledWordBasedLyric.wordIndex,
+      ));
+    });
   }
 
   @override
   void dispose() {
     lyricScheduler?.dispose();
     lyricScheduler = null;
+    wordBasedLyricScheduler?.dispose();
+    wordBasedLyricScheduler = null;
     lyricSchedulerSubscription?.cancel();
     lyricSchedulerSubscription = null;
     indexSubject?.close();
     indexSubject = null;
-    scrollSubject?.close();
-    scrollSubject = null;
+    wordBasedIndexSubject?.close();
+    wordBasedIndexSubject = null;
     for (final subscription in subscriptions) {
       subscription.cancel();
     }
@@ -131,38 +166,46 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
         if (lyricsContainer == null) {
           return SizedBox.shrink();
         }
-        lyricsContainer.wordBasedLyrics?.clear();
+        if (!shouldWordBased(lyricsContainer)) {
+          lyricsContainer.wordBasedLyrics?.clear();
 
-        final combined = lyricsContainer.combine();
-        if (combined == null) {
+          final combined = lyricsContainer.combine();
+          if (combined == null) {
+            return SizedBox.shrink();
+          }
+
+          return ClipRect(
+            child: NextSmoothLyrics(
+              lyrics: combined,
+              indexStream: indexSubject!.stream,
+              width: widget.width,
+              height: widget.height,
+              lyricWidth: widget.lyricWidth,
+              colorScheme: colorScheme,
+              onLyricClicked: (index) {
+                widget.onClicked?.call(index, combined[index]);
+              },
+            ),
+          );
+        }
+
+        final corrected = NextWordBasedLyricCorrector.correctLyrics(
+          lyricsContainer,
+        );
+        if (corrected == null) {
           return SizedBox.shrink();
         }
 
         return ClipRect(
-          child: NextSmoothLyrics(
-            lyrics: combined,
-            indexStream: indexSubject!.stream,
+          child: NextSmoothWordBasedLyrics(
+            lyricsContainer: lyricsContainer,
+            indexStream: wordBasedIndexSubject!.stream,
             width: widget.width,
             height: widget.height,
             lyricWidth: widget.lyricWidth,
             colorScheme: colorScheme,
             onLyricClicked: (index) {
-              widget.onClicked?.call(index, combined[index]);
-            },
-          ),
-        );
-
-        return ClipRect(
-          child: ScrollableLyrics(
-            width: widget.width,
-            height: widget.height,
-            lyrics: combined,
-            indexStream: indexSubject!.stream,
-            lyricWidth: widget.lyricWidth,
-            lyricDisplay: widget.lyricDisplay,
-            colorScheme: colorScheme,
-            onLyricClicked: (index) {
-              widget.onClicked?.call(index, combined[index]);
+              widget.onClicked?.call(index, corrected[index]);
             },
           ),
         );

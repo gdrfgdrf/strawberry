@@ -182,8 +182,8 @@ class StoreLyrics {
   final StoreTranslatedLyrics translatedLyrics;
   @HiveField(2)
   final StoreRomanLyrics romanLyrics;
-  // @HiveField(3)
-  // final StoreWordBasedLyrics wordBasedLyrics;
+  @HiveField(3)
+  final StoreWordBasedLyrics? wordBasedLyrics;
   @HiveField(4)
   final int roleCounts;
 
@@ -191,7 +191,7 @@ class StoreLyrics {
     this.standardLyrics,
     this.translatedLyrics,
     this.romanLyrics,
-    // this.wordBasedLyrics,
+    this.wordBasedLyrics,
     this.roleCounts,
   );
 
@@ -200,14 +200,12 @@ class StoreLyrics {
       standardLyrics: standardLyrics.toRuntimeLyrics(),
       translatedLyrics: translatedLyrics.toRuntimeLyrics(),
       romanLyrics: romanLyrics.toRuntimeLyrics(),
-      // wordBasedLyrics: wordBasedLyrics.toRuntimeLyrics(),
-      wordBasedLyrics: null,
+      wordBasedLyrics: wordBasedLyrics?.toRuntimeLyrics(),
       dataCount: roleCounts,
       ignoreStandardLyrics: standardLyrics.ignoration,
       ignoreTranslatedLyrics: translatedLyrics.ignoration,
       ignoreRomanLyrics: romanLyrics.ignoration,
-      // ignoredWordBasedLyrics: wordBasedLyrics.ignoration,
-      ignoredWordBasedLyrics: null
+      ignoredWordBasedLyrics: wordBasedLyrics?.ignoration,
     );
   }
 
@@ -231,12 +229,12 @@ class StoreLyrics {
             .toList(),
         container.ignoreRomanLyrics,
       ),
-      // StoreWordBasedLyrics.fromRuntime(
-      //   container.wordBasedLyrics
-      //       ?.map((runtime) => runtime as WordBasedLyric)
-      //       .toList(),
-      //   container.ignoredWordBasedLyrics,
-      // ),
+      StoreWordBasedLyrics.fromRuntime(
+        container.wordBasedLyrics
+            ?.map((runtime) => runtime as WordBasedLyric)
+            .toList(),
+        container.ignoredWordBasedLyrics,
+      ),
       container.dataCount,
     );
   }

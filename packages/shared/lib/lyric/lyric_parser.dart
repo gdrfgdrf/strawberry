@@ -248,25 +248,26 @@ class LyricsContainer {
       //   }
       // }
 
-      LyricUnit? wordBasedLyric;
-      final wordBasedIndex = i - offset + secondaryOffset;
-      if (!cleanedWordBasedLyricIndexes.contains(wordBasedIndex)) {
-        if (wordBasedIndex >= 0 && cleanedWordBasedLyrics.isNotEmpty) {
-          wordBasedLyric =
-              cleanedWordBasedLyrics[wordBasedIndex -
-                  wordBasedOffset -
-                  secondaryOffset];
-        }
-      } else {
-        wordBasedOffset++;
-      }
+      // LyricUnit? wordBasedLyric;
+      // final wordBasedIndex = i - offset + secondaryOffset;
+      // if (!cleanedWordBasedLyricIndexes.contains(wordBasedIndex)) {
+      //   if (wordBasedIndex >= 0 && cleanedWordBasedLyrics.isNotEmpty) {
+      //     wordBasedLyric =
+      //         cleanedWordBasedLyrics[wordBasedIndex -
+      //             wordBasedOffset -
+      //             secondaryOffset];
+      //   }
+      // } else {
+      //   wordBasedOffset++;
+      // }
 
       final combinedLyric = CombinedLyric(
         lyric.position,
         lyric.text,
         (translatedLyric as StandardLyric?)?.text,
         (romanLyric as StandardLyric?)?.text,
-        wordBasedLyric as WordBasedLyric?,
+        null
+        // wordBasedLyric as WordBasedLyric?,
       );
       combined.add(combinedLyric);
     }

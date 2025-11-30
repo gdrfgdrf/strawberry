@@ -495,7 +495,7 @@ types:
         index: 1
   StoreLyrics:
     typeId: 32
-    nextIndex: 5
+    nextIndex: 6
     fields:
       standardLyrics:
         index: 0
@@ -505,3 +505,5 @@ types:
         index: 2
       roleCounts:
         index: 4
+      wordBasedLyrics:
+        index: 5
