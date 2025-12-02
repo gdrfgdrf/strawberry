@@ -19,7 +19,6 @@ class CharUpdate {
 }
 
 class AnimatedCharText extends StatefulWidget {
-  final int lyricIndex;
   final List<CharData> chars;
 
   final TextStyle? style;
@@ -47,7 +46,6 @@ class AnimatedCharText extends StatefulWidget {
 
   const AnimatedCharText({
     super.key,
-    required this.lyricIndex,
     required this.chars,
     this.textAlign,
     this.softWrap,
@@ -92,7 +90,6 @@ class _AnimatedCharTextState extends State<AnimatedCharText> {
         final charData = widget.chars[index];
 
         return AnimatedChar(
-          lyricIndex: widget.lyricIndex,
           char: charData.char,
           status: charData.status,
           style: widget.style,
@@ -109,7 +106,6 @@ class _AnimatedCharTextState extends State<AnimatedCharText> {
 }
 
 class AnimatedChar extends StatefulWidget {
-  final int lyricIndex;
   final CharStatus status;
 
   final String char;
@@ -125,7 +121,6 @@ class AnimatedChar extends StatefulWidget {
 
   const AnimatedChar({
     super.key,
-    required this.lyricIndex,
     required this.status,
     required this.char,
     this.style,

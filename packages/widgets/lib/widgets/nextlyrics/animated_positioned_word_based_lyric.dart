@@ -229,7 +229,6 @@ class _AnimatedPositionedWordBasedLyric
     }
 
     return AnimatedWordBasedText(
-      lyricIndex: widget.index,
       chars: chars,
       textAlign: TextAlign.center,
       style: TextStyle(
@@ -384,7 +383,6 @@ class _AnimatedPositionedWordBasedLyric
 }
 
 class AnimatedWordBasedText extends StatefulWidget {
-  final int lyricIndex;
   final List<CharData> chars;
 
   final TextAlign? textAlign;
@@ -402,7 +400,6 @@ class AnimatedWordBasedText extends StatefulWidget {
 
   const AnimatedWordBasedText({
     super.key,
-    required this.lyricIndex,
     required this.chars,
     this.textAlign,
     this.style,
@@ -425,7 +422,6 @@ class _AnimatedWordBasedTextState extends State<AnimatedWordBasedText> {
   @override
   Widget build(BuildContext context) {
     return AnimatedCharText(
-      lyricIndex: widget.lyricIndex,
       chars: widget.chars,
       textAlign: widget.textAlign ?? TextAlign.center,
       softWrap: true,

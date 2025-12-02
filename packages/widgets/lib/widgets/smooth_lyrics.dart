@@ -143,16 +143,80 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
     super.dispose();
   }
 
+  Widget internalBuild(
+    LyricsContainer? lyricsContainer,
+    ColorScheme? colorScheme,
+  ) {
+    if (lyricsContainer == null) {
+      return SizedBox.shrink();
+    }
+    if (!shouldWordBased(lyricsContainer)) {
+      lyricsContainer.wordBasedLyrics?.clear();
+
+      final combined = lyricsContainer.combine();
+      if (combined == null) {
+        return SizedBox.shrink();
+      }
+
+      return ClipRect(
+        child: NextSmoothLyrics(
+          lyrics: combined,
+          indexStream: indexSubject!.stream,
+          width: widget.width,
+          height: widget.height,
+          lyricWidth: widget.lyricWidth,
+          colorScheme: colorScheme,
+          onLyricClicked: (index) {
+            widget.onClicked?.call(index, combined[index]);
+          },
+        ),
+      );
+    }
+
+    final corrected = NextWordBasedLyricCorrector.correctLyrics(
+      lyricsContainer,
+    );
+    if (corrected == null) {
+      return SizedBox.shrink();
+    }
+
+    return ClipRect(
+      child: NextSmoothWordBasedLyrics(
+        lyricsContainer: lyricsContainer,
+        indexStream: wordBasedIndexSubject!.stream,
+        width: widget.width,
+        height: widget.height,
+        lyricWidth: widget.lyricWidth,
+        colorScheme: colorScheme,
+        onLyricClicked: (index) {
+          widget.onClicked?.call(index, corrected[index]);
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       indexSubject?.add(indexSubject?.valueOrNull);
     });
 
+    if (widget.colorSchemeStream == null) {
+      return StreamBuilder(
+        stream: widget.lyricsStream,
+        builder: (context, data) {
+          if (!data.hasData) {
+            return SizedBox.shrink();
+          }
+          return internalBuild(data.data!, null);
+        },
+      );
+    }
+
     return StreamBuilder(
       stream: Rx.combineLatest2(
         widget.lyricsStream,
-        widget.colorSchemeStream ?? Stream.empty(),
+        widget.colorSchemeStream!,
         (a, b) => (a, b),
       ),
       builder: (context, combinedData) {
@@ -163,52 +227,7 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
         final lyricsContainer = combinedData.data!.$1;
         final colorScheme = combinedData.data!.$2;
 
-        if (lyricsContainer == null) {
-          return SizedBox.shrink();
-        }
-        if (!shouldWordBased(lyricsContainer)) {
-          lyricsContainer.wordBasedLyrics?.clear();
-
-          final combined = lyricsContainer.combine();
-          if (combined == null) {
-            return SizedBox.shrink();
-          }
-
-          return ClipRect(
-            child: NextSmoothLyrics(
-              lyrics: combined,
-              indexStream: indexSubject!.stream,
-              width: widget.width,
-              height: widget.height,
-              lyricWidth: widget.lyricWidth,
-              colorScheme: colorScheme,
-              onLyricClicked: (index) {
-                widget.onClicked?.call(index, combined[index]);
-              },
-            ),
-          );
-        }
-
-        final corrected = NextWordBasedLyricCorrector.correctLyrics(
-          lyricsContainer,
-        );
-        if (corrected == null) {
-          return SizedBox.shrink();
-        }
-
-        return ClipRect(
-          child: NextSmoothWordBasedLyrics(
-            lyricsContainer: lyricsContainer,
-            indexStream: wordBasedIndexSubject!.stream,
-            width: widget.width,
-            height: widget.height,
-            lyricWidth: widget.lyricWidth,
-            colorScheme: colorScheme,
-            onLyricClicked: (index) {
-              widget.onClicked?.call(index, corrected[index]);
-            },
-          ),
-        );
+        return internalBuild(lyricsContainer, colorScheme);
       },
     );
   }
