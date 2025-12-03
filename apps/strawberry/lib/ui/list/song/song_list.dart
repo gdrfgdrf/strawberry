@@ -8,6 +8,7 @@ import 'package:domain/loved_playlist_ids_holder.dart';
 import 'package:domain/result/result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_constraintlayout/flutter_constraintlayout.dart';
+import 'package:flutter_context_menu/flutter_context_menu.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:natives/ffi/atomic.dart';
@@ -26,6 +27,7 @@ import 'package:strawberry/ui/abstract_page.dart';
 import 'package:strawberry/ui/list/cover_request.dart';
 import 'package:strawberry/ui/slivertracker/sliver_multi_box_scroll_listener_debounce.dart';
 import 'package:widgets/widgets/an_error_widget.dart';
+import 'package:widgets/widgets/contextmenu/context_menu_wrapper.dart';
 import 'package:widgets/widgets/loading_widget.dart';
 import 'package:widgets/widgets/next_smooth_image.dart';
 
@@ -356,7 +358,12 @@ class _SongListState extends AbstractUiWidgetState<SongList, EmptyDelegate> {
       onDoubleTap: () {
         play(indexInSongs);
       },
-      child: InkWell(
+      child: ContextMenuWrapper(
+        entries: [
+          MenuItem(label: Text("Content 1"), icon: Icon(Icons.music_note)),
+          MenuItem(label: Text("Content 2"), icon: Icon(Icons.book)),
+          MenuItem(label: Text("Content 3"), icon: Icon(Icons.mouse)),
+        ],
         child: SmoothContainer(
           width: 1440.w,
           height: 64.w,

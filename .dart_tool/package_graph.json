@@ -127,6 +127,7 @@
         "flutter",
         "flutter_bloc",
         "flutter_constraintlayout",
+        "flutter_context_menu",
         "flutter_screenutil",
         "flutter_svg",
         "get_it",
@@ -320,6 +321,13 @@
         "meta",
         "sky_engine",
         "vector_math"
+      ]
+    },
+    {
+      "name": "flutter_context_menu",
+      "version": "0.4.1",
+      "dependencies": [
+        "flutter"
       ]
     },
     {

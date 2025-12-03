@@ -73,6 +73,7 @@ dependencies:
   we_slide: ^2.4.0
   fluid_background: ^1.0.5
   mutex: ^3.1.0
+  flutter_context_menu: ^0.4.1
 
 dev_dependencies:
   flutter_test:

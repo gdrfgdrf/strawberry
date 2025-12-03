@@ -355,6 +355,13 @@
             </list>
           </value>
         </entry>
+        <entry key="flutter_context_menu">
+          <value>
+            <list>
+              <option value="$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/flutter_context_menu-0.4.1/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="flutter_lints">
           <value>
             <list>
@@ -1278,6 +1285,7 @@
       <root url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/flutter_bloc-9.1.1/lib" />
       <root url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/flutter_cache_manager-3.4.1/lib" />
       <root url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/flutter_constraintlayout-1.7.0-stable/lib" />
+      <root url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/flutter_context_menu-0.4.1/lib" />
       <root url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/flutter_lints-5.0.0/lib" />
       <root url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/flutter_rust_bridge-2.10.0/lib" />
       <root url="file://$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/flutter_screenutil-5.9.3/lib" />

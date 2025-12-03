@@ -266,6 +266,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "flutter_context_menu",
+      "rootUri": "file:///H:/flutter-pub-cache/hosted/pub.flutter-io.cn/flutter_context_menu-0.4.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
+    },
+    {
       "name": "flutter_lints",
       "rootUri": "file:///H:/flutter-pub-cache/hosted/pub.flutter-io.cn/flutter_lints-5.0.0",
       "packageUri": "lib/",

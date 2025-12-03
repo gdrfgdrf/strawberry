@@ -32,6 +32,7 @@ dependencies:
   just_audio: ^0.10.4
   rxdart: ^0.28.0
   find_size: ^1.0.0
+  flutter_context_menu: ^0.4.1
 
 dev_dependencies:
   flutter_test:

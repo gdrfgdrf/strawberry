@@ -26,10 +26,8 @@
             <option value="$PROJECT_DIR$/apps/strawberry/android/app" />
             <option value="$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/audio_service-0.18.18/android" />
             <option value="$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/audio_session-0.2.2/android" />
-            <option value="$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/dynamic_color-1.7.0/android" />
             <option value="$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/just_audio-0.10.4/android" />
             <option value="$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/path_provider_android-2.2.17/android" />
-            <option value="$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/simple_native_image_compress-3.0.2/android" />
             <option value="$PROJECT_DIR$/../../flutter-pub-cache/hosted/pub.flutter-io.cn/sqflite_android-2.4.1/android" />
           </set>
         </option>
