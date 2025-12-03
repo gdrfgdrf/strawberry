@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_context_menu/flutter_context_menu.dart';
+import 'package:shared/platform_extension.dart';
 import 'package:widgets/widgets/contextmenu/context_menu_display.dart';
 
 class ContextMenuWrapper extends StatefulWidget {
@@ -37,6 +38,12 @@ class _ContextMenuWrapperState extends State<ContextMenuWrapper> {
 
     return GestureDetector(
       onSecondaryTapUp: (details) {
+        display?.show(details.globalPosition);
+      },
+      onLongPressStart: (details) {
+        if (PlatformExtension.isDesktop) {
+          return;
+        }
         display?.show(details.globalPosition);
       },
       child: widget.child,
