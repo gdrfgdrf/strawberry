@@ -45,6 +45,11 @@ class CacheHitBehaviour {
     createHit(tag, sentence);
   }
 
+  void removeHit(String tag) async {
+    await initializationFuture!;
+    cacheHits!.delete(tag);
+  }
+
   Future<bool> shouldUpdate(String tag, String sentence) async {
     await initializationFuture!;
 

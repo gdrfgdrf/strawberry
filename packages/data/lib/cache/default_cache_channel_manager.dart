@@ -26,6 +26,16 @@ class _InternalLockManager {
     map[tag]!.release();
   }
 
+  void remove(String tag) {
+    if (map.containsKey(tag)) {
+      final lock = map[tag]!;
+      if (lock.isLocked) {
+        map[tag]!.release();
+      }
+    }
+    map.remove(tag);
+  }
+
   Future<void> read(String tag) async {
     if (!map.containsKey(tag)) {
       return;
@@ -101,6 +111,33 @@ class DefaultCacheChannelManager extends CacheChannelManager {
           cacheHitBehaviour!.update(tag, sentence);
           _lockManager.release(tag);
         }).run();
+  }
+
+  @override
+  Future<void> flush(String tag) async {
+    final cacheInfo = box.get(tag);
+    if (cacheInfo == null) {
+      throw Exception("$tag is not cached");
+    }
+
+    final filename = cacheInfo.buildFilename();
+    final path = await buildPath(filename);
+    final file = File(path);
+    if (!await file.exists()) {
+      box.delete(tag);
+      cacheHitBehaviour!.removeHit(tag);
+      return;
+    }
+
+    await _lockManager.write(tag);
+
+    await file.delete();
+
+    _lockManager.release(tag);
+    _lockManager.remove(tag);
+
+    box.delete(tag);
+    cacheHitBehaviour!.removeHit(tag);
   }
 
   @override

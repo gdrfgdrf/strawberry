@@ -36,6 +36,8 @@ abstract class CacheChannelManager {
 
   void update(String tag, String sentence, List<int> bytes);
 
+  Future<void> flush(String tag);
+
   Future<bool> shouldUpdate(String tag, String sentence);
 
   Future<List<int>> fetch(String tag);

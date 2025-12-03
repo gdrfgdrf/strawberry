@@ -18,6 +18,7 @@ import 'package:shared/themes.dart';
 import 'package:smooth_corner/smooth_corner.dart';
 import 'package:strawberry/bloc/album/album_bloc.dart';
 import 'package:strawberry/bloc/album/get_album_cover_event_state.dart';
+import 'package:strawberry/bloc/song/flush_song_cache_event_state.dart';
 import 'package:strawberry/bloc/song/query_song_event_state.dart';
 import 'package:strawberry/bloc/song/song_bloc.dart';
 import 'package:strawberry/bloc/user/user_bloc.dart';
@@ -360,9 +361,25 @@ class _SongListState extends AbstractUiWidgetState<SongList, EmptyDelegate> {
       },
       child: ContextMenuWrapper(
         entries: [
-          MenuItem(label: Text("Content 1"), icon: Icon(Icons.music_note)),
-          MenuItem(label: Text("Content 2"), icon: Icon(Icons.book)),
-          MenuItem(label: Text("Content 3"), icon: Icon(Icons.mouse)),
+          MenuItem.submenu(
+            label: Text("Caching"),
+            items: [
+              MenuItem(
+                label: Text("Flush the song cache"),
+                icon: Icon(Icons.music_note),
+                onSelected: (_) {
+                  songBloc?.add(AttemptFlushSongCacheEvent(song.id));
+                },
+              ),
+              MenuItem(
+                label: Text("Flush the lyrics cache"),
+                icon: Icon(Icons.lyrics_rounded),
+                onSelected: (_) {
+                  songBloc?.add(AttemptFlushLyricsCacheEvent(song.id));
+                },
+              ),
+            ],
+          ),
         ],
         child: SmoothContainer(
           width: 1440.w,

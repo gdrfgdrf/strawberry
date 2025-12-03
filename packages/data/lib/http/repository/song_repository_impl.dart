@@ -342,4 +342,25 @@ class SongRepositoryImpl extends AbstractSongRepository {
 
     return completer.future;
   }
+
+  @override
+  Future<void> flushCachedSong(int id) async {
+    final songFileBox = Hive.box<SongFileEntity>(HiveBoxes.songFile);
+    await songFileBox.delete(id);
+
+    final combinationBox = Hive.box<SongCombination>(HiveBoxes.songCombination);
+    await combinationBox.delete(id);
+
+    final cacheSystem = await GetIt.instance.getAsync<CacheSystem>();
+    final cacheManager = cacheSystem.manager(CacheChannel.songs);
+    await cacheManager.flush(id.toString());
+
+
+  }
+
+  @override
+  Future<void> flushCachedLyrics(int id) async {
+    final box = Hive.box<StoreLyrics>(HiveBoxes.lyrics);
+    await box.delete(id);
+  }
 }

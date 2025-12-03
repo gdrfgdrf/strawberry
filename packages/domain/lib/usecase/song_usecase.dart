@@ -31,6 +31,10 @@ abstract class SongUseCase {
   });
 
   Future<Either<Failure, int>> like(int id, bool like);
+
+  Future<Either<Failure, void>> flushCachedSong(int id);
+
+  Future<Either<Failure, void>> flushCachedLyrics(int id);
 }
 
 class SongUseCaseImpl extends StrawberryUseCase implements SongUseCase {
@@ -112,6 +116,36 @@ class SongUseCaseImpl extends StrawberryUseCase implements SongUseCase {
     } catch (e, s) {
       serviceLogger!.error(
         "liking or unliking a song error, id: $id, like: $like: $e\n$s",
+      );
+      return Left(Failure(e, s));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> flushCachedSong(int id) async {
+    serviceLogger!.trace("flushing song cache, id: $id");
+
+    try {
+      final data = await songRepository.flushCachedSong(id);
+      return Right(data);
+    } catch (e, s) {
+      serviceLogger!.error(
+        "flushing a song cache error, id: $id, like: $like: $e\n$s",
+      );
+      return Left(Failure(e, s));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> flushCachedLyrics(int id) async {
+    serviceLogger!.trace("flushing lyrics cache, id: $id");
+
+    try {
+      final data = await songRepository.flushCachedLyrics(id);
+      return Right(data);
+    } catch (e, s) {
+      serviceLogger!.error(
+        "flushing lyrics cache error, id: $id, like: $like: $e\n$s",
       );
       return Left(Failure(e, s));
     }

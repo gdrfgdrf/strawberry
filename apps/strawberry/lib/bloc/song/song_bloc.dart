@@ -1,6 +1,7 @@
 import 'package:domain/result/result.dart';
 import 'package:domain/usecase/song_usecase.dart';
 import 'package:strawberry/bloc/song/download_player_song_files_event_state.dart';
+import 'package:strawberry/bloc/song/flush_song_cache_event_state.dart';
 import 'package:strawberry/bloc/song/get_song_lyrics_event_state.dart';
 import 'package:strawberry/bloc/song/like_song_event_state.dart';
 import 'package:strawberry/bloc/song/query_song_event_state.dart';
@@ -58,6 +59,26 @@ class SongBloc extends StrawberryBloc<SongEvent, SongState> {
       data.fold(
         (failure) => emit(LikeSongFailure(event.id, event.like, failure)),
         (playlistId) => emit(LikeSongSuccess(event.id, event.like, playlistId)),
+      );
+    });
+
+    on<AttemptFlushSongCacheEvent>((event, emit) async {
+      emit(SongLoading());
+
+      final data = await songUseCase.flushCachedSong(event.id);
+      data.fold(
+        (failure) => emit(SongFailure(failure)),
+        (_) => emit(FlushSongCacheSuccess(event.id)),
+      );
+    });
+
+    on<AttemptFlushLyricsCacheEvent>((event, emit) async {
+      emit(SongLoading());
+
+      final data = await songUseCase.flushCachedLyrics(event.id);
+      data.fold(
+        (failure) => emit(SongFailure(failure)),
+        (_) => emit(FlushLyricsCacheSuccess(event.id)),
       );
     });
   }
