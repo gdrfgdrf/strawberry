@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared/lyric/lyric_parser.dart';
 import 'package:shared/lyric/next/next_word_based_lyric_corrector.dart';
+import 'package:shared/platform_extension.dart';
 import 'package:smooth_corner/smooth_corner.dart';
 import 'package:widgets/widgets/nextlyrics/animated_positioned_word_based_lyric.dart';
 import 'package:widgets/widgets/nextlyrics/next_lyrics_calculator.dart';
@@ -48,6 +49,7 @@ class _NextSmoothLyricsState extends State<NextSmoothLyrics> {
     null,
   );
   StreamSubscription? indexSubscription;
+  bool test = false;
 
   void onAllSizeCompleted() {
     renderedLyrics.sort((a, b) => a.index.compareTo(b.index));
@@ -63,6 +65,7 @@ class _NextSmoothLyricsState extends State<NextSmoothLyrics> {
         index,
         widget.height ?? screenSize.height,
         0,
+        fixedDuration: PlatformExtension.isMobile,
       );
       calculateStream.add(calculatedLyrics);
     });
@@ -184,6 +187,7 @@ class _NextSmoothWordBasedLyrics extends State<NextSmoothWordBasedLyrics> {
         lyricIndex,
         widget.height ?? screenSize.height,
         0,
+        fixedDuration: PlatformExtension.isMobile,
       );
       final calculatedWordBasedLyrics = CalculatedWordBasedLyrics(
         lyricIndex,
@@ -243,6 +247,7 @@ class _NextSmoothWordBasedLyrics extends State<NextSmoothWordBasedLyrics> {
           total: lyrics!.length,
           lyric: lyric,
           colorScheme: widget.colorScheme,
+          fixedDuration: PlatformExtension.isMobile,
           onSizeCompleted: (size) {
             onSizeCompleted(i, size);
           },

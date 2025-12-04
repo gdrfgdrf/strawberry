@@ -95,7 +95,7 @@ class _AnimatedCharTextState extends State<AnimatedCharText> {
           style: widget.style,
           textAlign: widget.textAlign,
           softWrap: widget.softWrap,
-          duration: charData.duration ?? Duration(milliseconds: 500),
+          duration: charData.duration ?? const Duration(milliseconds: 500),
           downOpacity: widget.downOpacity,
           upOpacity: widget.upOpacity,
           offset: widget.offset,

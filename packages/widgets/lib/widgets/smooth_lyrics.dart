@@ -5,6 +5,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:shared/lyric/lyric_parser.dart';
 import 'package:shared/lyric/next/next_lyric_scheduler.dart';
 import 'package:shared/lyric/next/next_word_based_lyric_corrector.dart';
+import 'package:shared/platform_extension.dart';
 import 'package:widgets/widgets/nextlyrics/next_smooth_lyrics.dart';
 import 'package:widgets/widgets/scrollable_lyrics.dart';
 
@@ -64,7 +65,7 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
         return;
       }
 
-      if (!shouldWordBased(lyricsContainer)) {
+      if (!shouldWordBased(lyricsContainer) || PlatformExtension.isMobile) {
         final combined = lyricsContainer.combine();
         if (combined == null) {
           return;
@@ -150,7 +151,7 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
     if (lyricsContainer == null) {
       return SizedBox.shrink();
     }
-    if (!shouldWordBased(lyricsContainer)) {
+    if (!shouldWordBased(lyricsContainer) || PlatformExtension.isMobile) {
       lyricsContainer.wordBasedLyrics?.clear();
 
       final combined = lyricsContainer.combine();

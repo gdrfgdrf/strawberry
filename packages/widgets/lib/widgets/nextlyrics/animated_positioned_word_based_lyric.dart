@@ -37,6 +37,7 @@ class AnimatedPositionedWordBasedLyric extends StatefulWidget {
   final CombinedLyric lyric;
 
   final ColorScheme? colorScheme;
+  final bool fixedDuration;
 
   const AnimatedPositionedWordBasedLyric({
     super.key,
@@ -48,6 +49,7 @@ class AnimatedPositionedWordBasedLyric extends StatefulWidget {
     required this.total,
     required this.lyric,
     required this.colorScheme,
+    this.fixedDuration = false
   });
 
   @override
@@ -172,7 +174,7 @@ class _AnimatedPositionedWordBasedLyric
         }
         for (int i = traceBackWordIndex; i <= wordIndex; i++) {
           chars[i].status = status;
-          if (wordInfos != null && wordInfos.isNotEmpty == true) {
+          if (!widget.fixedDuration && wordInfos != null && wordInfos.isNotEmpty == true) {
             chars[i].duration = wordInfos[i].duration + Duration(milliseconds: 500);
           }
         }
@@ -192,7 +194,7 @@ class _AnimatedPositionedWordBasedLyric
               status == CharStatus.up ? CharStatus.down : CharStatus.up;
           for (int i = wordIndex + 1; i <= traceForwardWordIndex; i++) {
             chars[i].status = flippedStatus;
-            if (wordInfos != null && wordInfos.isNotEmpty == true) {
+            if (!widget.fixedDuration && wordInfos != null && wordInfos.isNotEmpty == true) {
               chars[i].duration = wordInfos[i].duration + Duration(milliseconds: 500);
             }
           }

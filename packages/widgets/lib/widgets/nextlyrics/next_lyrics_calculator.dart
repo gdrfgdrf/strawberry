@@ -2,7 +2,6 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:shared/lyric/lyric_parser.dart';
-import 'package:shared/string_extension.dart';
 
 class RenderedLyric {
   final int index;
@@ -32,8 +31,9 @@ class LyricCalculator {
     List<RenderedLyric> lyrics,
     int centerIndex,
     double containerHeight,
-    double gap,
-  ) {
+    double gap, {
+    bool fixedDuration = false,
+  }) {
     final reversedPreviousLyrics =
         lyrics.sublist(0, centerIndex).reversed.toList();
     final nextLyrics = lyrics.sublist(centerIndex + 1, lyrics.length);
@@ -48,11 +48,18 @@ class LyricCalculator {
       final distance = -(i + 1);
       final lyric = reversedPreviousLyrics[i];
 
+      Duration duration;
+      if (fixedDuration) {
+        duration = const Duration(milliseconds: 500);
+      } else {
+        duration = Duration(milliseconds: (500 * sqrt(-distance)).toInt());
+      }
+
       previousCumulativeDy -= lyric.size.height;
       final calculated = CalculatedLyric(
         Offset(0, previousCumulativeDy),
         lyric,
-        Duration(milliseconds: (500 * sqrt(-distance)).toInt()),
+        duration,
       );
       results.add(calculated);
     }
@@ -70,12 +77,20 @@ class LyricCalculator {
     for (int i = 0; i < nextLyrics.length; i++) {
       final distance = i + 1;
       final lyric = nextLyrics[i];
+
+      Duration duration;
+      if (fixedDuration) {
+        duration = const Duration(milliseconds: 500);
+      } else {
+        duration = Duration(
+          milliseconds: (500 * sqrt(distance) * pow(1.3, distance)).toInt(),
+        );
+      }
+
       final calculated = CalculatedLyric(
         Offset(0, nextCumulativeDy),
         lyric,
-        Duration(
-          milliseconds: (500 * sqrt(distance) * pow(1.3, distance)).toInt(),
-        ),
+        duration,
       );
       results.add(calculated);
       nextCumulativeDy += lyric.size.height + gap;

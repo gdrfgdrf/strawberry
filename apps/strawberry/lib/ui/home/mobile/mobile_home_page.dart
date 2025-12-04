@@ -9,10 +9,13 @@ import 'package:strawberry/play/audio_player_translator.dart';
 import 'package:strawberry/play/songbar/desktop_next_song_bar.dart';
 import 'package:strawberry/ui/abstract_page.dart';
 import 'package:strawberry/ui/home/home_page_delegate.dart';
+import 'package:strawberry/ui/playing/mobile/mobile_playing_page.dart';
 import 'package:strawberry/ui/router/home_router.dart';
 import 'package:we_slide/we_slide.dart';
 import 'package:widgets/widgets/scrollable_lyrics.dart';
 import 'package:widgets/widgets/smooth_lyrics.dart';
+
+import '../../playing/desktop/desktop_playing_page.dart';
 
 class MobileHomePage extends AbstractUiWidget {
   @override
@@ -63,6 +66,7 @@ class MobileHomePageState
             height: screenSize.height,
             color: themeData().colorScheme.surfaceContainer,
             borderRadius: BorderRadius.circular(16),
+            child: MobilePlayingPage(audioPlayer: translator!.audioPlayer),
             // child: SmoothLyrics(
             //   width: screenSize.width,
             //   height: screenSize.height,
@@ -71,7 +75,6 @@ class MobileHomePageState
             //   positionStream: translator!.audioPlayer.positionStream,
             //   lyricDisplay: LyricDisplay.center,
             // ),
-            // child: DesktopPlayingPage(audioPlayer: audioPlayer),
           ),
           panelMinSize: songBarSize.height,
           panelMaxSize: screenSize.height,

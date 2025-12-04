@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:shared/platform_extension.dart';
 import 'package:strawberry/play/songbar/desktop_song_bar_controller.dart';
 import 'package:strawberry/ui/playing/desktop/desktop_playing_page.dart';
+import 'package:strawberry/ui/playing/mobile/mobile_playing_page.dart';
 import 'package:uuid/v4.dart';
 
 import '../../play/songbar/desktop_song_bar_record.dart';
