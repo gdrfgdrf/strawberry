@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:find_size/find_size.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_constraintlayout/flutter_constraintlayout.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -40,23 +39,27 @@ class AnimatedPositionedLyric extends StatefulWidget {
   State<StatefulWidget> createState() => _AnimatedPositionedLyricState();
 }
 
-class _AnimatedPositionedLyricState extends State<AnimatedPositionedLyric> {
+class _AnimatedPositionedLyricState extends State<AnimatedPositionedLyric>
+    with WidgetsBindingObserver {
   final List<StreamSubscription> subscriptions = [];
   int? centerIndex;
   CalculatedLyric? calculatedLyric;
+  Widget? cachedWidget;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
     final calculateSubscription = widget.calculateStream.listen((
-        calculatedLyrics,
-        ) {
+      calculatedLyrics,
+    ) {
       if (calculatedLyrics == null) {
         return;
       }
 
       centerIndex = calculatedLyrics.centerIndex;
-      calculatedLyric = calculatedLyrics.offsets[widget.index];
+      calculatedLyric = calculatedLyrics.calculatedLyrics[widget.index];
       if (calculatedLyric == null) {
         return;
       }
@@ -64,6 +67,8 @@ class _AnimatedPositionedLyricState extends State<AnimatedPositionedLyric> {
       setState(() {});
     });
     subscriptions.add(calculateSubscription);
+
+    cachedWidget = buildCenterLyric();
   }
 
   String? getFont() {
@@ -85,8 +90,8 @@ class _AnimatedPositionedLyricState extends State<AnimatedPositionedLyric> {
     final translatedLyric = widget.lyric.translatedText;
     final romanLyric = widget.lyric.romanText;
 
-    Widget translatedLyricText = SizedBox.shrink();
-    Widget romanLyricText = SizedBox.shrink();
+    Widget translatedLyricText = const SizedBox.shrink();
+    Widget romanLyricText = const SizedBox.shrink();
     if (translatedLyric != null) {
       translatedLyricText = Text(
         translatedLyric,
@@ -172,7 +177,15 @@ class _AnimatedPositionedLyricState extends State<AnimatedPositionedLyric> {
   }
 
   @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+    cachedWidget = buildCenterLyric();
+    setState(() {});
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     for (final subscription in subscriptions) {
       subscription.cancel();
     }
@@ -181,8 +194,7 @@ class _AnimatedPositionedLyricState extends State<AnimatedPositionedLyric> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
+  double calculateOpacity() {
     final distance = (widget.index - (centerIndex ?? 0)).abs();
     double k1 = 1 / distance;
     if (distance == 0) {
@@ -191,30 +203,51 @@ class _AnimatedPositionedLyricState extends State<AnimatedPositionedLyric> {
     if (distance == 1) {
       k1 = 0.6;
     }
+    return k1;
+  }
 
-    Duration? duration = calculatedLyric?.duration;
-    if (duration != null && duration < Duration.zero) {
-      duration = Duration(milliseconds: 50);
+  Duration? correctDuration(Duration? provided) {
+    if (provided == null) {
+      return null;
     }
+    if (provided < Duration.zero) {
+      return Duration(milliseconds: 50);
+    }
+    return provided;
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return AnimatedPositioned(
       top: calculatedLyric?.offset.dy,
       curve: Curves.fastEaseInToSlowEaseOut,
       width: widget.width ?? 240,
-      duration: duration ?? Duration(milliseconds: 500),
-      child: AnimatedOpacity(
-        opacity: k1,
-        duration: Duration(milliseconds: 250),
-        child: AnimatedBlur(
-          value: distance == 0 ? 0.0 : 2.0,
-          duration: Duration(milliseconds: 250),
-          child: GestureDetector(
-            onTap: () {
-              widget.onClicked?.call();
-            },
-            child: buildCenterLyric(),
-          ),
-        ),
+      duration:
+          correctDuration(calculatedLyric?.duration) ??
+          const Duration(milliseconds: 500),
+      child: RepaintBoundary(
+        child:
+            calculatedLyric == null
+                ? cachedWidget!
+                : calculatedLyric!.visible
+                ? AnimatedOpacity(
+                  opacity: calculateOpacity(),
+                  duration: Duration(milliseconds: 250),
+                  child: AnimatedBlur(
+                    value:
+                        (widget.index - (centerIndex ?? 0)).abs() == 0
+                            ? 0.0
+                            : 2.0,
+                    duration: Duration(milliseconds: 250),
+                    child: GestureDetector(
+                      onTap: () {
+                        widget.onClicked?.call();
+                      },
+                      child: cachedWidget,
+                    ),
+                  ),
+                )
+                : SizedBox.shrink(),
       ),
     );
   }

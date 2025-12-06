@@ -93,88 +93,90 @@ class SmoothImageState extends State<SmoothImage> {
 
   @override
   Widget build(BuildContext context) {
-    return buildMouseRegion(
-      ValueListenableBuilder(
-        valueListenable: imageNotifier!,
-        builder: (_, bytes, _) {
-          previousImageBytes = imageBytes;
-          imageBytes = bytes;
+    return RepaintBoundary(
+      child: buildMouseRegion(
+        ValueListenableBuilder(
+          valueListenable: imageNotifier!,
+          builder: (_, bytes, _) {
+            previousImageBytes = imageBytes;
+            imageBytes = bytes;
 
-          if (previousImageBytes == imageBytes) {
-            return bytes != null
-                ? SmoothClipRRect(
-                  borderRadius:
-                      widget.borderRadius ?? BorderRadius.circular(16),
-                  child: Image.memory(
-                    Uint8List.fromList(bytes),
-                    fit: widget.fit,
-                    alignment: widget.alignment,
-                    width: widget.width,
-                    height: widget.height,
-                  ),
-                )
-                : widget.placeholder ?? SizedBox.shrink();
-          }
-
-          final previousImageWidget = SmoothClipRRect(
-            borderRadius: widget.borderRadius ?? BorderRadius.circular(16),
-            child:
-                previousImageBytes != null
-                    ? Image.memory(
-                      Uint8List.fromList(previousImageBytes!),
-                      fit: widget.fit,
-                      alignment: widget.alignment,
-                      width: widget.width,
-                      height: widget.height,
-                    )
-                    : SmoothContainer(
-                      borderRadius: BorderRadius.circular(4),
-                      padding: EdgeInsets.all(12),
-                      color: themeData().colorScheme.surfaceContainerHigh,
-                      child: Icon(Icons.image_outlined),
-                    ),
-          );
-
-          final imageWidget =
-              bytes != null
+            if (previousImageBytes == imageBytes) {
+              return bytes != null
                   ? SmoothClipRRect(
-                    borderRadius:
-                        widget.borderRadius ?? BorderRadius.circular(16),
-                    child: Image.memory(
-                      Uint8List.fromList(bytes),
-                      fit: widget.fit,
-                      alignment: widget.alignment,
-                      width: widget.width,
-                      height: widget.height,
-                    ),
-                  )
+                borderRadius:
+                widget.borderRadius ?? BorderRadius.circular(16),
+                child: Image.memory(
+                  Uint8List.fromList(bytes),
+                  fit: widget.fit,
+                  alignment: widget.alignment,
+                  width: widget.width,
+                  height: widget.height,
+                ),
+              )
                   : widget.placeholder ?? SizedBox.shrink();
+            }
 
-          animationKey++;
-          final switchAnimation = SmoothWidgetSwitchAnimation(
-            key: ValueKey<int>(animationKey),
-            before: previousImageWidget,
-            after: imageWidget,
-            duration: Duration(milliseconds: 500),
-          );
-
-          AnimationCombination.newBuilder()
-              .add(switchAnimation)
-              .build(
-                onReady: (animation) {
-                  animation.forwardAll();
-                },
-              );
-
-          if (widget.enableDetectors) {
-            return GestureDetector(
-              onTap: widget.onClicked,
-              child: switchAnimation,
+            final previousImageWidget = SmoothClipRRect(
+              borderRadius: widget.borderRadius ?? BorderRadius.circular(16),
+              child:
+              previousImageBytes != null
+                  ? Image.memory(
+                Uint8List.fromList(previousImageBytes!),
+                fit: widget.fit,
+                alignment: widget.alignment,
+                width: widget.width,
+                height: widget.height,
+              )
+                  : SmoothContainer(
+                borderRadius: BorderRadius.circular(4),
+                padding: EdgeInsets.all(12),
+                color: themeData().colorScheme.surfaceContainerHigh,
+                child: Icon(Icons.image_outlined),
+              ),
             );
-          } else {
-            return switchAnimation;
-          }
-        },
+
+            final imageWidget =
+            bytes != null
+                ? SmoothClipRRect(
+              borderRadius:
+              widget.borderRadius ?? BorderRadius.circular(16),
+              child: Image.memory(
+                Uint8List.fromList(bytes),
+                fit: widget.fit,
+                alignment: widget.alignment,
+                width: widget.width,
+                height: widget.height,
+              ),
+            )
+                : widget.placeholder ?? SizedBox.shrink();
+
+            animationKey++;
+            final switchAnimation = SmoothWidgetSwitchAnimation(
+              key: ValueKey<int>(animationKey),
+              before: previousImageWidget,
+              after: imageWidget,
+              duration: Duration(milliseconds: 500),
+            );
+
+            AnimationCombination.newBuilder()
+                .add(switchAnimation)
+                .build(
+              onReady: (animation) {
+                animation.forwardAll();
+              },
+            );
+
+            if (widget.enableDetectors) {
+              return GestureDetector(
+                onTap: widget.onClicked,
+                child: switchAnimation,
+              );
+            } else {
+              return switchAnimation;
+            }
+          },
+        ),
       ),
     );
   }

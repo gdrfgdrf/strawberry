@@ -1,6 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -66,6 +67,8 @@ Future<void> loggerTest() async {
 }
 
 Future<void> main() async {
+  // debugRepaintRainbowEnabled = true;
+  // debugRepaintTextRainbowEnabled = true;
   WidgetsFlutterBinding.ensureInitialized();
 
   await initNative();

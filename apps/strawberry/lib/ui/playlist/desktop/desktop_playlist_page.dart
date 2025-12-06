@@ -180,40 +180,45 @@ class _PlaylistDesktopPageState
     return SliverPadding(
       padding: EdgeInsets.only(top: 24, left: 1440.w - 240.w - 24, right: 24),
       sliver: SliverToBoxAdapter(
-        child: SmoothContainer(
-          width: 240.w,
-          height: 64,
+        child: Material(
+          color: Colors.transparent,
+          elevation: 4,
           borderRadius: BorderRadius.circular(24),
-          color: themeData().colorScheme.surfaceContainerHigh,
-          alignment: Alignment.centerRight,
-          child: ConstraintLayout(
-            children: [
-              Icon(
-                size: 24,
-                Icons.search_rounded,
-                color: themeData().colorScheme.onSurfaceVariant,
-              ).applyConstraint(
-                id: iconId,
-                top: parent.top,
-                bottom: parent.bottom,
-                left: parent.left,
-                margin: EdgeInsets.only(left: 12),
-              ),
-
-              SmoothContainer(
-                width: 240.w - 24 - 12,
-                child: TextField(
-                  decoration: InputDecoration(border: InputBorder.none),
-                  onChanged: (text) {
-                    searchController.value = TextEditingValue(text: text);
-                  },
+          child: SmoothContainer(
+            width: 240.w,
+            height: 64,
+            borderRadius: BorderRadius.circular(24),
+            color: themeData().colorScheme.surfaceContainerHigh,
+            alignment: Alignment.centerRight,
+            child: ConstraintLayout(
+              children: [
+                Icon(
+                  size: 24,
+                  Icons.search_rounded,
+                  color: themeData().colorScheme.onSurfaceVariant,
+                ).applyConstraint(
+                  id: iconId,
+                  top: parent.top,
+                  bottom: parent.bottom,
+                  left: parent.left,
+                  margin: EdgeInsets.only(left: 12),
                 ),
-              ).applyConstraint(
-                top: parent.top,
-                bottom: parent.bottom,
-                left: iconId.right,
-              ),
-            ],
+
+                SmoothContainer(
+                  width: 240.w - 24 - 12,
+                  child: TextField(
+                    decoration: InputDecoration(border: InputBorder.none),
+                    onChanged: (text) {
+                      searchController.value = TextEditingValue(text: text);
+                    },
+                  ),
+                ).applyConstraint(
+                  top: parent.top,
+                  bottom: parent.bottom,
+                  left: iconId.right,
+                ),
+              ],
+            ),
           ),
         ),
       ),

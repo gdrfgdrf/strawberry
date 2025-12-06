@@ -66,6 +66,7 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
       }
 
       if (!shouldWordBased(lyricsContainer) || PlatformExtension.isMobile) {
+        lyricsContainer.wordBasedLyrics?.clear();
         final combined = lyricsContainer.combine();
         if (combined == null) {
           return;
@@ -94,6 +95,8 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
     lyricScheduler = NextRawLyricScheduler(combined, widget.positionStream);
     lyricScheduler!.prepare();
     lyricScheduler!.start();
+    lyricSchedulerSubscription?.cancel();
+    lyricSchedulerSubscription = null;
     lyricSchedulerSubscription = lyricScheduler!.lyricSubject?.listen((
       scheduledLyric,
     ) {
@@ -112,6 +115,8 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
     );
     wordBasedLyricScheduler!.prepare();
     wordBasedLyricScheduler!.start();
+    lyricSchedulerSubscription?.cancel();
+    lyricSchedulerSubscription = null;
     lyricSchedulerSubscription = wordBasedLyricScheduler!.lyricSubject?.listen((
       scheduledWordBasedLyric,
     ) {
@@ -162,7 +167,7 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
       return ClipRect(
         child: NextSmoothLyrics(
           lyrics: combined,
-          indexStream: indexSubject!.stream,
+          indexStream: indexSubject!,
           width: widget.width,
           height: widget.height,
           lyricWidth: widget.lyricWidth,
@@ -184,7 +189,7 @@ class _SmoothLyricsState extends State<SmoothLyrics> {
     return ClipRect(
       child: NextSmoothWordBasedLyrics(
         lyricsContainer: lyricsContainer,
-        indexStream: wordBasedIndexSubject!.stream,
+        indexStream: wordBasedIndexSubject!,
         width: widget.width,
         height: widget.height,
         lyricWidth: widget.lyricWidth,

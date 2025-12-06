@@ -29,25 +29,27 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => isHovered = true),
-      onExit: (_) => setState(() => isHovered = false),
-      child: SmoothClipRRect(
-        borderRadius: widget.borderRadius ?? BorderRadius.circular(16),
-        child: AnimatedContainer(
-          width: widget.width,
-          height: widget.height,
-          alignment: widget.alignment,
-          duration: Duration(milliseconds: 200),
-          padding: widget.padding,
-          decoration: BoxDecoration(
-            color:
-                isHovered
-                    ? themeData().colorScheme.surfaceContainer.withAlpha(160)
-                    : Colors.transparent,
-            borderRadius: widget.borderRadius ?? BorderRadius.circular(16),
+    return RepaintBoundary(
+      child: MouseRegion(
+        onEnter: (_) => setState(() => isHovered = true),
+        onExit: (_) => setState(() => isHovered = false),
+        child: SmoothClipRRect(
+          borderRadius: widget.borderRadius ?? BorderRadius.circular(16),
+          child: AnimatedContainer(
+            width: widget.width,
+            height: widget.height,
+            alignment: widget.alignment,
+            duration: Duration(milliseconds: 200),
+            padding: widget.padding,
+            decoration: BoxDecoration(
+              color:
+              isHovered
+                  ? themeData().colorScheme.surfaceContainer.withAlpha(160)
+                  : Colors.transparent,
+              borderRadius: widget.borderRadius ?? BorderRadius.circular(16),
+            ),
+            child: widget.child,
           ),
-          child: widget.child,
         ),
       ),
     );

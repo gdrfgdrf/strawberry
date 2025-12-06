@@ -103,7 +103,7 @@ class HomeAppBarProvider<D extends AbstractDelegate>
     final overlayMenuController = OverlayMenuController();
 
     return AppBar(
-      backgroundColor: themeData().colorScheme.surfaceContainerHigh,
+      elevation: 8,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(24),

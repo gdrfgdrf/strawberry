@@ -15,15 +15,21 @@ class CalculatedLyric {
   final Offset offset;
   final RenderedLyric renderedLyric;
   final Duration duration;
+  final bool visible;
 
-  const CalculatedLyric(this.offset, this.renderedLyric, this.duration);
+  const CalculatedLyric(
+    this.offset,
+    this.renderedLyric,
+    this.duration,
+    this.visible,
+  );
 }
 
 class CalculatedLyrics {
   final int centerIndex;
-  final List<CalculatedLyric> offsets;
+  final List<CalculatedLyric> calculatedLyrics;
 
-  const CalculatedLyrics(this.centerIndex, this.offsets);
+  const CalculatedLyrics(this.centerIndex, this.calculatedLyrics);
 }
 
 class LyricCalculator {
@@ -60,6 +66,7 @@ class LyricCalculator {
         Offset(0, previousCumulativeDy),
         lyric,
         duration,
+        previousCumulativeDy >= -2 * lyric.size.height,
       );
       results.add(calculated);
     }
@@ -70,6 +77,7 @@ class LyricCalculator {
         Offset(0, centerDy),
         centerLyric,
         Duration(milliseconds: 600),
+        true,
       ),
     );
 
@@ -91,6 +99,7 @@ class LyricCalculator {
         Offset(0, nextCumulativeDy),
         lyric,
         duration,
+        nextCumulativeDy < containerHeight + lyric.size.height,
       );
       results.add(calculated);
       nextCumulativeDy += lyric.size.height + gap;

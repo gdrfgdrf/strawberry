@@ -49,7 +49,7 @@ class AnimatedPositionedWordBasedLyric extends StatefulWidget {
     required this.total,
     required this.lyric,
     required this.colorScheme,
-    this.fixedDuration = false
+    this.fixedDuration = false,
   });
 
   @override
@@ -114,7 +114,11 @@ class _AnimatedPositionedWordBasedLyric
             .toList();
   }
 
-  void updateChars(int wordIndex, CharStatus status, List<WordInfo>? wordInfos) {
+  void updateChars(
+    int wordIndex,
+    CharStatus status,
+    List<WordInfo>? wordInfos,
+  ) {
     if (wordIndex <= -1 || wordIndex >= chars.length) {
       if (wordIndex <= -1) {
         final allDownTest =
@@ -174,8 +178,11 @@ class _AnimatedPositionedWordBasedLyric
         }
         for (int i = traceBackWordIndex; i <= wordIndex; i++) {
           chars[i].status = status;
-          if (!widget.fixedDuration && wordInfos != null && wordInfos.isNotEmpty == true) {
-            chars[i].duration = wordInfos[i].duration + Duration(milliseconds: 500);
+          if (!widget.fixedDuration &&
+              wordInfos != null &&
+              wordInfos.isNotEmpty == true) {
+            chars[i].duration =
+                wordInfos[i].duration + Duration(milliseconds: 500);
           }
         }
       } else {
@@ -194,8 +201,11 @@ class _AnimatedPositionedWordBasedLyric
               status == CharStatus.up ? CharStatus.down : CharStatus.up;
           for (int i = wordIndex + 1; i <= traceForwardWordIndex; i++) {
             chars[i].status = flippedStatus;
-            if (!widget.fixedDuration && wordInfos != null && wordInfos.isNotEmpty == true) {
-              chars[i].duration = wordInfos[i].duration + Duration(milliseconds: 500);
+            if (!widget.fixedDuration &&
+                wordInfos != null &&
+                wordInfos.isNotEmpty == true) {
+              chars[i].duration =
+                  wordInfos[i].duration + Duration(milliseconds: 500);
             }
           }
         } else {
@@ -345,6 +355,28 @@ class _AnimatedPositionedWordBasedLyric
     super.dispose();
   }
 
+  double calculateOpacity() {
+    final distance = (widget.index - (centerIndex ?? 0)).abs();
+    double k1 = 1 / distance;
+    if (distance == 0) {
+      k1 = 1;
+    }
+    if (distance == 1) {
+      k1 = 0.6;
+    }
+    return k1;
+  }
+
+  Duration? correctDuration(Duration? provided) {
+    if (provided == null) {
+      return null;
+    }
+    if (provided < Duration.zero) {
+      return Duration(milliseconds: 50);
+    }
+    return provided;
+  }
+
   @override
   Widget build(BuildContext context) {
     final distance = (widget.index - (centerIndex ?? 0)).abs();
@@ -365,20 +397,32 @@ class _AnimatedPositionedWordBasedLyric
       top: calculatedLyric?.offset.dy,
       curve: Curves.fastEaseInToSlowEaseOut,
       width: widget.width ?? 240,
-      duration: duration ?? Duration(milliseconds: 500),
-      child: AnimatedOpacity(
-        opacity: k1,
-        duration: Duration(milliseconds: 250),
-        child: AnimatedBlur(
-          value: distance == 0 ? 0.0 : 2.0,
-          duration: Duration(milliseconds: 250),
-          child: GestureDetector(
-            onTap: () {
-              widget.onClicked?.call();
-            },
-            child: buildCenterLyric(),
-          ),
-        ),
+      duration:
+          correctDuration(calculatedLyric?.duration) ??
+          const Duration(milliseconds: 500),
+      child: RepaintBoundary(
+        child:
+            calculatedLyric == null
+                ? buildCenterLyric()
+                : calculatedLyric!.visible
+                ? AnimatedOpacity(
+                  opacity: calculateOpacity(),
+                  duration: Duration(milliseconds: 250),
+                  child: AnimatedBlur(
+                    value:
+                        (widget.index - (centerIndex ?? 0)).abs() == 0
+                            ? 0.0
+                            : 2.0,
+                    duration: Duration(milliseconds: 250),
+                    child: GestureDetector(
+                      onTap: () {
+                        widget.onClicked?.call();
+                      },
+                      child: buildCenterLyric(),
+                    ),
+                  ),
+                )
+                : SizedBox.shrink(),
       ),
     );
   }

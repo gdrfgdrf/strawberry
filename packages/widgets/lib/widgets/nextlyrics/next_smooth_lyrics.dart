@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
@@ -55,11 +56,12 @@ class _NextSmoothLyricsState extends State<NextSmoothLyrics> {
     renderedLyrics.sort((a, b) => a.index.compareTo(b.index));
 
     final screenSize = MediaQuery.of(context).size;
+    indexSubscription?.cancel();
+    indexSubscription = null;
     indexSubscription = widget.indexStream.listen((index) {
       if (index == null) {
         return;
       }
-
       final calculatedLyrics = LyricCalculator.offsets(
         renderedLyrics,
         index,
@@ -75,10 +77,12 @@ class _NextSmoothLyricsState extends State<NextSmoothLyrics> {
     if (allSizeCompleted) {
       return;
     }
+    print('$index | $size');
 
     final renderedLyric = RenderedLyric(index, size, widget.lyrics[index]);
     renderedLyrics.add(renderedLyric);
     if (renderedLyrics.length >= widget.lyrics.length) {
+      allSizeCompleted = true;
       onAllSizeCompleted();
     }
   }
@@ -125,7 +129,9 @@ class _NextSmoothLyricsState extends State<NextSmoothLyrics> {
     return SmoothContainer(
       width: widget.width,
       height: widget.height,
-      child: Stack(alignment: Alignment.topCenter, children: [...widgets]),
+      child: RepaintBoundary(
+        child: Stack(alignment: Alignment.topCenter, children: [...widgets]),
+      ),
     );
   }
 }
@@ -163,6 +169,9 @@ class NextSmoothWordBasedLyrics extends StatefulWidget {
 class _NextSmoothWordBasedLyrics extends State<NextSmoothWordBasedLyrics> {
   List<CombinedLyric>? lyrics;
 
+  Size? previousScreenSize;
+  Widget? cachedWidget;
+
   bool allSizeCompleted = false;
   List<RenderedLyric> renderedLyrics = [];
 
@@ -192,7 +201,7 @@ class _NextSmoothWordBasedLyrics extends State<NextSmoothWordBasedLyrics> {
       final calculatedWordBasedLyrics = CalculatedWordBasedLyrics(
         lyricIndex,
         wordIndex,
-        calculatedLyrics.offsets,
+        calculatedLyrics.calculatedLyrics,
         wordInfos,
       );
       calculateStream.add(calculatedWordBasedLyrics);
@@ -207,6 +216,7 @@ class _NextSmoothWordBasedLyrics extends State<NextSmoothWordBasedLyrics> {
     final renderedLyric = RenderedLyric(index, size, lyrics![index]);
     renderedLyrics.add(renderedLyric);
     if (renderedLyrics.length >= lyrics!.length) {
+      allSizeCompleted = true;
       onAllSizeCompleted();
     }
   }
@@ -224,6 +234,12 @@ class _NextSmoothWordBasedLyrics extends State<NextSmoothWordBasedLyrics> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    if (previousScreenSize == screenSize && cachedWidget != null) {
+      return cachedWidget!;
+    }
+    previousScreenSize = screenSize;
+
     lyrics?.clear();
     lyrics = NextWordBasedLyricCorrector.correctLyrics(widget.lyricsContainer);
     allSizeCompleted = false;
@@ -258,10 +274,11 @@ class _NextSmoothWordBasedLyrics extends State<NextSmoothWordBasedLyrics> {
       );
     }
 
-    return SmoothContainer(
+    cachedWidget = SmoothContainer(
       width: widget.width,
       height: widget.height,
       child: Stack(alignment: Alignment.topCenter, children: [...widgets]),
     );
+    return cachedWidget!;
   }
 }

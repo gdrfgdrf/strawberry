@@ -1,9 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
-import 'package:widgets/animation/smooth_fade_animation.dart';
 import 'package:widgets/animation/smooth_overflow_widget_animation.dart';
-
-import 'animation_combine.dart';
 
 class OverflowWidgetWrapper extends StatefulWidget {
   const OverflowWidgetWrapper._internal({
@@ -49,7 +46,6 @@ class OverflowWidgetWrapper extends StatefulWidget {
 }
 
 class _OverflowWidgetWrapper extends State<OverflowWidgetWrapper> {
-
   @override
   Widget build(BuildContext context) {
     final key = GlobalKey();
@@ -71,7 +67,10 @@ class _OverflowWidgetWrapper extends State<OverflowWidgetWrapper> {
           maxWidth: widget.maxWidth,
           maxHeight: widget.maxHeight,
           fit: OverflowBoxFit.deferToChild,
-          child: SizedBox(key: key, child: overflowAnimation),
+          child: SizedBox(
+            key: key,
+            child: RepaintBoundary(child: overflowAnimation),
+          ),
         ),
       ),
     );

@@ -430,7 +430,12 @@ class _SongListState extends AbstractUiWidgetState<SongList, EmptyDelegate> {
           builder: null,
           child: Padding(
             padding: EdgeInsets.only(left: 36.w, bottom: 12),
-            child: buildItem(index),
+            child: Material(
+              color: Colors.transparent,
+              elevation: 4,
+              borderRadius: BorderRadius.circular(12),
+              child: buildItem(index),
+            ),
           ),
         );
       }),

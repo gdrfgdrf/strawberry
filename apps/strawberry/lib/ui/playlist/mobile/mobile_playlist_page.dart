@@ -113,40 +113,45 @@ class _PlaylistPageMobileState
   Widget buildSearchBar() {
     final iconId = ConstraintId("icon");
 
-    return SmoothContainer(
-      width: 240.w,
-      height: 64,
+    return Material(
+      color: Colors.transparent,
+      elevation: 2,
       borderRadius: BorderRadius.circular(24),
-      color: themeData().colorScheme.surfaceContainerHigh,
-      alignment: Alignment.centerRight,
-      child: ConstraintLayout(
-        children: [
-          Icon(
-            size: 24,
-            Icons.search_rounded,
-            color: themeData().colorScheme.onSurfaceVariant,
-          ).applyConstraint(
-            id: iconId,
-            top: parent.top,
-            bottom: parent.bottom,
-            left: parent.left,
-            margin: EdgeInsets.only(left: 12),
-          ),
-
-          SmoothContainer(
-            width: 240.w - 24 - 12,
-            child: TextField(
-              decoration: InputDecoration(border: InputBorder.none),
-              onChanged: (text) {
-                searchController.value = TextEditingValue(text: text);
-              },
+      child: SmoothContainer(
+        width: 240.w,
+        height: 64,
+        borderRadius: BorderRadius.circular(24),
+        color: themeData().colorScheme.surfaceContainerHigh,
+        alignment: Alignment.centerRight,
+        child: ConstraintLayout(
+          children: [
+            Icon(
+              size: 24,
+              Icons.search_rounded,
+              color: themeData().colorScheme.onSurfaceVariant,
+            ).applyConstraint(
+              id: iconId,
+              top: parent.top,
+              bottom: parent.bottom,
+              left: parent.left,
+              margin: EdgeInsets.only(left: 12),
             ),
-          ).applyConstraint(
-            top: parent.top,
-            bottom: parent.bottom,
-            left: iconId.right,
-          ),
-        ],
+
+            SmoothContainer(
+              width: 240.w - 24 - 12,
+              child: TextField(
+                decoration: InputDecoration(border: InputBorder.none),
+                onChanged: (text) {
+                  searchController.value = TextEditingValue(text: text);
+                },
+              ),
+            ).applyConstraint(
+              top: parent.top,
+              bottom: parent.bottom,
+              left: iconId.right,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -313,16 +313,9 @@ class _PlayingPageState
   Widget buildForeground() {
     final screenSize = MediaQuery.of(context).size;
 
-    return CustomScrollView(
-      physics: BouncingScrollPhysics(),
-      slivers: [
-        SliverToBoxAdapter(
-          child: SmoothContainer(
-            height: screenSize.height,
-            child: buildDisplayV2(),
-          ),
-        ),
-      ],
+    return SmoothContainer(
+      height: screenSize.height,
+      child: buildDisplayV2(),
     );
   }
 

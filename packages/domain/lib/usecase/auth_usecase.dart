@@ -74,6 +74,8 @@ class AuthUseCaseImpl extends StrawberryUseCase implements AuthUseCase {
       return Right(result);
     } catch (e, s) {
       serviceLogger!.error("login cellphone desktop error: $e\n$s");
+      print(e);
+      print(s);
       return Left(
         Failure(e, s),
       );

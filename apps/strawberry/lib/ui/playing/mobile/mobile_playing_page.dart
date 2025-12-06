@@ -63,17 +63,17 @@ class _PlayingPageState
             provider: MemoryImage(Uint8List.fromList(bytes)),
           );
 
-          final mutationColors = [
-            colorScheme.primary.withAlpha(160),
-            colorScheme.primaryContainer.withAlpha(160),
-            colorScheme.secondary.withAlpha(160),
-            colorScheme.secondaryContainer.withAlpha(160),
-            colorScheme.surface.withAlpha(160),
-            colorScheme.secondaryContainer.withAlpha(160),
-            colorScheme.tertiary.withAlpha(160),
-            colorScheme.tertiaryContainer.withAlpha(160),
-          ];
-          fluidBackgroundController.mutateToColors(mutationColors);
+          // final mutationColors = [
+          //   colorScheme.primary.withAlpha(160),
+          //   colorScheme.primaryContainer.withAlpha(160),
+          //   colorScheme.secondary.withAlpha(160),
+          //   colorScheme.secondaryContainer.withAlpha(160),
+          //   colorScheme.surface.withAlpha(160),
+          //   colorScheme.secondaryContainer.withAlpha(160),
+          //   colorScheme.tertiary.withAlpha(160),
+          //   colorScheme.tertiaryContainer.withAlpha(160),
+          // ];
+          // fluidBackgroundController.mutateToColors(mutationColors);
 
           final lastColorScheme = colorSchemeStream?.valueOrNull;
           if (lastColorScheme != null && lastColorScheme == colorScheme) {
@@ -163,21 +163,16 @@ class _PlayingPageState
   Widget buildForeground() {
     final screenSize = MediaQuery.of(context).size;
 
-    return CustomScrollView(
-      physics: BouncingScrollPhysics(),
-      slivers: [
-        SliverToBoxAdapter(
-          child: SmoothContainer(
-            height: screenSize.height,
-            child: buildDisplayV2(),
-          ),
-        ),
-      ],
+    return SmoothContainer(
+      height: screenSize.height,
+      child: buildDisplayV2(),
     );
   }
 
   @override
   Widget buildContent(BuildContext context) {
+    return buildForeground();
+
     final colorScheme = themeData().colorScheme;
     final initialColors = [
       colorScheme.primary.withAlpha(160),

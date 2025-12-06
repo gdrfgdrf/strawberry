@@ -73,6 +73,7 @@ class AuthRepositoryImpl extends AbstractAuthRepository {
     taskStream
         .stringNetwork(() => endpoint)
         .onComplete((response, _) {
+      print(response);
           final parsedResponse = jsonDecode(response);
 
           if (parsedResponse["code"] != 200) {

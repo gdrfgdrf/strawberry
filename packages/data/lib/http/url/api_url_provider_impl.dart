@@ -121,9 +121,9 @@ class UrlProviderImpl extends UrlProvider {
       requiresDecryption: true,
       headers: {"X-antiCheatToken": checkToken},
       body: {
-        buildTypedBody(
-          "1",
+        buildBody(
           extra: {
+            "type": "1",
             "password": EapiCrypto.md5String(password),
             "remember": "true",
             "https": "true",

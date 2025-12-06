@@ -104,36 +104,38 @@ class _AnimatedHoverWidget extends State<AnimatedHoverWidget>
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => onHover(),
-      onExit: (_) => onExit(),
-      child: AnimatedContainer(
-        width: widget.width,
-        height: widget.height,
-        alignment: widget.alignment,
-        padding: widget.padding,
-        decoration: BoxDecoration(
-          color:
-              isHovered
-                  ? (widget.hoverColor ??
-                      themeData().colorScheme.surfaceContainerLow)
-                  : Colors.transparent,
-          borderRadius: widget.borderRadius,
-        ),
-        duration: widget.duration,
-        child: AnimatedBuilder(
-          animation: controller!,
-          builder: (context, _) {
-            return Transform.scale(
-              scale: animation!.value,
-              child: ConstraintLayout(
-                children: [
-                  widget.main,
-                  if (widget.children != null) ...wrapChildren(),
-                ],
-              ),
-            );
-          },
+    return RepaintBoundary(
+      child: MouseRegion(
+        onEnter: (_) => onHover(),
+        onExit: (_) => onExit(),
+        child: AnimatedContainer(
+          width: widget.width,
+          height: widget.height,
+          alignment: widget.alignment,
+          padding: widget.padding,
+          decoration: BoxDecoration(
+            color:
+            isHovered
+                ? (widget.hoverColor ??
+                themeData().colorScheme.surfaceContainerLow)
+                : Colors.transparent,
+            borderRadius: widget.borderRadius,
+          ),
+          duration: widget.duration,
+          child: AnimatedBuilder(
+            animation: controller!,
+            builder: (context, _) {
+              return Transform.scale(
+                scale: animation!.value,
+                child: ConstraintLayout(
+                  children: [
+                    widget.main,
+                    if (widget.children != null) ...wrapChildren(),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
