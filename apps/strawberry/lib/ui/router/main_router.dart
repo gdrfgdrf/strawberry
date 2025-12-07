@@ -1,6 +1,7 @@
 import 'package:domain/navigation_service.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:strawberry/nextui/login/qr_code_login_screen.dart';
 import 'package:strawberry/ui/home/home_page.dart';
 import 'package:strawberry/ui/login/root_login_page.dart';
 import 'package:strawberry/ui/profile/profile_page.dart';
@@ -21,7 +22,7 @@ class MainRouter extends PageRouter {
   );
   RouteDefinition login = RouteDefinition.of(
     "/login",
-    (_, __) => RootLoginPage(),
+    (_, __) => QrCodeLoginScreen(),
     transitionType: TransitionType.fadeIn,
     transitionDuration: Duration(milliseconds: 1000),
   );

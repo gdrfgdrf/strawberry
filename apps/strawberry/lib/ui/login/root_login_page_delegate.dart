@@ -1,9 +1,7 @@
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared/configuration/desktop_config.dart';
 import 'package:shared/configuration/general_config.dart';
-import 'package:shared/platform_extension.dart';
 import 'package:strawberry/bloc/auth/auth_bloc.dart';
 import 'package:strawberry/ui/abstract_delegate.dart';
 import 'package:strawberry/ui/login/root_login_page.dart';
@@ -60,9 +58,7 @@ class RootLoginPageDelegate extends AbstractDelegate {
     final desktopConfig = GetIt.instance.get<DesktopConfig>();
     final device = desktopConfig.device;
 
-    authBloc.add(
-      AttemptRegisterAnonimousEvent(deviceId: device.deviceId),
-    );
+    authBloc.add(AttemptRegisterAnonimousEvent(deviceId: device.deviceId));
   }
 
   void onPageChanged(int page) {

@@ -95,9 +95,9 @@ class UrlManager {
     (dio!.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
       final client = HttpClient();
       client.connectionTimeout = Duration(seconds: 10);
-      // client.findProxy = (uri) {
-      //   return "PROXY localhost:8080";
-      // };
+      client.findProxy = (uri) {
+        return "PROXY localhost:8479";
+      };
       client.badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
       return client;
